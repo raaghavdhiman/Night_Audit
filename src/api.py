@@ -129,12 +129,35 @@ def get_demo(request: Request):
 
 @app.get("/api/sample.csv")
 def sample_csv():
-    """A 120-review slice of the synthetic hotel in the expected upload format."""
+    """Every 5th review of the synthetic hotel (120 reviews over all 8 weeks), in the upload format."""
     import pandas as pd
-    df = pd.read_csv(SAMPLE_CSV)
-    df = df[df["date"] >= "2026-09-28"].head(120)[["date", "rating", "title", "text"]]
+    df = pd.read_csv(SAMPLE_CSV).iloc[::5][["date", "rating", "title", "text"]]
     return Response(df.to_csv(index=False), media_type="text/csv",
                     headers={"Content-Disposition": 'attachment; filename="night-audit-sample-reviews.csv"'})
+
+
+def live_baseline(result: dict) -> tuple[dict | None, float | None]:
+    """Scale the demo's measured all-Ultra baseline to a live run by unit costs."""
+    try:
+        demo = json.loads(demo_bytes())
+        b = demo["baseline"]
+        by = b["extrapolated_by_stage"]
+        unit = {"extract": by["extract"] / max(1, demo["meta"]["n_reviews"]),
+                "investigate": by["investigate"] / max(1, len(demo["issues"])),
+                "replies": by["replies"] / max(1, len(demo["replies"]))}
+    except (OSError, KeyError, ValueError, TypeError):
+        return None, None
+    n = result["meta"]["n_reviews"]
+    lines = {"extract": unit["extract"] * n, "trends": by["trends"],
+             "investigate": unit["investigate"] * len(result["issues"]),
+             "replies": unit["replies"] * len(result["replies"])}
+    total = sum(lines.values())
+    base = {"measured_on_reviews": b["measured_on_reviews"], "measured_cost_usd": b["measured_cost_usd"],
+            "extrapolated_to_reviews": n, "extrapolated_cost_usd": round(total, 6),
+            "extrapolated_by_stage": {k: round(v, 6) for k, v in lines.items()},
+            "label": f"measured on {b['measured_on_reviews']} reviews, extrapolated"}
+    cost = result["folio"]["total"]["cost_usd"]
+    return base, (round(100 * (1 - cost / total), 1) if total else None)
 
 
 def _err(status: int, code: str, message: str):
@@ -184,6 +207,8 @@ async def analyze(request: Request, file: UploadFile = File(...), hotel: str = F
                 if ev["type"] == "ping":
                     yield ": ping\n\n"
                     continue
+                if ev["type"] == "result":
+                    ev["result"]["baseline"], ev["result"]["savings_pct"] = live_baseline(ev["result"])
                 yield f"data: {json.dumps(ev, default=str)}\n\n"
         except Exception:  # never leak internals into the stream
             log.exception("live run failed")

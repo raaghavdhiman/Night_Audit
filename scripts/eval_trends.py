@@ -95,6 +95,10 @@ def main():
     for r in rows:
         md.append(f"| {'on' if r['thinking'] else 'off'} | {r['rep']} | {', '.join(r['top3'])} | {r['precision']:.2f} | "
                   f"{'yes' if r['recovered_both_trends'] else 'no'} | {r['reasoning']:,} | {r['seconds']:.0f} | ${r['cost']:.4f} |")
+    md += ["", "Headlines written (the thing the GM reads first):", ""]
+    md += [f"- thinking {'on' if r['thinking'] else 'off'}, run {r['rep']}: " + " / ".join(r["titles"]) for r in rows]
+    md += ["", "Decision: when both settings pick the same top 3, keep thinking ON for the more specific, "
+           "less templated headlines; the extra cost is a fraction of a cent per run."]
     (ROOT / "results" / "eval_trends.md").write_text("\n".join(md) + "\n", encoding="utf-8")
     (ROOT / "results" / "eval_trends.json").write_text(json.dumps(rows, indent=1), encoding="utf-8")
     print(f"\nwrote results/eval_trends.md | dev spend ${config.SPEND.get():.3f}")

@@ -6,6 +6,7 @@ quoted snippets and returns the top 3 issues with a one-paragraph interpretation
 from __future__ import annotations
 
 import json
+import re
 
 import pandas as pd
 
@@ -135,6 +136,42 @@ def compute_trends(reviews: pd.DataFrame, extracted: list[dict], max_weeks: int 
     }
 
 
+ASPECT_WORDS = {
+    "cleanliness": ["dirty", "clean", "stain", "hair", "smell", "bug", "roach", "mold", "dust", "filth", "gross"],
+    "room_condition": ["room", "bed", "mattress", "ac", "air con", "shower", "broken", "worn", "faucet", "heat", "safe", "tv"],
+    "noise": ["noise", "noisy", "loud", "construction", "jackhammer", "sleep", "awake", "beep", "drill", "walls", "machinery"],
+    "facilities": ["pool", "gym", "elevator", "wifi", "parking", "valet", "lobby", "spa"],
+    "front_desk": ["check-in", "check in", "checkout", "check-out", "desk", "reception", "billing", "charged", "reservation"],
+    "housekeeping_service": ["housekeeping", "towel", "serviced", "cleaning", "toiletr"],
+    "food_beverage": ["breakfast", "buffet", "food", "coffee", "restaurant", "bar", "eggs", "pastr", "menu", "drink", "waffle"],
+    "staff_general": ["staff", "rude", "curt", "helpful", "employee", "manager"],
+    "value_price": ["price", "expensive", "overpriced", "value", "fee", "cost", "$"],
+    "location": ["location", "walk", "area", "neighborhood", "far"],
+    "safety_security": ["stolen", "theft", "taken", "lock", "latch", "unsafe", "security", "door", "injur"],
+}
+_SENT = re.compile(r"(?<=[.!?])\s+")
+
+
+def focus_excerpt(text: str, aspect: str, chars: int = 260) -> str:
+    """The sentences that talk about the aspect (not the scene-setting intro)."""
+    text = text.split("...More")[0]  # drop a glued manager reply / truncation tail
+    words = ASPECT_WORDS.get(aspect, [])
+    sents = _SENT.split(text)
+    hits = [i for i, s in enumerate(sents) if any(w in s.lower() for w in words)]
+    if not hits:
+        out = text
+    else:
+        start = hits[0]
+        out = sents[start]
+        for s in sents[start + 1:]:
+            if len(out) + len(s) + 1 > chars:
+                break
+            out += " " + s
+        if start > 0:
+            out = "…" + out
+    return out if len(out) <= chars else out[:chars].rsplit(" ", 1)[0] + "…"
+
+
 def quotes_for(aspect: str, reviews: pd.DataFrame, extracted: list[dict], k: int = 4, chars: int = 260) -> list[dict]:
     """Most severe, most recent negative snippets for an aspect."""
     by_id = {r.review_id: r for r in reviews.itertuples()}
@@ -149,7 +186,7 @@ def quotes_for(aspect: str, reviews: pd.DataFrame, extracted: list[dict], k: int
     for sev, _, r in cands[:k]:
         out.append({"review_id": r.review_id, "severity": int(sev),
                     "date": None if pd.isna(r.date) else pd.Timestamp(r.date).date().isoformat(),
-                    "excerpt": r.text[:chars] + ("..." if len(r.text) > chars else "")})
+                    "excerpt": focus_excerpt(r.text, aspect, chars)})
     return out
 
 
@@ -167,7 +204,7 @@ Return ONLY JSON:
 {"issues": [{"rank": 1, "aspect": "<one aspect key from the table>",
   "title": "a specific newspaper-style headline, max 9 words, e.g. 'Breakfast buffet is running out by 8:30'",
   "department": "Housekeeping|Engineering|Front Office|Food & Beverage|Management",
-  "interpretation": "one paragraph (3-5 sentences) for the GM: what is happening, since when, how big, why it matters. Quote numbers from the table exactly.",
+  "interpretation": "one paragraph (3-5 sentences) for the GM: what is happening, since when, how big, why it matters. Use numbers from the table but write them like a newspaper: whole percentages ('27% of recent reviews', 'up from 12%'), multiples ('more than double'), counts ('25 complaints last week'), dates as 'the week of Sep 21'. Never write decimals like 0.27, ISO dates, or field names like change_vs_baseline.",
   "why_now": "one short sentence on urgency",
   "search_hint": "what external cause could explain this, as a web search idea (e.g. 'road construction near the hotel')"}]}"""
 

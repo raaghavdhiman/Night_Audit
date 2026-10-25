@@ -1,0 +1,28 @@
+# Render Blueprint: New > Blueprint > pick this repo. Free web service, Docker runtime.
+services:
+  - type: web
+    name: night-audit
+    runtime: docker
+    plan: free
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NEBIUS_API_KEY
+        sync: false          # paste in the Render dashboard
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: SPEND_CAP_USD
+        value: "5"
+      - key: PER_IP_DAILY_RUNS
+        value: "3"
+      - key: GLOBAL_DAILY_RUNS
+        value: "30"
+      - key: MAX_REVIEWS_PER_UPLOAD
+        value: "150"
+      - key: LIVE_MODE_ENABLED
+        value: "1"
+      # Optional but recommended: durable spend counter (Render free disks reset on redeploy/restart)
+      - key: UPSTASH_REDIS_REST_URL
+        sync: false
+      - key: UPSTASH_REDIS_REST_TOKEN
+        sync: false

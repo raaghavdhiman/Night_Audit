@@ -1,0 +1,68 @@
+import type { RunState } from "../run";
+import { STAGES } from "../run";
+import { MODEL_LABELS, secs, usd } from "../format";
+import { IconCheck, IconSearch } from "./Icons";
+
+const NAMES = { extract: "Extract", trends: "Trends", investigate: "Investigate", replies: "Replies" } as const;
+
+/** The night-audit reconciliation sequence: stages tick off in the ledger as events arrive. */
+export function Reconciliation({ run, title = "Reconciling tonight's reviews", replay }: { run: RunState; title?: string; replay?: boolean }) {
+  return (
+    <section className="recon" aria-label="Audit progress">
+      <div className="recon-head">
+        <span className="t">{title}</span>
+        <span className="mono" aria-live="polite">
+          {run.n_reviews.toLocaleString()} reviews · running total {usd(run.liveCost, 4)}
+          {replay ? " · replay" : ""}
+        </span>
+      </div>
+      <ol>
+        {STAGES.map((st, i) => {
+          const s = run.stages[st];
+          const pctDone = s.total ? Math.round((100 * (s.done ?? 0)) / s.total) : 0;
+          let state: string;
+          if (s.status === "done") state = `${secs(s.seconds ?? 0)}`;
+          else if (s.status === "running") {
+            if (st === "extract" && s.total) state = `${s.done}/${s.total}`;
+            else if (st === "investigate") state = `${run.issueDone.length}/3 issues`;
+            else state = "in progress";
+          } else state = "waiting";
+          return (
+            <li className="stage" key={st}>
+              <span className="idx">{String(i + 1).padStart(2, "0")}</span>
+              <span className="leader">
+                <span className="name">{NAMES[st]}</span>
+                <span className="dots" aria-hidden />
+                <span className="model">{s.model ? `${MODEL_LABELS[s.model]}${s.thinking ? " · thinking" : ""}` : ""}</span>
+              </span>
+              <span className={`state ${s.status}`}>
+                {s.status === "done" ? <span className="tick"><IconCheck title="done" /> </span> : null}
+                {state}
+              </span>
+              {st === "extract" && s.status === "running" && s.total ? (
+                <div className="sub" aria-hidden>
+                  <div className="meter"><i style={{ width: `${pctDone}%` }} /></div>
+                </div>
+              ) : null}
+              {st === "trends" && run.issues.length > 0 ? (
+                <ol className="sub">
+                  {run.issues.map((x) => <li key={x.rank}><span>#{x.rank}</span><span>{x.title}</span></li>)}
+                </ol>
+              ) : null}
+              {st === "investigate" && run.searches.length > 0 ? (
+                <ol className="sub">
+                  {run.searches.map((q, j) => (
+                    <li key={j}>
+                      <IconSearch />
+                      <span>#{q.issue_rank}.{q.n ?? ""} “{q.query}”{typeof q.results === "number" ? ` — ${q.results} results` : " …"}</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : null}
+            </li>
+          );
+        })}
+      </ol>
+    </section>
+  );
+}

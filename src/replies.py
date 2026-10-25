@@ -26,6 +26,12 @@ Write a reply that:
 Return ONLY JSON: {{"reply": "..."}}"""
 
 
+def _guest_only(text: str, chars: int) -> str:
+    """Guest's words only: drop a glued manager reply (Datafiniti style '...More' + reply)."""
+    t = text.split("...More")[0].strip()
+    return t if len(t) <= chars else t[:chars].rsplit(" ", 1)[0] + "…"
+
+
 def select_reviews(reviews: pd.DataFrame, extracted: list[dict], issues: list[dict], k: int = 5) -> list[dict]:
     """Most severe negative reviews, at least one per top issue when available, newest first on ties."""
     by_id = {r.review_id: r for r in reviews.itertuples()}
@@ -63,7 +69,7 @@ async def _draft(x: dict, hotel: str, actions_by_aspect: dict, model: str, think
     user = (f"Guest rating: {x['rating'] or 'n/a'}/5\n"
             f"Complaints identified: {', '.join(ASPECT_LABELS[a['aspect']] + ' (severity ' + str(a['severity']) + ')' for a in x['negs'])}\n"
             f"Actions the hotel is taking (may be empty): {json.dumps(acts, ensure_ascii=False)}\n"
-            f"Review (JSON string): {json.dumps(x['text'], ensure_ascii=False)}")
+            f"Review (JSON string): {json.dumps(_guest_only(x['text'], 1500), ensure_ascii=False)}")
     msgs = [{"role": "system", "content": SYSTEM.format(hotel=hotel)}, {"role": "user", "content": user}]
     text = ""
     for _ in range(2):
@@ -78,7 +84,7 @@ async def _draft(x: dict, hotel: str, actions_by_aspect: dict, model: str, think
     return {
         "review_id": x["review_id"], "rating": x["rating"],
         "date": None if pd.isna(x["date"]) else pd.Timestamp(x["date"]).date().isoformat(),
-        "excerpt": x["text"][:600] + ("..." if len(x["text"]) > 600 else ""),
+        "excerpt": _guest_only(x["text"], 600),
         "aspects": [{"aspect": a["aspect"], "severity": a["severity"]} for a in x["negs"]],
         "max_severity": x["max_sev"], "issue_rank": x.get("issue_rank"),
         "draft": text, "status": "pending" if text else "failed",

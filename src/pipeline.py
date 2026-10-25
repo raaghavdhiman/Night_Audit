@@ -18,7 +18,7 @@ from src.cost_tracker import MODEL_LABELS, Ledger, stage, use_ledger
 from src.extract import extract_all
 from src.investigate import MAX_TOOL_CALLS, investigate_issue
 from src.replies import draft_replies
-from src.trends import ASPECT_LABELS, compute_trends, interpret, quotes_for
+from src.trends import ASPECT_LABELS, compute_trends, focus_excerpt, interpret, quotes_for
 
 # Final routing (decided by scripts/run_eval.py and scripts/eval_trends.py; see README).
 ROUTING = {
@@ -188,7 +188,7 @@ async def _work(df, meta, routing, ledger, emit, check_budget, replies_k, extrac
         r = by_id[esc["review_id"]]
         escalations.append({**esc, "label": ASPECT_LABELS[esc["aspect"]],
                             "date": None if pd.isna(r.date) else pd.Timestamp(r.date).date().isoformat(),
-                            "excerpt": r.text[:400] + ("..." if len(r.text) > 400 else "")})
+                            "excerpt": focus_excerpt(r.text, esc["aspect"], 420)})
 
     result = {
         "meta": {
