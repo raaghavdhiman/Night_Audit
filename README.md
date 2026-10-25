@@ -35,7 +35,13 @@ models on **Nebius Token Factory** and **Tavily** for runtime web search.
 Two modes: **Demo edition** (cached real run, instant, zero cost, can replay the run's live progress) and
 **Live** (upload a CSV of up to 150 reviews; streams progress over SSE; rate-limited and spend-capped).
 
-![Investigation with numbered sources](docs/screenshots/desk-inv.png)
+![Investigation: cited sources numbered 1..k, tagged official / news / social, the rest behind "Show all"](docs/screenshots/desk-inv.png)
+
+![Replies for approval: commitments left as [GM to confirm: …] placeholders, one approved, one being edited](docs/screenshots/desk-replies.png)
+
+| Night theme | Phone |
+|---|---|
+| ![Night theme](docs/screenshots/desk-night.png) | ![Phone layout](docs/screenshots/phone-top.png) |
 
 ## How it works
 

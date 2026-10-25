@@ -64,7 +64,7 @@ Newest entries at the bottom. Do not rewrite earlier entries.
   severity-5 incidents escalated; weekly detected negatives within +-1 of planted for both trends.
 - Investigation found TxDOT's I-35 Capital Express nightly closures for the noise issue and ACL / F1 occupancy
   for breakfast. Ultra used 11-12 of the 12 allowed searches. Native tool calling, no fallback needed.
-- Routed run $0.317 / 124 s for 600 reviews; all-Ultra-thinking baseline measured $0.185 on 20 reviews,
+- Routed run $0.318 / 124 s for 600 reviews (incl. the later reply re-draft); all-Ultra-thinking baseline measured $0.185 on 20 reviews,
   extrapolated $2.18 -> 85% saved. Extraction is 75% of the routed cost.
 - First demo copy leaked machine values ("0.2715 (27.15%)", "change_vs_baseline of 1.177", ISO dates).
   Fixed in the trends prompt (newspaper-style numbers). Pull quotes opened on scene-setting ("Arrived in Austin
