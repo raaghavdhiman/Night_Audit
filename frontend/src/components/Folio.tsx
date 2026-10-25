@@ -1,41 +1,9 @@
-import { useEffect, useRef, useState } from "react";
 import type { Baseline, Folio as FolioT, RoutingEntry, StageName } from "../types";
 import type { StageState } from "../run";
-import { tokens, usd } from "../format";
-
-const SHORT: Record<string, string> = { lightning: "Lightning 3.5", super: "Super 120B", ultra: "Ultra 550B" };
+import { modelShort, plural, tokens, usd } from "../format";
+import { useTween } from "../tween";
 
 const secs = (v: number) => `${v < 10 ? v.toFixed(1) : Math.round(v)}s`;
-
-const reduceMotion = () => typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-
-/** Tween a number toward its target (ticks like a till). */
-function useTween(target: number, ms = 650) {
-  const [v, setV] = useState(target);
-  const from = useRef(target);
-  useEffect(() => {
-    if (reduceMotion()) {
-      setV(target);
-      return;
-    }
-    const start = performance.now();
-    const a = from.current;
-    let raf = 0;
-    const step = (t: number) => {
-      const k = Math.min(1, (t - start) / ms);
-      const e = 1 - Math.pow(1 - k, 3);
-      setV(a + (target - a) * e);
-      if (k < 1) raf = requestAnimationFrame(step);
-      else from.current = target;
-    };
-    raf = requestAnimationFrame(step);
-    return () => {
-      cancelAnimationFrame(raf);
-      from.current = target;
-    };
-  }, [target, ms]);
-  return v;
-}
 
 function Amount({ value }: { value: number }) {
   const v = useTween(value);
@@ -65,11 +33,12 @@ export function Folio({ folio, routing, baseline, savingsPct, stages, nReviews, 
 }) {
   const by = new Map((folio?.stages || []).map((s) => [s.stage, s]));
   const route = new Map(routing.map((r) => [r.stage, r]));
-  const total = Math.max(folio?.total.cost_usd ?? 0, runningCost ?? 0);
   const billed = folio?.total.cost_usd ?? 0;
   const tavily = folio?.stages.find((s) => s.stage === "investigate");
   const allDone = stages ? ORDER.every((s) => stages[s].status === "done") : !!folio;
-  const totalV = useTween(total);
+  // during a run the caller passes the running total, already tweened, so the header shows the same number
+  const tweened = useTween(billed);
+  const totalV = runningCost ?? tweened;
 
   return (
     <section className="folio" aria-labelledby="folio-title">
@@ -98,17 +67,17 @@ export function Folio({ folio, routing, baseline, savingsPct, stages, nReviews, 
             const r = route.get(st);
             const s = stages?.[st];
             const status = s?.status ?? (row ? "done" : "pending");
-            const model = r ? `${SHORT[r.model] ?? r.model} · ${r.thinking ? "thinking" : "no thinking"}` : "";
+            const model = r ? `${modelShort(r.model)} · ${r.thinking ? "thinking" : "no thinking"}` : "";
             return (
               <tr key={st} className={`${status}${row ? " enter" : ""}`}>
                 <td>
                   <span className="desc">{DESC[st]}</span>
                   <span className="model">{model}</span>
-                  <span className="model">{row ? `${row.calls} call${row.calls === 1 ? "" : "s"}` : WHAT[st]}</span>
+                  <span className="model">{row ? plural(row.calls, "call") : WHAT[st]}</span>
                 </td>
                 <td>{row ? tokens(row.tokens_in + row.tokens_out) : "—"}{row && row.reasoning_tokens > 0 ? <span className="model">{tokens(row.reasoning_tokens)} think</span> : null}</td>
                 <td>{row ? secs(row.wall_seconds) : status === "running" ? "…" : "—"}</td>
-                <td>{row ? <Amount value={row.cost_usd} /> : status === "running" && runningCost ? <Amount value={Math.max(0, runningCost - billed)} /> : "—"}</td>
+                <td>{row ? <Amount value={row.cost_usd} /> : status === "running" && runningCost ? usd(Math.max(0, runningCost - billed), 4) : "—"}</td>
               </tr>
             );
           })}

@@ -10,6 +10,7 @@ import { Replies } from "./components/Replies";
 import { Escalations, LedgerTable } from "./components/Sections";
 import { LivePanel } from "./components/LivePanel";
 import { IconAlert } from "./components/Icons";
+import { useTween } from "./tween";
 
 type Theme = "paper" | "night";
 
@@ -33,6 +34,12 @@ function editionDate(r: AuditResult | null): Date {
     return last;
   }
   return new Date();
+}
+
+function editionNote(r: AuditResult | null): string | undefined {
+  if (!r?.meta.synthetic) return undefined;
+  const ran = new Date(r.meta.generated_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  return `A recorded run (${ran}). The demo keeps the date of the morning after its last week of reviews.`;
 }
 
 function Skeleton() {
@@ -59,7 +66,7 @@ function Broadsheet({ r, expanded, toggle, onToast }: { r: AuditResult; expanded
           <Story key={i.rank} issue={i} expanded={expanded.has(i.rank)} onToggle={() => toggle(i.rank)} nReviews={r.meta.n_reviews} />
         ))}
       </div>
-      <Replies replies={r.replies} storeKey={`na-replies-${r.meta.hotel}-${r.meta.generated_at}`} onToast={onToast} />
+      <Replies replies={r.replies} storeKey={`na-replies-v2-${r.meta.hotel}-${r.meta.generated_at}`} onToast={onToast} />
       <LedgerTable aspects={r.aspects} issues={r.issues} />
     </>
   );
@@ -172,6 +179,9 @@ export default function App() {
   const shown: AuditResult | null = mode === "demo" ? demo : live;
   const running = run.status === "running";
   const inProgress = (mode === "demo" && replaying) || (mode === "live" && running);
+  // one running total for the reconciliation header and the folio beside it
+  const runActive = inProgress || (mode === "live" && !!run.folio && !live);
+  const runCost = useTween(Math.max(run.folio?.total.cost_usd ?? 0, run.liveCost));
   const folioNo = useMemo(() => {
     const g = shown?.meta.generated_at?.slice(0, 10).replace(/-/g, "") ?? "pending";
     return `${g}-${shown?.meta.n_reviews ?? 0}`;
@@ -195,10 +205,10 @@ export default function App() {
         </section>
       );
     } else if (!demo) main = <Skeleton />;
-    else if (replaying) main = <><Reconciliation run={run} replay title="Replaying last night's audit" /><div style={{ marginTop: 18 }}><Skeleton /></div></>;
+    else if (replaying) main = <><Reconciliation run={run} cost={runCost} replay title="Replaying last night's audit" /><div style={{ marginTop: 18 }}><Skeleton /></div></>;
     else main = <Broadsheet r={demo} expanded={expanded} toggle={toggle} onToast={setToast} />;
   } else {
-    if (running) main = <><Reconciliation run={run} /><div style={{ marginTop: 18 }}><Skeleton /></div></>;
+    if (running) main = <><Reconciliation run={run} cost={runCost} /><div style={{ marginTop: 18 }}><Skeleton /></div></>;
     else if (live) main = (
       <>
         {live.meta.truncated_to ? <p className="mono faint" style={{ fontSize: 12 }}>Only the most recent {live.meta.truncated_to} reviews were analysed (live limit).</p> : null}
@@ -221,7 +231,7 @@ export default function App() {
               </div>
             </div>
           </section>
-          {run.folio && <Reconciliation run={run} title="Audit stopped" />}
+          {run.folio && <Reconciliation run={run} cost={runCost} title="Audit stopped" />}
         </>
       );
     } else main = <LivePanel config={config} onStart={startLive} onDemo={() => setMode("demo")} />;
@@ -234,7 +244,7 @@ export default function App() {
     <>
       <a href="#main" className="skip">Skip to the briefing</a>
       <div className="page">
-        <Masthead hotel={hotel} city={city} period={shown?.meta.period ?? ""} edition={editionDate(shown)} mode={mode} setMode={setMode}
+        <Masthead hotel={hotel} city={city} period={shown?.meta.period ?? ""} edition={editionDate(shown)} editionNote={editionNote(shown)} mode={mode} setMode={setMode}
           theme={theme} toggleTheme={() => setTheme((t) => (t === "paper" ? "night" : "paper"))}
           synthetic={mode === "demo"} nReviews={shown?.meta.n_reviews ?? run.n_reviews}
           canReplay={mode === "demo" && !!demo?.replay?.length} onReplay={replay} replaying={replaying} />
@@ -246,7 +256,7 @@ export default function App() {
                 <Folio folio={sideFolio} routing={routing} stages={inProgress ? run.stages : undefined}
                   baseline={inProgress ? null : shown?.baseline} savingsPct={shown?.savings_pct}
                   nReviews={inProgress ? run.n_reviews : shown?.meta.n_reviews ?? run.n_reviews} hotel={hotel} folioNo={folioNo} live={mode === "live"}
-                  runningCost={inProgress ? run.liveCost : undefined} />
+                  runningCost={runActive ? runCost : undefined} />
                 <RoutingNotes />
               </div>
             </aside>

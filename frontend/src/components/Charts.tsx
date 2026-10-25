@@ -18,6 +18,28 @@ export function Sparkline({ weekly, onset, height = 92, labelled = true, title }
   const oi = onset ? weekly.findIndex((w) => w.week_start === onset) : -1;
   const last = weekly[n - 1];
   const desc = weekly.map((w) => `${shortDate(w.week_start)}: ${w.neg}`).join(", ");
+  if (n < 3) {
+    // two points make a straight line that reads as a trend; show the weeks as labelled bars instead
+    if (n === 0) return null;
+    const slot = (W - 2 * padX) / n;
+    const bw = Math.min(56, slot * 0.5);
+    const yb = (v: number) => padT + 6 + (1 - v / max) * (H - padT - 6 - padB);
+    return (
+      <svg className="spark" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${title}. Negative mentions per week: ${desc}`}>
+        <line className="base" x1={padX} x2={W - padX} y1={H - padB} y2={H - padB} />
+        {weekly.map((w, i) => {
+          const cx = padX + slot * (i + 0.5);
+          return (
+            <g key={w.week_start}>
+              <rect className={i === n - 1 ? "bar hot" : "bar"} x={cx - bw / 2} y={yb(w.neg)} width={bw} height={Math.max(1, H - padB - yb(w.neg))} />
+              <text x={cx} y={yb(w.neg) - 4} textAnchor="middle" style={{ fill: "var(--ink)", fontWeight: 600 }}>{w.neg}</text>
+              {labelled && <text x={cx} y={H - 4} textAnchor="middle">wk of {shortDate(w.week_start)}</text>}
+            </g>
+          );
+        })}
+      </svg>
+    );
+  }
   return (
     <svg className="spark spark-draw" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${title}. Negative mentions per week: ${desc}`}>
       <line className="base" x1={padX} x2={W - padX} y1={H - padB} y2={H - padB} />

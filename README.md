@@ -116,7 +116,7 @@ construction noise from week 4, one theft and one bed-bug report, all over a sta
 | Noise root cause found by the agent | TxDOT **I-35 Capital Express** nightly closures (real coverage cited) |
 | Breakfast root cause found by the agent | ACL Fest and F1 weekend occupancy surges outrunning static breakfast par levels |
 
-**Cost of the briefing (600 reviews):** $0.317 routed, against **$2.18 for all-Ultra-with-thinking** (measured on a
+**Cost of the briefing (600 reviews):** $0.318 routed, against **$2.18 for all-Ultra-with-thinking** (measured on a
 20-review sample at $0.185 and extrapolated per stage), so **85% saved**. Extraction is 75% of the routed cost, and
 that is where routing pays off.
 
@@ -125,8 +125,12 @@ that is where routing pays off.
 | Extract (Super, off) | 601 | 82 | $0.2390 |
 | Trends (Super, on) | 1 | 14 | $0.0030 |
 | Investigate (Ultra, on) + 11 Tavily searches | 15 | 26 | $0.0751 |
-| Replies (Lightning, off) | 5 | 1.5 | $0.0003 |
-| **Total** | **622** | **124** | **$0.3173** |
+| Replies (Lightning, off)¹ | 9 | 7.9 | $0.0007 |
+| **Total** | **626** | **124** | **$0.3178** |
+
+¹ The demo replies were re-drafted after the reply prompt changed (5 drafts plus 4 rewrites asked for by the
+commitment check), with `scripts/redraft_demo_replies.py`; the folio bills those calls. The total's seconds are
+the original run's wall time.
 
 A live run on 120 reviews took 66 s and cost $0.12.
 

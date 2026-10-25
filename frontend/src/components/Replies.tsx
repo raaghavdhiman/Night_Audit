@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import type { Reply } from "../types";
-import { shortDate } from "../format";
+import { plural, shortDate } from "../format";
 import { Severity } from "./Charts";
 import { IconCheck, IconCopy, IconEdit, IconUndo, IconX, Stars } from "./Icons";
 
@@ -18,6 +18,25 @@ function load(key: string): Record<string, St> {
   } catch {
     return {};
   }
+}
+
+const PLACEHOLDER = /(\[GM to confirm:[^\]]*\])/g;
+
+/** The draft with its "[GM to confirm: ...]" placeholders marked. */
+function withPlaceholders(text: string): ReactNode[] {
+  return text.split(PLACEHOLDER).map((part, i) => (i % 2 ? <mark key={i} className="confirm">{part}</mark> : part));
+}
+
+/** A textarea that grows with its content (no inner scrollbar). */
+function AutoGrow(props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { value: string }) {
+  const ref = useRef<HTMLTextAreaElement>(null);
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    el.style.height = "auto";
+    el.style.height = `${el.scrollHeight + 2}px`; // + borders
+  }, [props.value]);
+  return <textarea ref={ref} rows={3} {...props} />;
 }
 
 export function Replies({ replies, storeKey, onToast }: { replies: Reply[]; storeKey: string; onToast: (m: string) => void }) {
@@ -50,11 +69,13 @@ export function Replies({ replies, storeKey, onToast }: { replies: Reply[]; stor
         <h2 id="replies-title">Correspondence: replies awaiting your signature</h2>
         <span className="aside mono">{approvedN}/{replies.length} approved · nothing is sent</span>
       </div>
+      <p className="replies-note">Drafts may commit to actions. Confirm before sending.</p>
       {replies.length === 0 && <p className="muted">No negative reviews needed a reply this period.</p>}
       <div className="replies">
         {replies.map((r) => {
           const s = get(r);
           const id = `reply-${r.review_id}`;
+          const toConfirm = s.text.match(PLACEHOLDER)?.length ?? 0;
           return (
             <article key={r.review_id} className={`reply ${s.status}`} aria-labelledby={`${id}-h`}>
               <div className="reply-meta" id={`${id}-h`}>
@@ -73,17 +94,16 @@ export function Replies({ replies, storeKey, onToast }: { replies: Reply[]; stor
               ) : (
                 <>
                   <div className="draft-label">
-                    <label htmlFor={`${id}-t`}>{s.editing ? "Editing draft" : "Draft reply"} · Nemotron Lightning</label>
-                    {s.status === "approved" && s.at ? <span>approved {s.at}</span> : null}
+                    <label htmlFor={`${id}-t`}>{s.editing ? "Editing draft" : "Draft reply"} · Lightning 3.5</label>
+                    {/* the stamp sits in the label row, never over the draft */}
+                    {s.status === "approved" && <span className="reply-stamp">Approved{s.at ? ` ${s.at}` : ""}</span>}
                   </div>
-                  <div className="draft-wrap">
-                    {s.editing ? (
-                      <textarea id={`${id}-t`} value={s.text} onChange={(e) => set(r, { text: e.target.value })} rows={7} autoFocus />
-                    ) : (
-                      <div className="draft" id={`${id}-t`}>{s.text || "Draft failed to generate."}</div>
-                    )}
-                    {s.status === "approved" && <span className="reply-stamp" aria-hidden>APPROVED</span>}
-                  </div>
+                  {s.editing ? (
+                    <AutoGrow id={`${id}-t`} value={s.text} onChange={(e) => set(r, { text: e.target.value })} autoFocus />
+                  ) : (
+                    <div className="draft" id={`${id}-t`}>{s.text ? withPlaceholders(s.text) : "Draft failed to generate."}</div>
+                  )}
+                  {toConfirm > 0 && <p className="to-confirm">{plural(toConfirm, "placeholder")} for the GM to confirm or delete</p>}
                   <div className="reply-actions">
                     {s.status !== "approved" ? (
                       <button className="btn btn-sm btn-primary" disabled={!s.text.trim()}

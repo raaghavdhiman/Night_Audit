@@ -51,8 +51,8 @@ occupancy past static breakfast prep."
 **Say:** "Drafts for the worst reviews. Nothing is sent. The GM approves, edits, or discards."
 
 ### 7 · The bill, and why routing matters (2:10–2:35)
-**Screen:** zoom on the **Guest Folio**: Extract $0.239, Trends $0.003, Investigate $0.075, Replies $0.0003,
-Total **$0.317**, and the stamp **All-Ultra baseline $2.18 (measured on 20 reviews, extrapolated), saved 85%**.
+**Screen:** zoom on the **Guest Folio**: Extract $0.239, Trends $0.003, Investigate $0.075, Replies $0.0007,
+Total **$0.318**, and the stamp **All-Ultra baseline $2.18 (measured on 20 reviews, extrapolated), saved 85%**.
 Optional 3-second cut to `results/eval_summary.md`'s decision table.
 **Say:** "Every call is metered. Running everything on Ultra with thinking would cost $2.18 for this briefing;
 routing costs 32 cents. We chose each model by evaluation: Lightning without thinking missed too much,

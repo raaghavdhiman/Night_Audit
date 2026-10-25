@@ -74,7 +74,8 @@
     "max_severity": 4,
     "severity5_count": 0,
     "onset_week": "2026-09-21",
-    "priority_hint": 122.48
+    "priority_hint": 122.48,
+    "direction": "rising"
    },
    "weekly": [
     {
@@ -181,7 +182,15 @@
        7,
        11,
        8
-      ]
+      ],
+      "confidence_model": "high",
+      "evidence_ids": [
+       3,
+       7,
+       11,
+       8
+      ],
+      "confidence_note": ""
      },
      {
       "hypothesis": "A new phase of weekday nighttime construction began in late September, intensifying noise exposure.",
@@ -191,14 +200,23 @@
       "source_ids": [
        8,
        11
-      ]
+      ],
+      "confidence_model": "medium",
+      "evidence_ids": [
+       8,
+       11
+      ],
+      "confidence_note": ""
      },
      {
       "hypothesis": "The hotel's existing sound mitigation (windows, doors, white noise) is insufficient for low-frequency jackhammer vibration.",
       "confidence": "medium",
       "type": "internal",
       "reasoning": "Guests report earplugs ineffective, indicating structural vibration and low-frequency noise that standard measures don't block.",
-      "source_ids": []
+      "source_ids": [],
+      "confidence_model": "medium",
+      "evidence_ids": [],
+      "confidence_note": ""
      }
     ],
     "actions": [
@@ -233,7 +251,14 @@
       "url": "https://www.facebook.com/SeguinTX/posts/in-the-overnight-hours-beginning-sunday-october-11-austin-street-from-new-braunf/1717688120390527",
       "snippet": "To minimize disruptions, construction is divided into two phases: ✔️ Phase 1 (Oct. 1, 2025 – Feb. 1, 2026): Nighttime construction only, along the 1200 block",
       "published_date": null,
-      "query": "Austin Interstate 35 night construction noise mitigation September October 2026"
+      "query": "Austin Interstate 35 night construction noise mitigation September October 2026",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": "Seguin",
+      "n": 12,
+      "cited": false
      },
      {
       "id": 2,
@@ -241,7 +266,14 @@
       "url": "https://www.ntxe-news.com/artman/publish/article_146957.shtml",
       "snippet": "the nighttime period. Watch for lane closures on the frontage roads during construction. A reduced speed limit of 65 mph on the US 75 mainlanes will be set for this construction project. [...] the daytime hours with occasional lane closures during the nighttime period. Watch for lane closures on the frontage roads during construction. A reduced speed limit of 65 mph on the US 75 mainlanes has been",
       "published_date": null,
-      "query": "Austin Interstate 35 night construction noise mitigation September October 2026"
+      "query": "Austin Interstate 35 night construction noise mitigation September October 2026",
+      "kind": "news",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": "Paris",
+      "n": 11,
+      "cited": false
      },
      {
       "id": 3,
@@ -249,7 +281,14 @@
       "url": "https://www.facebook.com/TxDOTAustinTX/videos/heads-up-i-35-construction-this-week-yep-nightly-closures-also-yes-but-good-news/1576772433632600",
       "snippet": "Oct. 12 through Thursday, Oct. 15, 9 p.m. to 6 a.m., for work on elevated managed lanes. Drivers can also expect varying nightly lane closures in other areas",
       "published_date": null,
-      "query": "Austin Interstate 35 night construction noise mitigation September October 2026"
+      "query": "Austin Interstate 35 night construction noise mitigation September October 2026",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 3,
+      "cited": true
      },
      {
       "id": 4,
@@ -257,7 +296,14 @@
       "url": "https://www.instagram.com/reel/DezzhtUvT8k",
       "snippet": "I-35 flyovers closed nightly Monday, Oct. 12 through Thursday, Oct. 15, 9 p.m. to 6 a.m., for bridge column work.",
       "published_date": null,
-      "query": "Austin Interstate 35 night construction noise mitigation September October 2026"
+      "query": "Austin Interstate 35 night construction noise mitigation September October 2026",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 7,
+      "cited": false
      },
      {
       "id": 5,
@@ -265,7 +311,14 @@
       "url": "https://www.austintexas.gov",
       "snippet": "Image 20: 311 - Web_Homepage Video 2 ##### Watch Our Livestream ATXN is the City’s television station that covers City Council meetings, news conferences, and educational videos. Image 21: 311 Web Homepage Event background ## City Events View All Events October 25, 2026 Susan G Komen MORE THAN PINK Walk 7:00 AM Barton Creek Square 2901 S Capital of Texas Hwy Austin, TX 78746 United States [...] Im",
       "published_date": null,
-      "query": "Austin Interstate 35 night construction noise mitigation September October 2026"
+      "query": "Austin Interstate 35 night construction noise mitigation September October 2026",
+      "kind": "official",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 5,
+      "cited": false
      },
      {
       "id": 6,
@@ -273,7 +326,14 @@
       "url": "https://www.mysanantonio.com/news/local/traffic/article/i35-construction-22466392.php",
       "snippet": "Throughout 2027, crews are poised to wrap excavation work for all drop shafts related to this phase of work. Construction of the pump station itself is already underway, and pouring the structural elements and other foundations for the future facility will be done next year, with completion of the facility earmarked for 2029. Kelsey Thompson Austin Digital Reporter [...] Reconstruction of both the",
       "published_date": null,
-      "query": "TxDOT Austin I-35 construction schedule night work September October 2026"
+      "query": "TxDOT Austin I-35 construction schedule night work September October 2026",
+      "kind": "news",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 6,
+      "cited": false
      },
      {
       "id": 7,
@@ -281,7 +341,14 @@
       "url": "https://www.instagram.com/reel/DeW7k71TvFE",
       "snippet": "I-35 flyovers closed nightly Monday, Oct. 12 through Thursday, Oct. 15, 9 p.m. to 6 a.m., for bridge column work.",
       "published_date": null,
-      "query": "TxDOT Austin I-35 construction schedule night work September October 2026"
+      "query": "TxDOT Austin I-35 construction schedule night work September October 2026",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 4,
+      "cited": true
      },
      {
       "id": 8,
@@ -289,7 +356,14 @@
       "url": "https://www.txdot.gov/mobility35/projects/capex-south.html",
       "snippet": "The northbound I-35 mainlanes in South Austin will be closed for work on the elevated managed lanes. To perform work safely and efficiently, the northbound I-35 mainlanes will close nightly between Slaughter Lane and SH 71/Ben White Boulevard. The northbound flyover to SH 71 will also be closed. [...] ## Milestones Construct elevated lanes from SH 71/Ben White Boulevard to Slaughter Lane Construct",
       "published_date": null,
-      "query": "TxDOT Austin I-35 construction schedule night work September October 2026"
+      "query": "TxDOT Austin I-35 construction schedule night work September October 2026",
+      "kind": "official",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 1,
+      "cited": true
      },
      {
       "id": 9,
@@ -297,7 +371,14 @@
       "url": "https://www.facebook.com/TxDOTSanAntonioTX/posts/progress-takes-planning-hard-work-and-crews-in-the-field-thats-exactly-whats-hap/1425104346412297",
       "snippet": "TxDOT closes sections of I-35 frontage roads and ramps overnight Jan. 5-9 for bridge work. 🚧 Link is in the comments for full details on closures and",
       "published_date": null,
-      "query": "TxDOT Austin I-35 construction schedule night work September October 2026"
+      "query": "TxDOT Austin I-35 construction schedule night work September October 2026",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": "San Antonio",
+      "n": 13,
+      "cited": false
      },
      {
       "id": 10,
@@ -305,7 +386,14 @@
       "url": "https://www.instagram.com/reel/Dd6KUJWo8Db",
       "snippet": "Photo by Erica Brennes | KXAN Traffic Anchor on October 04, 2026. May be an image of text. Video by Erica Brennes | KXAN Traffic Anchor on September 28, 2026. May be a selfie of one or more people, makeup, magazine and text. Video by Erica Brennes | KXAN Traffic Anchor on September 25, 2026. May be a selfie of one or more people, makeup, newsroom and text. Video by Erica Brennes | KXAN Traffic Anc",
       "published_date": null,
-      "query": "TxDOT Austin I-35 construction schedule night work September October 2026"
+      "query": "TxDOT Austin I-35 construction schedule night work September October 2026",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 8,
+      "cited": false
      },
      {
       "id": 11,
@@ -313,7 +401,14 @@
       "url": "https://www.mysanantonio.com/news/local/traffic/article/txdot-extends-nightly-closure-austin-22483648.php",
       "snippet": "Newsletters San Antonio News|Traffic # TxDOT extends nightly closure on I-35 in Central Texas. Here's where ## The flyover closure will continue for another two days. By Cristela Jones, Austin Trending Reporter Construction progress on the I-35 Capital Express South Project, pictured in May 2026. Courtesy of the Texas Department of Transportation [...] > HEADS UP: This closure will be extended Mon",
       "published_date": null,
-      "query": "I-35 Capital Express South Project nightly closures schedule 2026 Austin"
+      "query": "I-35 Capital Express South Project nightly closures schedule 2026 Austin",
+      "kind": "news",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 2,
+      "cited": true
      },
      {
       "id": 12,
@@ -321,7 +416,14 @@
       "url": "https://www.instagram.com/p/DeYEcMTFYAF?__d=undefined",
       "snippet": "I-35 between Howard Lane and Parmer Lane, rolling full closures, Wednesday night (8/26), 11 p.m. to 5 a.m. -MLK bridge. Sunday thru Thursday (8/23-8/27), 9pm",
       "published_date": null,
-      "query": "I-35 Capital Express South Project nightly closures schedule 2026 Austin"
+      "query": "I-35 Capital Express South Project nightly closures schedule 2026 Austin",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 9,
+      "cited": false
      },
      {
       "id": 13,
@@ -329,14 +431,21 @@
       "url": "https://www.facebook.com/EricaBrennes/posts/wednesday-93020-austin-traffic-alert-northbound-i-35-is-closed-for-construction-/1745271614265361",
       "snippet": "Northbound I-35 will be closed in South Austin Friday June 26th at 11 p.m. until Saturday June 27th at 9 a off I-35 at the William Cannon Dr exit, til Sunday",
       "published_date": null,
-      "query": "I-35 Capital Express South Project nightly closures schedule 2026 Austin"
+      "query": "I-35 Capital Express South Project nightly closures schedule 2026 Austin",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 10,
+      "cited": false
      }
     ],
     "cited_source_ids": [
-     3,
-     7,
      8,
-     11
+     11,
+     3,
+     7
     ],
     "mode": "tool_calling",
     "search_trail": [
@@ -378,7 +487,13 @@
      }
     ],
     "searches_used": 3,
-    "max_searches": 4
+    "max_searches": 4,
+    "model_cited_source_ids": [
+     3,
+     7,
+     8,
+     11
+    ]
    }
   },
   {
@@ -407,7 +522,8 @@
     "max_severity": 3,
     "severity5_count": 0,
     "onset_week": "2026-09-14",
-    "priority_hint": 121.82
+    "priority_hint": 121.82,
+    "direction": "steady"
    },
    "weekly": [
     {
@@ -511,7 +627,12 @@
       "reasoning": "The complaint surge begins week of Sep 28 (just before the first festival weekend) and sustains at ~24/week through Oct 19, matching the festival calendar; source [7] confirms these events draw ~450,000 attendees and push hotel rates up.",
       "source_ids": [
        7
-      ]
+      ],
+      "confidence_model": "high",
+      "evidence_ids": [
+       7
+      ],
+      "confidence_note": ""
      },
      {
       "hypothesis": "Austin-area hospitality labor shortage in Sep-Oct 2026 left the hotel unable to staff a dedicated breakfast replenishment role, so trays empty by 8:30 are never refilled.",
@@ -521,7 +642,12 @@
       "source_ids": [
        6,
        11
-      ]
+      ],
+      "confidence_model": "high",
+      "evidence_ids": [
+       6
+      ],
+      "confidence_note": ""
      },
      {
       "hypothesis": "Construction backlog and nighttime lane closures on I-35/US 183 corridors (Oct 12-24) intermittently delayed morning bakery and egg deliveries, causing pastries and eggs to arrive late or short.",
@@ -531,7 +657,12 @@
       "source_ids": [
        17,
        18
-      ]
+      ],
+      "confidence_model": "medium",
+      "evidence_ids": [
+       17
+      ],
+      "confidence_note": ""
      }
     ],
     "actions": [
@@ -566,7 +697,14 @@
       "url": "https://linewsradio.com/news/business-news",
       "snippet": "A person pumps gas at a Mobil gas station on September 24, 2026 in Austin, Texas. (Brandon Bell/Getty Images) (WASHINGTON) -- Consumer sentiment dropped in September close to the lowest level ever recorded in the 74-year history of the University of Michigan's monthly survey, fresh data on Friday showed. Shopper attitudes soured as a monthlong bout of inflation squeezed consumers and an underlying",
       "published_date": null,
-      "query": "Austin Texas egg shortage supply chain September October 2026"
+      "query": "Austin Texas egg shortage supply chain September October 2026",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 11,
+      "cited": false
      },
      {
       "id": 2,
@@ -574,7 +712,14 @@
       "url": "https://wadk.com/business-news",
       "snippet": "A person pumps gas at a Mobil gas station on September 24, 2026 in Austin, Texas. (Brandon Bell/Getty Images) (WASHINGTON) -- Consumer sentiment dropped in September close to the lowest level ever recorded in the 74-year history of the University of Michigan's monthly survey, fresh data on Friday showed. Shopper attitudes soured as a monthlong bout of inflation squeezed consumers and an underlying",
       "published_date": null,
-      "query": "Austin Texas egg shortage supply chain September October 2026"
+      "query": "Austin Texas egg shortage supply chain September October 2026",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 12,
+      "cited": false
      },
      {
       "id": 3,
@@ -582,7 +727,14 @@
       "url": "https://www.marketplace.org/story/2026/10/15/inflation-hasnt-breached-every-sector-of-the-economy-yet",
       "snippet": "“[So,] we're not adding to the cost of that meal by putting bacon on there,” Anderson said. Eggs prices have fallen, too. U-T Austin’s Carola Binder has noticed. “I have my own 19 chickens, and we sell eggs,” said Carola Binder, an economics professor at the University of Texas at Austin. Binder used to give her customers a deal for $3 a dozen, because store eggs were so pricey. But now they’re no",
       "published_date": null,
-      "query": "Austin Texas egg shortage supply chain September October 2026"
+      "query": "Austin Texas egg shortage supply chain September October 2026",
+      "kind": "news",
+      "date": "2026-10-15",
+      "date_from": "url",
+      "older": false,
+      "other_city": null,
+      "n": 7,
+      "cited": false
      },
      {
       "id": 4,
@@ -590,7 +742,14 @@
       "url": "https://www.politico.com/news/magazine/2026/10/18/egg-prices-conspiracy-affordability-issue-01100411",
       "snippet": "When it came to eggs, whose average price in a U.S. supermarket went from $1.93 per dozen in January 2022 to $4.82 a year later — and not even for the lovingly cared-for, cage-free variety — Americans had their choice of explanations. Some supply chain experts pointed to continued pandemic-era disruptions. The geopolitically minded cited impacts of war in agriculturally productive Ukraine, shrinki",
       "published_date": null,
-      "query": "Austin Texas egg shortage supply chain September October 2026"
+      "query": "Austin Texas egg shortage supply chain September October 2026",
+      "kind": "news",
+      "date": "2026-10-18",
+      "date_from": "url",
+      "older": false,
+      "other_city": null,
+      "n": 8,
+      "cited": false
      },
      {
       "id": 5,
@@ -598,7 +757,14 @@
       "url": "https://www.fda.gov/food/outbreaks-foodborne-illness/outbreak-investigation-salmonella-jalapeno-august-2026",
       "snippet": "October 2, 2026 The FDA and CDC, in collaboration with state and local partners, investigated illnesses in a multistate outbreak of Salmonella Javiana infections linked to jalapeño peppers from Sinaloa, Mexico, and distributed by Coast Citrus Distributors to distributors, restaurants, and food service companies, including Mexican-style restaurants in the U.S. [...] As of October 2, 2026, CDC has d",
       "published_date": null,
-      "query": "Austin Texas egg shortage supply chain September October 2026"
+      "query": "Austin Texas egg shortage supply chain September October 2026",
+      "kind": "official",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 4,
+      "cited": false
      },
      {
       "id": 6,
@@ -606,7 +772,14 @@
       "url": "https://tumihospitality.com/hotel-staffing-austin-sxsw",
       "snippet": "If you would like help planning your staffing for SXSW and spring break, we are glad to talk it through with you. You can request a no-obligation consultation to discuss your hotel’s March staffing needs, and we will send you a customized proposal. You can also call us at (512) 722-6000 or email info@tumihospitality.com. TJ Digital2026-10-09T09:20:44-05:00 ## Related Posts Warm lamp-lit hotel fron",
       "published_date": null,
-      "query": "Austin Texas hotel occupancy events September October 2026 conference festival"
+      "query": "Austin Texas hotel occupancy events September October 2026 conference festival",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 1,
+      "cited": true
      },
      {
       "id": 7,
@@ -614,7 +787,14 @@
       "url": "https://theaustinnewsletter.com/guides/what-is-austin-known-for",
       "snippet": "October is the other heavy month, and it now carries two events of national scale. The Austin City Limits Music Festival has filled Zilker Park since 2002 and expanded to two weekends, drawing about 450,000 people across its six days by the city’s count; the 2026 festival takes October 2 to 4 and October 9 to 11. Later in the month, the Formula 1 United States Grand Prix takes over Circuit of The ",
       "published_date": null,
-      "query": "Austin Texas hotel occupancy events September October 2026 conference festival"
+      "query": "Austin Texas hotel occupancy events September October 2026 conference festival",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 2,
+      "cited": true
      },
      {
       "id": 8,
@@ -622,7 +802,14 @@
       "url": "https://www.galachoruses.org/events/symposium-2027",
       "snippet": "1) the Hyatt House Austin Downtown University hotel (901 Neches St). The room rate will be $199/night for a studio king kitchen up to double occupancy; for triple occupancy, the price is $209/night, and quadruple occupancy is $219/night. This space is directly across the street from the Symposium venue. It has a slight hill, but not difficult. The in-house food service is extremely limited in this",
       "published_date": null,
-      "query": "Austin Texas hotel occupancy events September October 2026 conference festival"
+      "query": "Austin Texas hotel occupancy events September October 2026 conference festival",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 13,
+      "cited": false
      },
      {
       "id": 9,
@@ -630,7 +817,14 @@
       "url": "https://www.austintexas.gov",
       "snippet": "Image 20: 311 - Web_Homepage Video 2 ##### Watch Our Livestream ATXN is the City’s television station that covers City Council meetings, news conferences, and educational videos. Image 21: 311 Web Homepage Event background ## City Events View All Events October 25, 2026 Susan G Komen MORE THAN PINK Walk 7:00 AM Barton Creek Square 2901 S Capital of Texas Hwy Austin, TX 78746 United States [...] Oc",
       "published_date": null,
-      "query": "Austin Texas hotel occupancy events September October 2026 conference festival"
+      "query": "Austin Texas hotel occupancy events September October 2026 conference festival",
+      "kind": "official",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 5,
+      "cited": false
      },
      {
       "id": 10,
@@ -638,7 +832,14 @@
       "url": "https://www.bizjournals.com/austin/news/2026/10/05/billion-case-crowds-pouring-austin.html",
       "snippet": "© 2026 American City Business Journals. All rights reserved. Use of and/or registration on any portion of this site constitutes acceptance of our User Agreement (updated August 13, 2024) and Privacy Policy (updated December 16, 2025). The material on this site may not be reproduced, distributed, transmitted, cached or otherwise used, except with the prior written permission of American City Busine",
       "published_date": null,
-      "query": "Austin Texas hotel occupancy events September October 2026 conference festival"
+      "query": "Austin Texas hotel occupancy events September October 2026 conference festival",
+      "kind": "news",
+      "date": "2026-10-05",
+      "date_from": "url",
+      "older": false,
+      "other_city": null,
+      "n": 9,
+      "cited": false
      },
      {
       "id": 11,
@@ -646,7 +847,14 @@
       "url": "https://wspanhandle.com/labor-market-information",
       "snippet": "September 2026 is the primary reporting month, including Texas metro rankings and Help Wanted Online. Quarterly, annual, and projection datasets have their own reporting periods, shown within their sections. September 2026 At a Glance ## What Changed This Month? Four things worth noticing before you dig into the full dashboard. [...] Skip to primary navigation Skip to secondary navigation Skip to ",
       "published_date": null,
-      "query": "Austin Texas hospitality labor shortage restaurant staffing September October 2026"
+      "query": "Austin Texas hospitality labor shortage restaurant staffing September October 2026",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": "Panhandle",
+      "n": 17,
+      "cited": false
      },
      {
       "id": 12,
@@ -654,7 +862,14 @@
       "url": "https://www.marketdataforecast.com/market-reports/the-state-of-the-hospitality-market",
       "snippet": "## MARKET RESTRAINTS ### Persistent Labor Shortages and Workforce Retention Challenges [...] Image 1: Market Data Forecast logo Reports Services)Business InsightsMarket ResearchGrowth Partnership About Clients Contact Blog Image 2: search-icon ☰Image 3: search-icon ×) Reports Services)Business InsightsMarket ResearchGrowth Partnership About Clients Contact Blog Career ✖ Searching..... # The State ",
       "published_date": null,
-      "query": "Austin Texas hospitality labor shortage restaurant staffing September October 2026"
+      "query": "Austin Texas hospitality labor shortage restaurant staffing September October 2026",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 14,
+      "cited": false
      },
      {
       "id": 13,
@@ -662,7 +877,14 @@
       "url": "https://tribeza.com/austin-city-guides/drink/best-austin-restaurants-with-a-view",
       "snippet": "###### Share []( []( []( [](mailto:?subject=12%20of%20the%20Best%20Austin%20Restaurants%20With%20a%20View&body= Image 29: TRIBEZA_HOME_FALL_2026_DIGITAL COVER ### TRIBEZA Home Fall 2026 Read NowSubscribe Image 31: Digi Cover – Approved- Sept.Oct.2026 ### September/October 2026 Read NowSubscribe Special Series TRIBEZA HOME [...] Helpful Links About Us Advertise Employment Custom Publishing Distribu",
       "published_date": null,
-      "query": "Austin Texas hospitality labor shortage restaurant staffing September October 2026"
+      "query": "Austin Texas hospitality labor shortage restaurant staffing September October 2026",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 15,
+      "cited": false
      },
      {
       "id": 14,
@@ -670,7 +892,14 @@
       "url": "https://services.austintexas.gov/edims/search_pio.cfm",
       "snippet": "| 07/21/2026 |  Jesús Aguirre, MBA, CPRE, Austin Parks and Recreation; Director Susan Sinz, Austin Human Resources Director Austin Parks and Recreation Summer Staffing Hiring Update | 488 Kb | | 07/21/2026 |  Jorge L. Morales, Director, Watershed Protection Department Hydrilla in Lake Austin Update | 436 Kb | | 07/20/2026 |  David Gray, Homeless Strategy Officer Foster Youth Transition to Housi",
       "published_date": null,
-      "query": "Austin Texas hospitality labor shortage restaurant staffing September October 2026"
+      "query": "Austin Texas hospitality labor shortage restaurant staffing September October 2026",
+      "kind": "official",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 6,
+      "cited": false
      },
      {
       "id": 15,
@@ -678,7 +907,14 @@
       "url": "https://www.txdot.gov/about/newsroom/local/tyler/project-updates-for-the-week-of-oct-12-2026.html",
       "snippet": "This week: The contractor has begun project closeout by checking punch list items. About the project: This project consists of removing the existing surface in the eastbound lane and replacing it with new hot mix. Work will be completed at night. Motorists should expect nightly lane closures. Limits: four miles west of FM 17 in Canton, east to 1.1 miles east of FM 16 Contractor: Austin Bridge & Ro",
       "published_date": null,
-      "query": "Austin Texas construction road closure delivery access September October 2026"
+      "query": "Austin Texas construction road closure delivery access September October 2026",
+      "kind": "official",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": "Tyler",
+      "n": 16,
+      "cited": false
      },
      {
       "id": 16,
@@ -686,7 +922,14 @@
       "url": "https://communityimpact.com/east-austin/transportation/east-austin-transportation-projects-to-watch-this-october",
       "snippet": "Project: 6.5 miles of 22-foot drainage tunnels under I-35 (Airport Boulevard to Holly Street) and along Cesar Chavez Street (I-35 to US 183), plus a pump station. Update: Drop shaft construction is underway ahead of tunnel boring. Frontage road closures at River Street and the Levander Loop trail extend through 2028. Timeline: mid-2025-2029 Cost: $748 million Funding source: TxDOT and CAMPO ### Mo",
       "published_date": null,
-      "query": "Austin Texas construction road closure delivery access September October 2026"
+      "query": "Austin Texas construction road closure delivery access September October 2026",
+      "kind": "news",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 10,
+      "cited": false
      },
      {
       "id": 17,
@@ -694,7 +937,14 @@
       "url": "https://abccentraltexas.org/central-texas-construction-market-backlog-what-abc-s-september-2026",
       "snippet": "ABC’s Construction Backlog Indicator rose to 8.7 months in September 2026, and the Central Texas construction market backlog should be read as an operating signal rather than a headline. For firms working in Austin, Round Rock, San Marcos, Waco, and along the I-35 corridor, the practical question is not whether national backlog increased. It is what that increase says about bid discipline, staffin",
       "published_date": null,
-      "query": "Austin Texas construction road closure delivery access September October 2026"
+      "query": "Austin Texas construction road closure delivery access September October 2026",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 3,
+      "cited": true
      },
      {
       "id": 18,
@@ -702,15 +952,20 @@
       "url": "https://www.facebook.com/Budatx/posts/nighttime-lane-closures-on-fm-1626-drivers-traveling-along-fm-1626-should-expec/1531069792391108",
       "snippet": "TxDOT-approved contractors will implement alternating lane closures from Mon., September 29 to Fri., October 24 on RM 967 between Arveda Lane and Cole Springs",
       "published_date": null,
-      "query": "Austin Texas construction road closure delivery access September October 2026"
+      "query": "Austin Texas construction road closure delivery access September October 2026",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": "Buda",
+      "n": 18,
+      "cited": false
      }
     ],
     "cited_source_ids": [
      6,
      7,
-     11,
-     17,
-     18
+     17
     ],
     "mode": "tool_calling",
     "search_trail": [
@@ -764,7 +1019,14 @@
      }
     ],
     "searches_used": 4,
-    "max_searches": 4
+    "max_searches": 4,
+    "model_cited_source_ids": [
+     6,
+     7,
+     11,
+     17,
+     18
+    ]
    }
   },
   {
@@ -793,7 +1055,8 @@
     "max_severity": 5,
     "severity5_count": 1,
     "onset_week": null,
-    "priority_hint": 22.92
+    "priority_hint": 22.92,
+    "direction": "steady"
    },
    "weekly": [
     {
@@ -897,14 +1160,22 @@
       "reasoning": "The city events calendar shows large festivals during the weeks leading up to the Oct 12 report, correlating with higher guest turnover and introduction risk.",
       "source_ids": [
        16
-      ]
+      ],
+      "confidence_model": "medium",
+      "evidence_ids": [
+       16
+      ],
+      "confidence_note": ""
      },
      {
       "hypothesis": "Housekeeping’s routine inspections lack specific bed‑bug detection steps for high‑turnover rooms, so a single introduction was not caught before spreading to adjacent rooms.",
       "confidence": "high",
       "type": "internal",
       "reasoning": "Overall cleanliness complaints are low (~5%), yet a severe bed‑bug case appeared, indicating general cleaning is adequate but targeted pest monitoring is missing.",
-      "source_ids": []
+      "source_ids": [],
+      "confidence_model": "high",
+      "evidence_ids": [],
+      "confidence_note": ""
      },
      {
       "hypothesis": "A recent change in linen/mattress supplier or a lapse in scheduled pest‑control treatments may have introduced or failed to prevent infestation.",
@@ -913,7 +1184,12 @@
       "reasoning": "No direct evidence, but local commercial bed‑bug services exist, suggesting hotels rely on external treatments that could have been missed.",
       "source_ids": [
        7
-      ]
+      ],
+      "confidence_model": "low",
+      "evidence_ids": [
+       7
+      ],
+      "confidence_note": ""
      }
     ],
     "actions": [
@@ -948,7 +1224,14 @@
       "url": "https://www.pctonline.com/article/bedside-manner-how-to-improve-pest-control-customer-service",
       "snippet": "There was another instance where Veganix was called to service a home infested with bed bugs. ... Explore the October 2026 Issue. Check out more from this",
       "published_date": null,
-      "query": "bed bugs Austin Texas hotels October 2026 infestation reports"
+      "query": "bed bugs Austin Texas hotels October 2026 infestation reports",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 6,
+      "cited": false
      },
      {
       "id": 2,
@@ -956,7 +1239,14 @@
       "url": "https://www.npmapestworld.org",
       "snippet": "Foundation scholarships represent a commitment to the development of the next generation of pest management professionals through the support of students pursuing higher education and to those parents and families working in the field. Oct 01 2026 ### Argentine Ants, House Mice and Asian Tiger Mosquitoes Featured on BugBytes This month’s BugBytes explores new pest research and management strategie",
       "published_date": null,
-      "query": "bed bugs Austin Texas hotels October 2026 infestation reports"
+      "query": "bed bugs Austin Texas hotels October 2026 infestation reports",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 7,
+      "cited": false
      },
      {
       "id": 3,
@@ -964,7 +1254,14 @@
       "url": "https://spectrumlocalnews.com/nys/central-ny/news/2026/09/28/code-violations--unsanitary-conditions--counties-across-new-york-place-families-in-hotels-with-major-problems-and-lacks-inspections-",
       "snippet": "In fiscal year 2025, Ulster County spent $11.2 million on hotels for emergency housing, with $2.1 million to the Kingston Motel. A Sept. 18, 2025, town code enforcement report details multiple violations in the hotel. The report said there was mold in multiple rooms, roaches and bedbug infestations, leaking ceilings and more. [...] “If something is hazardous, you notify the public. So, when you ge",
       "published_date": null,
-      "query": "bed bugs Austin Texas hotels October 2026 infestation reports"
+      "query": "bed bugs Austin Texas hotels October 2026 infestation reports",
+      "kind": "news",
+      "date": "2026-09-28",
+      "date_from": "url",
+      "older": false,
+      "other_city": "New York",
+      "n": 20,
+      "cited": false
      },
      {
       "id": 4,
@@ -972,7 +1269,14 @@
       "url": "https://beecityusa.org/2025-annual-report",
       "snippet": "An integrated pest management plan is utilized for all City of Denton landscapes. Parks staff monitor landscape and evaluate the health of plants to proactively address pest activity with non-chemical control strategies to prevent infestation. If infestation does occur, and chemical control is required, all efforts will be made to use the least toxic, most effective, and most efficient chemical. I",
       "published_date": null,
-      "query": "bed bugs Austin Texas hotels October 2026 infestation reports"
+      "query": "bed bugs Austin Texas hotels October 2026 infestation reports",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 8,
+      "cited": false
      },
      {
       "id": 5,
@@ -980,7 +1284,14 @@
       "url": "https://guides.sll.texas.gov/landlord-tenant-law/repairs",
       "snippet": "<< Previous: Security Deposits Next: Requesting Repairs >> Last Updated: Oct 5, 2026 12:35 PM URL: Print Page;) Librarian Login Report a problem Subjects: Consumer Protection Housing & Property Tags: eviction landlord landlord/tenant lease rent rental tenant tenant's right [...] Note The library cannot tell you what the law means for your situation. ## Repairs ### Requesting Repairs Is a landlord ",
       "published_date": null,
-      "query": "bed bugs Austin Texas hotels October 2026 infestation reports"
+      "query": "bed bugs Austin Texas hotels October 2026 infestation reports",
+      "kind": "official",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 3,
+      "cited": false
      },
      {
       "id": 6,
@@ -988,7 +1299,14 @@
       "url": "https://www.facebook.com/groups/751951599284325/posts/1842226820256792",
       "snippet": "A March 2026 health report from SNHD indicates live bed bugs were found ... The hotel believes that the bed bugs were “very likely” brought in with the",
       "published_date": null,
-      "query": "Austin hotel bed bugs 2026 outbreak inspection"
+      "query": "Austin hotel bed bugs 2026 outbreak inspection",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 17,
+      "cited": false
      },
      {
       "id": 7,
@@ -996,7 +1314,14 @@
       "url": "https://ridgelinepestcontrolaustin.com/commercial-bed-bug-services",
       "snippet": "During our inspection we document how far bed bugs have spread and use that to recommend a treatment footprint that balances cost with risk of reintroduction.",
       "published_date": null,
-      "query": "Austin hotel bed bugs 2026 outbreak inspection"
+      "query": "Austin hotel bed bugs 2026 outbreak inspection",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 1,
+      "cited": true
      },
      {
       "id": 8,
@@ -1004,7 +1329,14 @@
       "url": "https://a816-dohbesp.nyc.gov/IndicatorPublic/data-explorer/bed-bugs",
       "snippet": "When traveling, inspect the bed and furniture. Keep ... Accessed at https://a816-dohbesp.nyc.gov/IndicatorPublic/data-explorer/bed-bugs/ on Oct 19, 2026.",
       "published_date": null,
-      "query": "Austin hotel bed bugs 2026 outbreak inspection"
+      "query": "Austin hotel bed bugs 2026 outbreak inspection",
+      "kind": "official",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": "NYC",
+      "n": 19,
+      "cited": false
      },
      {
       "id": 9,
@@ -1012,7 +1344,14 @@
       "url": "https://m.yelp.com/biz/bed-bug-bbq-lakewood",
       "snippet": "“I found the ad for Bed Bug BBQ (heat treatment is the only thing that guarantees dead bugs) and reached Vicki.” Mentioned in 6 reviews. Read more highlights",
       "published_date": null,
-      "query": "Austin hotel bed bugs 2026 outbreak inspection"
+      "query": "Austin hotel bed bugs 2026 outbreak inspection",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 9,
+      "cited": false
      },
      {
       "id": 10,
@@ -1020,7 +1359,14 @@
       "url": "https://www.instagram.com/p/DeeOG_eDT8y",
       "snippet": "A Qantas flight from Italy to Australia was cancelled after passengers reported bedbug bites during a long-haul journey, leaving travellers stranded in Rome",
       "published_date": null,
-      "query": "Austin hotel bed bugs 2026 outbreak inspection"
+      "query": "Austin hotel bed bugs 2026 outbreak inspection",
+      "kind": "social",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 18,
+      "cited": false
      },
      {
       "id": 11,
@@ -1028,7 +1374,14 @@
       "url": "https://www.starwoodhotels.com",
       "snippet": "Image 51: 1 Hotel Tokyo Lobby #### T+L Review: The New 1 Hotel Tokyo Gives New Meaning to \"Urban Jungle\" Travel + Leisure 2026/09/14 Explore Previous Brandfolder CDN Image Image 52: 1 Hotel Austin Lake Terrace Suite overlooking Lady Bird Lake #### Austin, Texas, Just Got a Gorgeous New 1 Hotel—and We Were the First to Stay Travel + Leisure 2026/09/17 Explore Brandfolder CDN Image Image 53: Bedroom",
       "published_date": null,
-      "query": "Austin Texas bed bug reports hotels 2026 travel increase"
+      "query": "Austin Texas bed bug reports hotels 2026 travel increase",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 10,
+      "cited": false
      },
      {
       "id": 12,
@@ -1036,7 +1389,14 @@
       "url": "https://www.cntraveler.com/gallery/texas-top-hotels",
       "snippet": "#7 ## Score 97.96 ## Fairmont Austin Austin, United States Book Now at Booking.com ## Ranking #8 ## Score 97.91 ## The Monarch San Antonio San Antonio, United States Book Now at Booking.com ## Ranking #9 ## Score 97.79 ## ROOST Rainey Austin, United States Book Now at Booking.com ## Ranking #10 ## Score 97.72 ## Hotel Vin, Autograph Collection Grapevine, United States Book Now at Marriott ## Ranki",
       "published_date": null,
-      "query": "Austin Texas bed bug reports hotels 2026 travel increase"
+      "query": "Austin Texas bed bug reports hotels 2026 travel increase",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 11,
+      "cited": false
      },
      {
       "id": 13,
@@ -1044,7 +1404,14 @@
       "url": "https://www.expedia.com/Texas.d245.Destination-Travel-Guides",
       "snippet": "Austin, Texas is a vibrant city known for its lively music scene, entertainment options, and outdoor activities. Visitors can enjoy live music performances at various venues, dance the night away at trendy clubs, and experience the excitement of festivals throughout the year. The city also boasts a thriving theater scene and an urban art scene that showcases local talent. With the presence of the ",
       "published_date": null,
-      "query": "Austin Texas bed bug reports hotels 2026 travel increase"
+      "query": "Austin Texas bed bug reports hotels 2026 travel increase",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 12,
+      "cited": false
      },
      {
       "id": 14,
@@ -1052,7 +1419,14 @@
       "url": "https://www.austintexas.gov",
       "snippet": "Image 20: 311 - Web_Homepage Video 2 ##### Watch Our Livestream ATXN is the City’s television station that covers City Council meetings, news conferences, and educational videos. Image 21: 311 Web Homepage Event background ## City Events View All Events October 25, 2026 Susan G Komen MORE THAN PINK Walk 7:00 AM Barton Creek Square 2901 S Capital of Texas Hwy Austin, TX 78746 United States [...] Im",
       "published_date": null,
-      "query": "Austin Texas bed bug reports hotels 2026 travel increase"
+      "query": "Austin Texas bed bug reports hotels 2026 travel increase",
+      "kind": "official",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 4,
+      "cited": false
      },
      {
       "id": 15,
@@ -1060,7 +1434,14 @@
       "url": "https://www.hotel-online.com",
       "snippet": "roommaster Introduces AI Connector, Bringing Live Hotel PMS Data Into ChatGPT, Claude, Microsoft Copilot and Google Gemini ### roommaster Introduces AI Connector, Bringing Live Hotel PMS Data Into ChatGPT, Claude, Microsoft Copilot and Google Gemini More in Operations & Technology U.S. Hotel Performance Gains Momentum as RevPAR Rises 5.5% ### U.S. Hotel Performance Gains Momentum as RevPAR Rises 5",
       "published_date": null,
-      "query": "Austin Texas bed bug reports hotels 2026 travel increase"
+      "query": "Austin Texas bed bug reports hotels 2026 travel increase",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 13,
+      "cited": false
      },
      {
       "id": 16,
@@ -1068,7 +1449,14 @@
       "url": "https://www.vacasa.com/discover/us-festivals-by-month-in-2026",
       "snippet": "Hot Tip: Go to the “Mass Ascension” days for the most breathtaking photo ops. Browse Santa Fe Rentals A large group of people sitting under a tent at Austin City Limits. Austin, Texas #### Austin City Limits Music Festival Early and mid-October 2026 Austin City Limits rocks two weekends with explosive rock, indie, hip-hop, and country acts featuring 100+ electrifying performances, amazing food tru",
       "published_date": null,
-      "query": "Austin Texas events September October 2026 festivals conferences travel increase"
+      "query": "Austin Texas events September October 2026 festivals conferences travel increase",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 2,
+      "cited": true
      },
      {
       "id": 17,
@@ -1076,7 +1464,14 @@
       "url": "https://www.ticketmaster.com/discover/austin?categoryId=KZFzniwnSyZfZ7v7nJ",
       "snippet": "Lineup + The Smashing Pumpkins Venue Moody Center ATX October 25, 2026 Oct25 Sunday 09:00 PMSun9:00 PMZhuAustin, TXThe Concourse Project Find TicketsZhu, Austin, TX The Concourse Project10/25/26, 9:00 PM Lineup + ZHU Venue The Concourse Project October 26, 2026 Oct26 Monday 05:00 PMMon5:00 PMEMEI - Night at the Opera TourAustin, TXScoot Inn Find TicketsEMEI - Night at the Opera Tour, Austin, TX Sc",
       "published_date": null,
-      "query": "Austin Texas events September October 2026 festivals conferences travel increase"
+      "query": "Austin Texas events September October 2026 festivals conferences travel increase",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 14,
+      "cited": false
      },
      {
       "id": 18,
@@ -1084,7 +1479,14 @@
       "url": "https://www.austintexas.org/events?skip=144&sort=date",
       "snippet": "### Texas Book Festival 2026 Texas Book Festival 2026 ### UT Tailgate Guide UT Tailgate Guide ### Top Local Artists to Watch at ACL Fest Top Local Artists to Watch at ACL Fest ## Sign Up For Austin E-News ## Get a Free Visitor Guide ## View the Austin Insider Blog Visit Austin Austin Visitor Center: 103 E. Fifth St. Austin, TX 78701 Visit Austin Admin: 111 Congress Ave, Suite 700 Austin, 78701 512",
       "published_date": null,
-      "query": "Austin Texas events September October 2026 festivals conferences travel increase"
+      "query": "Austin Texas events September October 2026 festivals conferences travel increase",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 15,
+      "cited": false
      },
      {
       "id": 19,
@@ -1092,7 +1494,14 @@
       "url": "https://www.austintexas.gov/events",
       "snippet": "2026 Bond Election Notice (Español), Bond Election Ballot Form, Voter Info, and Bond Dashboard Home Popular Searches Adopt a pet Pay online # Events ## Filters Showing 149 Items Girl Scouts searching through foliage in a park - Girl Scout Landscape Volunteer Day at the Ney Elisabet Ney Museum 304 E. 44th St Austin, TX 78751 United States Picture of a butterfly on a pink flower. City of Austin and ",
       "published_date": null,
-      "query": "Austin Texas events September October 2026 festivals conferences travel increase"
+      "query": "Austin Texas events September October 2026 festivals conferences travel increase",
+      "kind": "official",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 5,
+      "cited": false
      },
      {
       "id": 20,
@@ -1100,7 +1509,14 @@
       "url": "https://www.lawnstarter.com/blog/texas/austin-tx/sxsw-on-a-budget",
       "snippet": "Event spaces: With the Austin Convention Center undergoing renovations until 2029, a clubhouse model has been adopted for 2026. Three separate clubhouses will serve as the homebase for each festival: Music badge clubhouse: Downright Austin Film and TV badge clubhouse: 800 Congress Innovation badge clubhouse: Brazos Hall Hotels and event spaces around each clubhouse will host additional events, str",
       "published_date": null,
-      "query": "Austin Texas events September October 2026 festivals conferences travel increase"
+      "query": "Austin Texas events September October 2026 festivals conferences travel increase",
+      "kind": "other",
+      "date": null,
+      "date_from": null,
+      "older": false,
+      "other_city": null,
+      "n": 16,
+      "cited": false
      }
     ],
     "cited_source_ids": [
@@ -1159,7 +1575,11 @@
      }
     ],
     "searches_used": 4,
-    "max_searches": 4
+    "max_searches": 4,
+    "model_cited_source_ids": [
+     7,
+     16
+    ]
    }
   }
  ],
@@ -1311,7 +1731,8 @@
      "rate": 0.3333,
      "mean_severity": 3.28
     }
-   ]
+   ],
+   "direction": "rising"
   },
   {
    "aspect": "food_beverage",
@@ -1396,7 +1817,8 @@
      "rate": 0.32,
      "mean_severity": 2.04
     }
-   ]
+   ],
+   "direction": "steady"
   },
   {
    "aspect": "room_condition",
@@ -1481,7 +1903,8 @@
      "rate": 0.1333,
      "mean_severity": 1.9
     }
-   ]
+   ],
+   "direction": "rising"
   },
   {
    "aspect": "cleanliness",
@@ -1566,7 +1989,8 @@
      "rate": 0.0267,
      "mean_severity": 1.0
     }
-   ]
+   ],
+   "direction": "steady"
   },
   {
    "aspect": "safety_security",
@@ -1651,7 +2075,8 @@
      "rate": 0.0,
      "mean_severity": null
     }
-   ]
+   ],
+   "direction": "steady"
   },
   {
    "aspect": "front_desk",
@@ -1736,7 +2161,8 @@
      "rate": 0.0667,
      "mean_severity": 1.8
     }
-   ]
+   ],
+   "direction": "steady"
   },
   {
    "aspect": "facilities",
@@ -1821,7 +2247,8 @@
      "rate": 0.0533,
      "mean_severity": 1.75
     }
-   ]
+   ],
+   "direction": "steady"
   },
   {
    "aspect": "housekeeping_service",
@@ -1906,7 +2333,8 @@
      "rate": 0.08,
      "mean_severity": 1.83
     }
-   ]
+   ],
+   "direction": "steady"
   },
   {
    "aspect": "value_price",
@@ -1991,7 +2419,8 @@
      "rate": 0.04,
      "mean_severity": 2.0
     }
-   ]
+   ],
+   "direction": "steady"
   },
   {
    "aspect": "staff_general",
@@ -2076,7 +2505,8 @@
      "rate": 0.0133,
      "mean_severity": 2.0
     }
-   ]
+   ],
+   "direction": "steady"
   },
   {
    "aspect": "location",
@@ -2161,7 +2591,8 @@
      "rate": 0.0,
      "mean_severity": null
     }
-   ]
+   ],
+   "direction": "steady"
   }
  ],
  "replies": [
@@ -2182,7 +2613,7 @@
    ],
    "max_severity": 5,
    "issue_rank": 3,
-   "draft": "Thank you for sharing your experience. I am sorry to hear about the cleanliness concerns and the front desk response. We are taking this seriously: housekeeping will conduct targeted inspections of all rooms on the same floor and nearby, and a licensed pest‑control provider will treat the affected room and adjacent rooms this week. If you have further concerns, please contact the General Manager directly.",
+   "draft": "Thank you for sharing your experience, and I am sorry to hear about the bed bugs and the front desk response. Your concerns about cleanliness and service are noted. [GM to confirm: housekeeping targeted inspections of all rooms adjacent to the reported room and documentation of findings.] [GM to confirm: pest-control treatment of the affected room and adjacent rooms this week.] We take these matters seriously and want to make this right. Please contact me directly so we can discuss a resolution. The General Manager, Hotel Wrenfield",
    "status": "pending"
   },
   {
@@ -2202,7 +2633,7 @@
    ],
    "max_severity": 5,
    "issue_rank": null,
-   "draft": "Thank you for sharing your experience. We are very sorry to hear about your laptop and the door issue upon your return. Your safety and security are our top priorities, and we have launched a full investigation into the incident and the front desk's response. If you have any further concerns, please contact our General Manager directly. The General Manager, Hotel Wrenfield",
+   "draft": "Dear Guest, we are sorry to hear about the break-in and the front desk response. Your safety and security are our top priorities. We are reviewing the door latch mechanism and security protocols [GM to confirm: investigation findings and next steps]. We take this matter seriously and invite you to contact the General Manager directly to discuss your concerns. Sincerely, The General Manager, Hotel Wrenfield",
    "status": "pending"
   },
   {
@@ -2222,7 +2653,7 @@
    ],
    "max_severity": 4,
    "issue_rank": 1,
-   "draft": "Thank you for sharing your Grand Prix experience. We understand the noise from the construction across I-35 disrupted your rest, and we sincerely apologize for the inconvenience. To address this immediately, we have placed premium earplugs, white-noise machines, and construction schedules in every affected room, and we have designated a quiet-zone block of rooms on the opposite side of the building for future guests. We take your feedback seriously and are actively investigating the construction schedule to prevent further disturbance. If you have any further concerns, please contact our General Manager directly. The General Manager, Hotel Wrenfield",
+   "draft": "Thank you for sharing your Grand Prix experience. We're sorry the room wasn't ready at 4 p.m. and that construction noise from I-35 disrupted your rest. We know how important quiet is, especially during a busy weekend. [GM to confirm: premium earplugs, white-noise machine, and a laminated construction-schedule card in every room facing I-35, starting today.] [GM to confirm: quiet-zone block of rooms on the opposite side of the building and free proactive relocation at check-in for noise-sensitive guests.] Please reach out directly to the General Manager if you have further concerns. The General Manager, Hotel Wrenfield",
    "status": "pending"
   },
   {
@@ -2242,7 +2673,7 @@
    ],
    "max_severity": 4,
    "issue_rank": 2,
-   "draft": "Thank you for sharing your feedback, and I’m sorry the breakfast experience and nighttime noise fell short of expectations. Regarding the breakfast area, we are deploying a two-shift model starting tomorrow, including a dedicated replenishment runner to ensure stations stay stocked and service remains smooth. For the noise concern, we have placed premium earplugs, a white-noise machine, and a construction-schedule card in all I-35-facing rooms, and we have designated a quiet-zone block on the opposite side of the building; free proactive relocation is available at check-in for noise-sensitive guests. We appreciate you bringing this to our attention and hope the rest of your visit was enjoyable. The General Manager, Hotel Wrenfield",
+   "draft": "Thank you for sharing your feedback. We are sorry the breakfast service fell short of expectations and that noise from the freeway side disrupted your rest. [GM to confirm: We are looking at how breakfast is staffed (two-shift breakfast with a replenishment runner, from tomorrow) and are placing premium earplugs, a white-noise machine, and a construction-schedule card in rooms facing I-35 (placement starting today)] If you would like to discuss this further, please contact the General Manager directly. The General Manager, Hotel Wrenfield",
    "status": "pending"
   },
   {
@@ -2258,7 +2689,7 @@
    ],
    "max_severity": 4,
    "issue_rank": null,
-   "draft": "Thank you for sharing your stay experience. We understand the road construction noise outside was disruptive to your rest, and we sincerely apologize for the impact on your sleep. We have placed premium earplugs, white-noise machines, and schedule cards in all I-35-facing rooms effective immediately, and we have designated a quiet-zone block of rooms on the opposite side of the building. We invite you to contact the General Manager directly to discuss a proactive room relocation for any future visits. The General Manager, Hotel Wrenfield",
+   "draft": "Thank you for sharing your long weekend with us. We’re glad the room’s cleanliness met your expectations. We understand the road crews on I-35 made rest difficult, and we’re sorry it impacted your stay. [GM to confirm: To help future guests, we are placing premium earplugs, a white-noise machine, and a construction-schedule card in every room facing the interstate (placement of these items starting today)] [GM to confirm: We are also looking at designating a quiet-zone block of rooms on the opposite side of the building and offering free relocation at check-in for noise-sensitive guests (quiet-zone block and proactive relocation option)] Please reach out directly to the General Manager if you have further thoughts. The General Manager, Hotel Wrenfield",
    "status": "pending"
   }
  ],
@@ -2317,23 +2748,23 @@
     "models": [
      "lightning"
     ],
-    "calls": 5,
+    "calls": 9,
     "failed_calls": 0,
-    "tokens_in": 2154,
-    "tokens_out": 549,
+    "tokens_in": 6784,
+    "tokens_out": 1182,
     "reasoning_tokens": 0,
-    "model_seconds": 6.54,
-    "cost_usd": 0.000261,
+    "model_seconds": 7.81,
+    "cost_usd": 0.000691,
     "thinking": false,
-    "wall_seconds": 1.51
+    "wall_seconds": 7.88
    }
   ],
   "total": {
-   "calls": 622,
-   "tokens_in": 692494,
-   "tokens_out": 64350,
+   "calls": 626,
+   "tokens_in": 697124,
+   "tokens_out": 64983,
    "reasoning_tokens": 5453,
-   "cost_usd": 0.317327,
+   "cost_usd": 0.317757,
    "tool_calls": 11,
    "wall_seconds": 123.98
   }
@@ -17465,7 +17896,7 @@
    "s0539"
   ]
  },
- "savings_pct": 85.5,
+ "savings_pct": 85.4,
  "validation": {
   "top3": [
    "noise",
@@ -17575,7 +18006,7 @@
   },
   "cited_sources_per_issue": {
    "noise": 4,
-   "food_beverage": 5,
+   "food_beverage": 3,
    "cleanliness": 2
   },
   "planted_story": [
@@ -18587,23 +19018,23 @@
       "models": [
        "lightning"
       ],
-      "calls": 5,
+      "calls": 9,
       "failed_calls": 0,
-      "tokens_in": 2154,
-      "tokens_out": 549,
+      "tokens_in": 6784,
+      "tokens_out": 1182,
       "reasoning_tokens": 0,
-      "model_seconds": 6.54,
-      "cost_usd": 0.000261,
+      "model_seconds": 7.81,
+      "cost_usd": 0.000691,
       "thinking": false,
-      "wall_seconds": 1.51
+      "wall_seconds": 7.88
      }
     ],
     "total": {
-     "calls": 622,
-     "tokens_in": 692494,
-     "tokens_out": 64350,
+     "calls": 626,
+     "tokens_in": 697124,
+     "tokens_out": 64983,
      "reasoning_tokens": 5453,
-     "cost_usd": 0.317327,
+     "cost_usd": 0.317757,
      "tool_calls": 11,
      "wall_seconds": 123.98
     }

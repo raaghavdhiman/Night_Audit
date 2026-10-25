@@ -8,12 +8,16 @@ Fallback (if native tool calling errors): we run Tavily ourselves and pass resul
 """
 from __future__ import annotations
 
+import calendar
 import json
 import os
+import re
 import threading
 import time
 from datetime import date
+from email.utils import parsedate_to_datetime
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 from src import config
 from src.cost_tracker import ToolRecord, current_ledger
@@ -169,6 +173,148 @@ def _clean_output(obj: dict, book: SourceBook) -> dict:
             "sources": book.sources, "cited_source_ids": cited}
 
 
+# --- source quality (deterministic; re-runnable on stored results) ----------------
+KIND_ORDER = {"official": 0, "news": 1, "other": 2, "social": 3}
+SOCIAL_DOMAINS = {"facebook.com", "fb.com", "instagram.com", "x.com", "twitter.com", "tiktok.com", "reddit.com",
+                  "youtube.com", "youtu.be", "threads.net"}
+NEWS_DOMAINS = {
+    # national / wire
+    "apnews.com", "reuters.com", "bloomberg.com", "nytimes.com", "wsj.com", "washingtonpost.com", "usatoday.com",
+    "cnn.com", "nbcnews.com", "abcnews.go.com", "cbsnews.com", "foxnews.com", "npr.org", "axios.com",
+    "politico.com", "marketplace.org", "theguardian.com", "bbc.com", "bbc.co.uk", "latimes.com", "cnbc.com",
+    "bizjournals.com", "spectrumlocalnews.com",
+    # Texas / Austin
+    "statesman.com", "kxan.com", "kvue.com", "fox7austin.com", "keyetv.com", "kut.org", "austinchronicle.com",
+    "austinmonitor.com", "communityimpact.com", "texastribune.org", "mysanantonio.com", "expressnews.com",
+    "chron.com", "houstonchronicle.com", "dallasnews.com", "ksat.com", "kens5.com", "wfaa.com", "khou.com",
+    "kwtx.com", "kcentv.com",
+}
+OLDER_THAN_DAYS = 365
+# Places that are not the hotel's city. Matched on title + URL path only: snippets often mention the
+# hotel's city in passing (e.g. a wire photo caption) and would hide the real subject.
+OTHER_PLACES = [
+    "San Antonio", "Houston", "Dallas", "Fort Worth", "DFW", "El Paso", "Arlington", "Corpus Christi", "Plano",
+    "Laredo", "Lubbock", "Irving", "Frisco", "McKinney", "Amarillo", "Brownsville", "Killeen", "McAllen", "Waco",
+    "Denton", "Midland", "Odessa", "Abilene", "Beaumont", "Round Rock", "Tyler", "College Station", "San Marcos",
+    "New Braunfels", "Seguin", "Buda", "Pflugerville", "Georgetown", "Cedar Park", "Leander", "Paris",
+    "Wichita Falls", "Longview", "Galveston", "Sugar Land", "North Texas", "East Texas", "West Texas",
+    "South Texas", "Panhandle", "Rio Grande Valley",
+    "New York", "NYC", "N.Y.", "Long Island", "Los Angeles", "Chicago", "Phoenix", "Philadelphia", "San Diego",
+    "San Jose", "San Francisco", "Seattle", "Denver", "Boston", "Nashville", "Detroit", "Las Vegas", "Atlanta",
+    "Miami", "Orlando", "Tampa", "New Orleans", "Minneapolis", "Oklahoma City", "Albuquerque", "Tucson",
+]
+_STREET = r"(?:st|street|ave|avenue|blvd|boulevard|rd|road|ln|lane|dr|drive|way)\b"
+
+
+def _host(url: str) -> str:
+    h = (urlparse(url).hostname or "").lower()
+    return h[4:] if h.startswith("www.") else h
+
+
+def _domain_match(host: str, domains: set[str]) -> bool:
+    return any(host == d or host.endswith("." + d) for d in domains)
+
+
+def source_kind(url: str) -> str:
+    """official (.gov/.mil), news (known outlet or a 'news' host), social, or other."""
+    host = _host(url)
+    if re.search(r"\.(gov|mil)(\.[a-z]{2})?$", host):
+        return "official"
+    if _domain_match(host, SOCIAL_DOMAINS):
+        return "social"
+    if _domain_match(host, NEWS_DOMAINS) or "news" in re.split(r"[.-]", host):
+        return "news"
+    return "other"
+
+
+def source_date(published_date: str | None, url: str) -> tuple[str | None, str | None]:
+    """(ISO 'YYYY-MM-DD' or 'YYYY-MM', where it came from). Tavily's date wins; else a date in the URL path."""
+    if published_date:
+        s = str(published_date).strip()
+        try:
+            return date.fromisoformat(s[:10]).isoformat(), "tavily"
+        except ValueError:
+            pass
+        try:
+            return parsedate_to_datetime(s).date().isoformat(), "tavily"
+        except (TypeError, ValueError):
+            pass
+    path = urlparse(url).path
+    m = re.search(r"/(20\d\d)[/-](0?[1-9]|1[0-2])[/-](0?[1-9]|[12]\d|3[01])(?:/|$|[-_])", path)
+    if m:
+        try:
+            return date(int(m[1]), int(m[2]), int(m[3])).isoformat(), "url"
+        except ValueError:
+            pass
+    m = re.search(r"/(20\d\d)/(0?[1-9]|1[0-2])/", path)
+    if m:
+        return f"{m[1]}-{int(m[2]):02d}", "url"
+    return None, None
+
+
+def is_older(iso: str | None, as_of: date) -> bool:
+    if not iso:
+        return False
+    y, mth = int(iso[:4]), int(iso[5:7])
+    d = date.fromisoformat(iso) if len(iso) == 10 else date(y, mth, calendar.monthrange(y, mth)[1])
+    return (as_of - d).days > OLDER_THAN_DAYS
+
+
+def other_city(title: str, url: str, city: str) -> str | None:
+    """Name of a different place the source is about, or None. Heuristic, title + URL path only."""
+    home = city.split(",")[0].strip().lower()
+    text = f"{title} {re.sub(r'[-_/+.]+', ' ', unquote(urlparse(url).path))}".lower()
+    if home and re.search(rf"\b{re.escape(home)}\b(?!\s+{_STREET})", text):
+        return None
+    for place in OTHER_PLACES:
+        if place.lower() != home and re.search(rf"(?<![\w.]){re.escape(place.lower())}(?![\w])", text):
+            return place
+    return None
+
+
+def annotate_sources(inv: dict, city: str, as_of: date) -> dict:
+    """Classify, date and filter sources, renumber cited ones 1..k, and cap social-only confidence.
+
+    Keeps every source and the model's original ids/citations; only adds fields:
+      source: kind, date, date_from, older, other_city, cited, n (display number; `id` stays the original
+              and the list keeps search order)
+      hypothesis: confidence_model (as the model said), confidence (possibly capped), confidence_note,
+                  evidence_ids (cited ids still usable as current local evidence)
+      investigation: model_cited_source_ids (as the model cited), cited_source_ids (usable evidence only)
+    """
+    sources = inv.get("sources") or []
+    by_id = {s["id"]: s for s in sources}
+    for s in sources:
+        s["kind"] = source_kind(s["url"])
+        s["date"], s["date_from"] = source_date(s.get("published_date"), s["url"])
+        s["older"] = is_older(s["date"], as_of)
+        s["other_city"] = other_city(s.get("title") or "", s["url"], city)
+
+    def usable(i: int) -> bool:
+        s = by_id.get(i)
+        return bool(s) and not s["older"] and not s["other_city"]
+
+    for h in inv.get("hypotheses") or []:
+        model_conf = h.setdefault("confidence_model", h.get("confidence", "low"))
+        ev = [i for i in h.get("source_ids") or [] if usable(i)]
+        h["evidence_ids"] = ev
+        h["confidence"], h["confidence_note"] = model_conf, ""
+        if h.get("source_ids") and not ev:
+            h["confidence"], h["confidence_note"] = "low", "cited sources are older or from other cities"
+        elif ev and all(by_id[i]["kind"] == "social" for i in ev):
+            h["confidence"], h["confidence_note"] = "low", "only social-media evidence"
+
+    model_cited = set(inv.get("model_cited_source_ids") or inv.get("cited_source_ids") or [])
+    inv["model_cited_source_ids"] = sorted(model_cited)
+    cited = {i for h in inv.get("hypotheses") or [] for i in h["evidence_ids"]}
+    order = sorted(sources, key=lambda s: (s["id"] not in cited, bool(s["older"] or s["other_city"]),
+                                           KIND_ORDER[s["kind"]], s["id"]))
+    for n, s in enumerate(order, 1):
+        s["n"], s["cited"] = n, s["id"] in cited
+    inv["cited_source_ids"] = [s["id"] for s in order if s["cited"]]  # in display order
+    return inv
+
+
 def investigate_issue(issue: dict, stats: dict, quotes: list[dict], hotel: str, city: str, period: str,
                       model: str = "ultra", thinking: bool = True, on_event=None) -> dict:
     """Run the capped tool-calling loop for one issue. Never raises: returns an error record instead."""
@@ -229,7 +375,7 @@ def investigate_issue(issue: dict, stats: dict, quotes: list[dict], hotel: str, 
         emit({"type": "fallback", "issue_rank": issue["rank"], "reason": type(e).__name__})
         mode = "fallback_prefetched_search"
         final = _fallback(issue, stats, quotes, hotel, city, sysmsg, book, trail, model, thinking, used)
-    out = _clean_output(final or {}, book)
+    out = annotate_sources(_clean_output(final or {}, book), city, date.today())
     out.update({"mode": mode, "search_trail": trail, "searches_used": len(trail), "max_searches": MAX_TOOL_CALLS})
     return out
 

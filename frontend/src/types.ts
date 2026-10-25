@@ -22,6 +22,8 @@ export interface AspectSummary {
   last_week_neg: number;
   prev_week_neg: number | null;
   wow_change: number | null;
+  /** last week vs the week before, computed in code; absent in older results */
+  direction?: "rising" | "easing" | "steady";
   mean_severity: number;
   max_severity: number;
   severity5_count: number;
@@ -30,21 +32,38 @@ export interface AspectSummary {
   weekly: WeekPoint[];
 }
 
+export type SourceKind = "official" | "news" | "other" | "social";
+
 export interface Source {
+  /** original id, as the model cites it in text and source_ids */
   id: number;
+  /** display number: cited sources are 1..k (official > news > other > social), the rest follow */
+  n: number;
   title: string;
   url: string;
   snippet: string;
   published_date: string | null;
   query: string;
+  kind: SourceKind;
+  /** ISO date or YYYY-MM, from Tavily or parsed from the URL */
+  date: string | null;
+  date_from: "tavily" | "url" | null;
+  older: boolean;
+  other_city: string | null;
+  cited: boolean;
 }
 
 export interface Hypothesis {
   hypothesis: string;
+  /** after source-quality caps; confidence_model is what the model said */
   confidence: "high" | "medium" | "low";
+  confidence_model: "high" | "medium" | "low";
+  confidence_note: string;
   type: "external" | "internal";
   reasoning: string;
   source_ids: number[];
+  /** source_ids still usable as current local evidence (not older, not another city) */
+  evidence_ids: number[];
 }
 
 export interface Action {
@@ -62,7 +81,9 @@ export interface Investigation {
   owner_department: string;
   guest_messaging: string;
   sources: Source[];
+  /** usable cited evidence, in display order; model_cited_source_ids is what the model cited */
   cited_source_ids: number[];
+  model_cited_source_ids: number[];
   mode: string;
   search_trail: { query: string; results: number; cached?: boolean; error?: string; source_ids?: number[] }[];
   searches_used: number;

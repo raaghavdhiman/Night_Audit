@@ -4,12 +4,20 @@ import { Severity, Sparkline } from "./Charts";
 import { IconChevron } from "./Icons";
 import { Investigation } from "./Investigation";
 
+/** Drop cap on the whole first word when it is short (2-3 letters); otherwise none. Never a lone letter. */
+function DropCapPara({ text }: { text: string }) {
+  const m = /^([A-Za-z]{2,3})(\b.*)$/s.exec(text);
+  if (!m) return <p>{text}</p>;
+  return <p><span className="dropcap-word">{m[1]}</span>{m[2]}</p>;
+}
+
 export function Story({ issue, lead, expanded, onToggle, nReviews }: {
   issue: Issue; lead?: boolean; expanded: boolean; onToggle: () => void; nReviews: number;
 }) {
   const s = issue.stats;
   const panelId = `inv-${issue.rank}`;
   const quote = issue.quotes[0];
+  const easing = s.direction === "easing";
   const figure = (
     <figure className="figure">
       <Sparkline weekly={issue.weekly} onset={s.onset_week} height={lead ? 120 : 84} title={`Issue ${issue.rank}: ${issue.title}`} />
@@ -23,7 +31,12 @@ export function Story({ issue, lead, expanded, onToggle, nReviews }: {
     <article className={lead ? "lead" : "second"} aria-labelledby={`h-${issue.rank}`}>
       <div className="kicker">Issue No. {issue.rank} · {issue.department}</div>
       <h2 className="headline" id={`h-${issue.rank}`}>{issue.title}</h2>
-      {issue.why_now && <p className="deck">{issue.why_now}</p>}
+      {(issue.why_now || easing) && (
+        <p className="deck">
+          {easing && <><span className="trend-easing">Easing</span> down to {s.last_week_neg} last week from {s.prev_week_neg}. </>}
+          {issue.why_now}
+        </p>
+      )}
       <div className={lead ? "lead-grid" : ""}>
         <div>
           <div className="stat-row" aria-label="Key numbers, computed in code">
@@ -34,7 +47,7 @@ export function Story({ issue, lead, expanded, onToggle, nReviews }: {
           </div>
           {!lead && figure}
           <div className="body-copy">
-            <p className={lead ? "dropcap" : ""}>{issue.interpretation}</p>
+            {lead ? <DropCapPara text={issue.interpretation} /> : <p>{issue.interpretation}</p>}
           </div>
           {lead && quote && (
             <p className="deck" style={{ borderLeft: "3px solid var(--oxblood)", paddingLeft: 12, fontSize: 17 }}>

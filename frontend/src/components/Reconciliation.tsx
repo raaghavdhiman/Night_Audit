@@ -1,18 +1,19 @@
 import type { RunState } from "../run";
 import { STAGES } from "../run";
-import { MODEL_LABELS, secs, usd } from "../format";
+import { modelShort, plural, secs, usd } from "../format";
 import { IconCheck, IconSearch } from "./Icons";
 
 const NAMES = { extract: "Extract", trends: "Trends", investigate: "Investigate", replies: "Replies" } as const;
 
 /** The night-audit reconciliation sequence: stages tick off in the ledger as events arrive. */
-export function Reconciliation({ run, title = "Reconciling tonight's reviews", replay }: { run: RunState; title?: string; replay?: boolean }) {
+/** `cost` is the same (tweened) running total the folio shows beside it. */
+export function Reconciliation({ run, cost, title = "Reconciling tonight's reviews", replay }: { run: RunState; cost: number; title?: string; replay?: boolean }) {
   return (
     <section className="recon" aria-label="Audit progress">
       <div className="recon-head">
         <span className="t">{title}</span>
         <span className="mono" aria-live="polite">
-          {run.n_reviews.toLocaleString()} reviews · running total {usd(run.liveCost, 4)}
+          {run.n_reviews.toLocaleString()} reviews · running total {usd(cost, 4)}
           {replay ? " · replay" : ""}
         </span>
       </div>
@@ -33,7 +34,7 @@ export function Reconciliation({ run, title = "Reconciling tonight's reviews", r
               <span className="leader">
                 <span className="name">{NAMES[st]}</span>
                 <span className="dots" aria-hidden />
-                <span className="model">{s.model ? `${MODEL_LABELS[s.model]}${s.thinking ? " · thinking" : ""}` : ""}</span>
+                <span className="model">{s.model ? `Nemotron ${modelShort(s.model)} · ${s.thinking ? "thinking" : "no thinking"}` : ""}</span>
               </span>
               <span className={`state ${s.status}`}>
                 {s.status === "done" ? <span className="tick"><IconCheck title="done" /> </span> : null}
@@ -54,7 +55,7 @@ export function Reconciliation({ run, title = "Reconciling tonight's reviews", r
                   {run.searches.map((q, j) => (
                     <li key={j}>
                       <IconSearch />
-                      <span>#{q.issue_rank}.{q.n ?? ""} “{q.query}”{typeof q.results === "number" ? ` — ${q.results} results` : " …"}</span>
+                      <span>#{q.issue_rank}.{q.n ?? ""} “{q.query}”{typeof q.results === "number" ? ` — ${plural(q.results, "result")}` : " …"}</span>
                     </li>
                   ))}
                 </ol>

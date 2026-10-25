@@ -1,10 +1,10 @@
 import { IconMoon, IconPlay, IconSun } from "./Icons";
-import { longDate } from "../format";
+import { longDate, plural } from "../format";
 
 export type Mode = "demo" | "live";
 
-export function Masthead({ hotel, city, period, edition, mode, setMode, theme, toggleTheme, synthetic, nReviews, onReplay, replaying, canReplay }: {
-  hotel: string; city: string; period: string; edition: Date; mode: Mode; setMode: (m: Mode) => void;
+export function Masthead({ hotel, city, period, edition, editionNote, mode, setMode, theme, toggleTheme, synthetic, nReviews, onReplay, replaying, canReplay }: {
+  hotel: string; city: string; period: string; edition: Date; editionNote?: string; mode: Mode; setMode: (m: Mode) => void;
   theme: "paper" | "night"; toggleTheme: () => void; synthetic: boolean; nReviews: number;
   onReplay?: () => void; replaying?: boolean; canReplay?: boolean;
 }) {
@@ -12,7 +12,7 @@ export function Masthead({ hotel, city, period, edition, mode, setMode, theme, t
     <header className="masthead">
       <div className="masthead-top">
         <span>The morning briefing for the General Manager</span>
-        <span className="mono">{nReviews ? `${nReviews.toLocaleString()} reviews reconciled` : "awaiting reviews"}</span>
+        <span className="mono">{nReviews ? `${plural(nReviews, "review")} reconciled` : "awaiting reviews"}</span>
       </div>
       <hr className="rule-double" />
       <h1 className="masthead-title">Night Audit</h1>
@@ -20,7 +20,7 @@ export function Masthead({ hotel, city, period, edition, mode, setMode, theme, t
       <hr className="rule" />
       <div className="dateline">
         <span>{hotel}{city ? ` · ${city}` : ""}</span>
-        <span>{longDate(edition)}</span>
+        <span title={editionNote}>Edition of {longDate(edition)}</span>
         <span>
           {synthetic ? (
             <span className="badge-synth" title="All demo reviews are synthetic; the hotel is fictional">Synthetic data</span>
