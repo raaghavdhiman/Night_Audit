@@ -199,18 +199,32 @@ class SpendCounter:
         self._redis_key = redis_key
         self.backend = "upstash" if (self._redis_url and self._redis_token) else "file"
 
-    # file backend
+    # file backend (one writer process expected; reads retry so a concurrent replace never resets to 0)
     def _read_file(self) -> float:
-        try:
-            return float(json.loads(self.path.read_text(encoding="utf-8"))["spend_usd"])
-        except (FileNotFoundError, ValueError, KeyError, json.JSONDecodeError):
+        if not self.path.exists():
             return 0.0
+        for _ in range(20):
+            try:
+                v = float(json.loads(self.path.read_text(encoding="utf-8"))["spend_usd"])
+                self._last = max(getattr(self, "_last", 0.0), v)
+                return v
+            except FileNotFoundError:
+                return getattr(self, "_last", 0.0)
+            except (OSError, ValueError, KeyError):
+                time.sleep(0.02)
+        return getattr(self, "_last", 0.0)
 
     def _write_file(self, value: float) -> None:
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        tmp = self.path.with_suffix(".tmp")
+        tmp = self.path.with_suffix(f".{os.getpid()}.tmp")
         tmp.write_text(json.dumps({"spend_usd": value, "updated": time.time()}), encoding="utf-8")
-        os.replace(tmp, self.path)
+        for _ in range(20):
+            try:
+                os.replace(tmp, self.path)
+                return
+            except PermissionError:  # Windows: target briefly open in another process
+                time.sleep(0.02)
+        self._last = value
 
     # redis backend
     def _redis(self, *cmd):

@@ -1,0 +1,78 @@
+[
+ {
+  "thinking": true,
+  "rep": 1,
+  "top3": [
+   "food_beverage",
+   "noise",
+   "cleanliness"
+  ],
+  "precision": 1.0,
+  "recovered_both_trends": true,
+  "cost": 0.0031073999999999824,
+  "seconds": 16.11007809638977,
+  "reasoning": 1866,
+  "titles": [
+   "Breakfast buffet depleted by 8:30 AM",
+   "Nighttime traffic noise disrupts guest sleep",
+   "Bed bugs found in guest rooms spark health concerns"
+  ]
+ },
+ {
+  "thinking": true,
+  "rep": 2,
+  "top3": [
+   "food_beverage",
+   "noise",
+   "cleanliness"
+  ],
+  "precision": 1.0,
+  "recovered_both_trends": true,
+  "cost": 0.0028598999999999986,
+  "seconds": 12.54271149635315,
+  "reasoning": 1555,
+  "titles": [
+   "Food and beverage complaints spike to 32%",
+   "Noise complaints rise to 28% amid events",
+   "Bed\u2011bug report raises health concerns"
+  ]
+ },
+ {
+  "thinking": false,
+  "rep": 1,
+  "top3": [
+   "food_beverage",
+   "noise",
+   "cleanliness"
+  ],
+  "precision": 1.0,
+  "recovered_both_trends": true,
+  "cost": 0.001374000000000014,
+  "seconds": 5.955876588821411,
+  "reasoning": 0,
+  "titles": [
+   "Food & beverage complaints surge past 30% in recent weeks",
+   "Noise complaints climb to 28% amid rise in weekend events",
+   "Housekeeping lapse identified with confirmed bed bug report"
+  ]
+ },
+ {
+  "thinking": false,
+  "rep": 2,
+  "top3": [
+   "food_beverage",
+   "noise",
+   "cleanliness"
+  ],
+  "precision": 1.0,
+  "recovered_both_trends": true,
+  "cost": 0.0013604999999999867,
+  "seconds": 3.473937511444092,
+  "reasoning": 0,
+  "titles": [
+   "Food & beverage complaints surge past 30% in recent weeks",
+   "Noise complaints jump to 33% of recent reviews amid event disruptions",
+   "Housekeeping lapse identified with confirmed bed bug report in recent stay"
+  ]
+ }
+]

@@ -1,0 +1,113 @@
+{
+  "choice": "super_off",
+  "primary_reference": "silver (Ultra thinking ON)",
+  "human_labeled": 0,
+  "stats": {
+    "lightning_off": {
+      "n": 260,
+      "json_fail_first": 0.0,
+      "json_fail_final": 0.0,
+      "mean_latency_s": 1.7188038461538462,
+      "wall_s": 28.809813022613525,
+      "cost_usd": 0.022197,
+      "cost_per_1k": 0.08537307692307693,
+      "tokens_in": 272506,
+      "tokens_out": 24361,
+      "reasoning_tokens": 0
+    },
+    "lightning_on": {
+      "n": 260,
+      "json_fail_first": 0.17692307692307693,
+      "json_fail_final": 0.015384615384615385,
+      "mean_latency_s": 65.88276153846154,
+      "wall_s": 1095.2465405464172,
+      "cost_usd": 0.320107,
+      "cost_per_1k": 1.231180769230769,
+      "tokens_in": 318661,
+      "tokens_out": 1254115,
+      "reasoning_tokens": 1230335
+    },
+    "super_off": {
+      "n": 260,
+      "json_fail_first": 0.0,
+      "json_fail_final": 0.0,
+      "mean_latency_s": 1.3964769230769232,
+      "wall_s": 23.911879539489746,
+      "cost_usd": 0.104476,
+      "cost_per_1k": 0.40183076923076927,
+      "tokens_in": 272506,
+      "tokens_out": 25249,
+      "reasoning_tokens": 0
+    },
+    "ultra_off": {
+      "n": 260,
+      "json_fail_first": 0.0,
+      "json_fail_final": 0.0,
+      "mean_latency_s": 1.5745923076923076,
+      "wall_s": 26.310194730758667,
+      "cost_usd": 0.349144,
+      "cost_per_1k": 1.3428615384615386,
+      "tokens_in": 272506,
+      "tokens_out": 25546,
+      "reasoning_tokens": 0
+    }
+  },
+  "scores_primary": {
+    "lightning_off": {
+      "n_reviews": 100,
+      "precision": 0.8370607028753994,
+      "recall": 0.7705882352941177,
+      "f1": 0.8024502297090353,
+      "neg_precision": 0.7293233082706767,
+      "neg_recall": 0.782258064516129,
+      "neg_f1": 0.7548638132295721,
+      "sentiment_agree": 0.9465648854961832,
+      "severity_mae": 0.22900763358778625,
+      "severity_within1": 0.9694656488549618,
+      "dept_agree": 0.7900763358778626,
+      "recall_only": false
+    },
+    "lightning_on": {
+      "n_reviews": 96,
+      "precision": 0.954248366013072,
+      "recall": 0.9182389937106918,
+      "f1": 0.935897435897436,
+      "neg_precision": 0.8617886178861789,
+      "neg_recall": 0.9137931034482759,
+      "neg_f1": 0.887029288702929,
+      "sentiment_agree": 0.9691780821917808,
+      "severity_mae": 0.1952054794520548,
+      "severity_within1": 0.9863013698630136,
+      "dept_agree": 0.9041095890410958,
+      "recall_only": false
+    },
+    "super_off": {
+      "n_reviews": 100,
+      "precision": 0.8668639053254438,
+      "recall": 0.861764705882353,
+      "f1": 0.8643067846607669,
+      "neg_precision": 0.8083333333333333,
+      "neg_recall": 0.782258064516129,
+      "neg_f1": 0.7950819672131147,
+      "sentiment_agree": 0.9692832764505119,
+      "severity_mae": 0.16723549488054607,
+      "severity_within1": 0.9795221843003413,
+      "dept_agree": 0.8771331058020477,
+      "recall_only": false
+    },
+    "ultra_off": {
+      "n_reviews": 100,
+      "precision": 0.9554896142433235,
+      "recall": 0.9470588235294117,
+      "f1": 0.9512555391432791,
+      "neg_precision": 0.9067796610169492,
+      "neg_recall": 0.8629032258064516,
+      "neg_f1": 0.8842975206611571,
+      "sentiment_agree": 0.9782608695652174,
+      "severity_mae": 0.14285714285714285,
+      "severity_within1": 0.984472049689441,
+      "dept_agree": 0.9316770186335404,
+      "recall_only": false
+    }
+  }
+}
