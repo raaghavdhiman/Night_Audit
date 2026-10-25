@@ -58,3 +58,25 @@ Newest entries at the bottom. Do not rewrite earlier entries.
 - Tavily `basic` results for generic queries include junk (author pages, Instagram reels); only cited
   sources are highlighted in the UI and URLs only ever come from Tavily, never from model text.
 - Synthetic generation: 1 of 600 Lightning outputs had an empty review body; generator now requires >= 20 chars.
+
+## 2026-10-25 - full pipeline on the synthetic hotel (scripts/build_demo.py)
+- Recovered the planted story: top 3 = noise, food_beverage, cleanliness (bed bugs) -> precision 1.00; both
+  severity-5 incidents escalated; weekly detected negatives within +-1 of planted for both trends.
+- Investigation found TxDOT's I-35 Capital Express nightly closures for the noise issue and ACL / F1 occupancy
+  for breakfast. Ultra used 11-12 of the 12 allowed searches. Native tool calling, no fallback needed.
+- Routed run $0.317 / 124 s for 600 reviews; all-Ultra-thinking baseline measured $0.185 on 20 reviews,
+  extrapolated $2.18 -> 85% saved. Extraction is 75% of the routed cost.
+- First demo copy leaked machine values ("0.2715 (27.15%)", "change_vs_baseline of 1.177", ISO dates).
+  Fixed in the trends prompt (newspaper-style numbers). Pull quotes opened on scene-setting ("Arrived in Austin
+  buzzing..."): quotes now start at the first sentence that mentions the aspect, with the manager reply removed.
+- Live end-to-end in a real browser (headless Edge via playwright-core): 120-review sample, 66 s, $0.124,
+  no console errors. Spend-cap test: counter preset to $0.049 with cap $0.05 -> the run stopped itself
+  before trends ("global spend cap reached before trends"); afterwards /api/config reports spend_cap and
+  uploads get 429. With both keys removed: loud banner, demo served (679 KB), live returns 503 no_keys.
+- UI self-review fixes: a `.trail li {display:flex}` rule leaked into the sources list (titles squeezed into
+  a 1-word column); folio columns collided ("686.1k2m 0s"); the APPROVED stamp covered the guest quote; the
+  folio total stayed $0 during a run (now tracks running cost); the sample CSV covered only 2 weeks (now every
+  5th review across all 8).
+- Not verified locally: `docker build` (Docker is not installed on this machine). The Dockerfile is the
+  standard two-stage pattern; first verification will be Render's build log.
+- Dev spend so far: ~$2.86 estimated (well under the $10 budget).
