@@ -204,7 +204,7 @@ def main():
     config.require_keys(("NEBIUS_API_KEY",))
     RESULTS.mkdir(exist_ok=True)
 
-    sheet = pd.read_csv(LABELS).fillna("")
+    sheet = pd.read_csv(LABELS, dtype=str).fillna("")
     sheet["parsed"] = sheet["labels"].map(parse_label)
     human = {f"e{r.eval_id}": r.parsed for r in sheet.itertuples() if r.parsed is not None}
     print(f"Human-labeled rows: {len(human)} / {len(sheet)}")

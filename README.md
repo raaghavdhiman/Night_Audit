@@ -152,7 +152,7 @@ A live run on 120 reviews took 66 s and cost $0.12.
 
 ## Setup
 
-Requirements: Python 3.11+ (tested on 3.12 and 3.14) and Node 20.19+ (only for building the frontend).
+Requirements: Python 3.11+ (tested locally on 3.13 and 3.14; the Docker image uses 3.12) and Node 20.19+ (only for building the frontend).
 
 **Windows (PowerShell)**
 ```powershell
