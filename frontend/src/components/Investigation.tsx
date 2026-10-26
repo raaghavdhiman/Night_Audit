@@ -3,6 +3,8 @@ import type { Investigation as Inv, Source } from "../types";
 import { domain, plural, sourceDate } from "../format";
 import { IconChevron, IconExternal, IconSearch } from "./Icons";
 
+const KIND_LABEL: Partial<Record<Source["kind"], string>> = { reviews: "guest reviews" };
+
 const excludedWhy = (s: Source) => (s.other_city ? `about ${s.other_city}, not the hotel's city` : s.older ? "older than 12 months" : "");
 
 /** Turn "[3]" / "[3, 5]" (original source ids) in model text into citation links showing display numbers. */
@@ -31,7 +33,7 @@ function CiteLink({ s, prefix, onCite }: { s: Source; prefix: string; onCite: (s
   );
 }
 
-export function Investigation({ inv, rank, id }: { inv: Inv; rank: number; id: string }) {
+export function Investigation({ inv, rank, id, staleNote }: { inv: Inv; rank: number; id: string; staleNote?: string | null }) {
   const [open, setOpen] = useState<Set<number>>(new Set());
   const [showAll, setShowAll] = useState(false);
   const prefix = `src-${rank}`;
@@ -45,9 +47,11 @@ export function Investigation({ inv, rank, id }: { inv: Inv; rank: number; id: s
   };
   // display order (cited 1..k by source type, then the rest) is computed server-side as `n`
   const sources = [...inv.sources].sort((a, b) => a.n - b.n);
+  const hasReviewSites = inv.sources.some((s) => s.kind === "reviews");
 
   return (
     <div className="insert" id={id} role="region" aria-label={`Investigation for issue ${rank}`}>
+      {staleNote && <p className="stale-note" role="note">{staleNote}</p>}
       <div className="insert-head">
         <h3>The investigation</h3>
         <span className="mono faint" style={{ fontSize: 11.5 }}>
@@ -115,7 +119,7 @@ export function Investigation({ inv, rank, id }: { inv: Inv; rank: number; id: s
                     <span className="n">[{s.n}]{s.cited && <span className="dot" role="img" aria-label="cited" />}</span>
                     <span className="t">{s.title || domain(s.url)}
                       <span className="d">
-                        <span className={`kind kind-${s.kind}`}>{s.kind}</span>
+                        <span className={`kind kind-${s.kind}`}>{KIND_LABEL[s.kind] ?? s.kind}</span>
                         {domain(s.url)}
                         {s.date && <span title={s.date_from === "url" ? "Date taken from the URL" : "Published date"}> · {sourceDate(s.date)}</span>}
                         {s.older && <> · <span className="flag" title="Older than 12 months: not used as current evidence">older</span></>}
@@ -147,6 +151,7 @@ export function Investigation({ inv, rank, id }: { inv: Inv; rank: number; id: s
         <p className="faint" style={{ fontSize: 12, marginTop: 10, fontFamily: "var(--font-ui)" }}>
           Hypotheses are the agent's reasoning over search results, not verified facts. ● marks sources cited above.
           Results older than 12 months or about another city are not used as evidence.
+          {hasReviewSites && " Sources tagged guest reviews come from review and booking sites: they corroborate what guests report, but are not an independent outside cause."}
         </p>
       </div>
     </div>

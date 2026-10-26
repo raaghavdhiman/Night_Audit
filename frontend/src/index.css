@@ -247,6 +247,10 @@ button { font: inherit; color: inherit; }
 @keyframes unfold { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
 .insert-head { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; align-items: baseline; margin-bottom: 10px; }
 .insert-head h3 { margin: 0; font-family: var(--font-display); font-size: 20px; }
+.stale-note {
+  margin: 0 0 14px; padding: 8px 12px; border-left: 3px solid var(--oxblood); background: var(--oxblood-wash);
+  font-size: 13.5px; line-height: 1.45; color: var(--ink);
+}
 .insert-summary { font-family: var(--font-display); font-size: 17px; line-height: 1.5; margin: 0 0 16px; }
 .insert-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px var(--gutter); }
 .insert h4 { font-size: 11.5px; letter-spacing: 0.14em; text-transform: uppercase; margin: 0 0 8px; color: var(--ink-2); border-bottom: 1px solid var(--rule-soft); padding-bottom: 4px; }
@@ -295,6 +299,7 @@ button { font: inherit; color: inherit; }
 .kind-official { color: var(--brass-ink); }
 .kind-news { color: var(--ink-2); }
 .kind-other { color: var(--ink-3); }
+.kind-reviews { color: var(--ink-3); }
 .kind-social { color: var(--oxblood-ink); }
 .source-row .flag { color: var(--oxblood-ink); text-transform: uppercase; letter-spacing: 0.06em; }
 .source-row.excluded .t { color: var(--ink-3); font-weight: 450; }

@@ -174,7 +174,10 @@ def _clean_output(obj: dict, book: SourceBook) -> dict:
 
 
 # --- source quality (deterministic; re-runnable on stored results) ----------------
-KIND_ORDER = {"official": 0, "news": 1, "other": 2, "social": 3}
+KIND_ORDER = {"official": 0, "news": 1, "other": 2, "reviews": 3, "social": 4}
+# Guest-review and booking sites: they echo what guests say, so they corroborate rather than explain.
+REVIEW_DOMAINS = {"booking.com", "hotels.com", "yelp.com"}
+_REVIEW_BRANDS = r"tripadvisor|expedia"  # many country TLDs (tripadvisor.co.uk, expedia.ca, ...)
 SOCIAL_DOMAINS = {"facebook.com", "fb.com", "instagram.com", "x.com", "twitter.com", "tiktok.com", "reddit.com",
                   "youtube.com", "youtu.be", "threads.net"}
 NEWS_DOMAINS = {
@@ -215,13 +218,23 @@ def _domain_match(host: str, domains: set[str]) -> bool:
     return any(host == d or host.endswith("." + d) for d in domains)
 
 
+def _is_review_site(host: str, path: str) -> bool:
+    if _domain_match(host, REVIEW_DOMAINS) or re.search(rf"(^|\.)({_REVIEW_BRANDS})(\.[a-z]{{2,3}}){{1,2}}$", host):
+        return True
+    # Google Maps: maps.google.*, google.*/maps, maps.app.goo.gl, goo.gl/maps
+    return bool(re.match(r"maps\.google\.", host) or host == "maps.app.goo.gl"
+                or (re.match(r"google\.", host) or host == "goo.gl") and path.startswith("/maps"))
+
+
 def source_kind(url: str) -> str:
-    """official (.gov/.mil), news (known outlet or a 'news' host), social, or other."""
+    """official (.gov/.mil), news (known outlet or a 'news' host), social, reviews (review/booking site), or other."""
     host = _host(url)
     if re.search(r"\.(gov|mil)(\.[a-z]{2})?$", host):
         return "official"
     if _domain_match(host, SOCIAL_DOMAINS):
         return "social"
+    if _is_review_site(host, urlparse(url).path):
+        return "reviews"
     if _domain_match(host, NEWS_DOMAINS) or "news" in re.split(r"[.-]", host):
         return "news"
     return "other"
@@ -274,6 +287,7 @@ def other_city(title: str, url: str, city: str) -> str | None:
 
 def annotate_sources(inv: dict, city: str, as_of: date) -> dict:
     """Classify, date and filter sources, renumber cited ones 1..k, and cap social-only confidence.
+    Review/booking sites are tagged `reviews` and kept; they are not capped.
 
     Keeps every source and the model's original ids/citations; only adds fields:
       source: kind, date, date_from, older, other_city, cited, n (display number; `id` stays the original

@@ -54,16 +54,18 @@ function Skeleton() {
   );
 }
 
-function Broadsheet({ r, expanded, toggle, onToast }: { r: AuditResult; expanded: Set<number>; toggle: (n: number) => void; onToast: (m: string) => void }) {
+function Broadsheet({ r, expanded, toggle, onToast, staleNote }: {
+  r: AuditResult; expanded: Set<number>; toggle: (n: number) => void; onToast: (m: string) => void; staleNote?: string | null;
+}) {
   const [lead, ...rest] = r.issues;
   return (
     <>
-      {lead && <Story issue={lead} lead expanded={expanded.has(lead.rank)} onToggle={() => toggle(lead.rank)} nReviews={r.meta.n_reviews} />}
+      {lead && <Story issue={lead} lead expanded={expanded.has(lead.rank)} onToggle={() => toggle(lead.rank)} nReviews={r.meta.n_reviews} staleNote={staleNote} />}
       <Escalations items={r.escalations} />
       {rest.length > 0 && <hr className="rule" style={{ margin: "22px 0 14px" }} />}
       <div className="seconds">
         {rest.map((i) => (
-          <Story key={i.rank} issue={i} expanded={expanded.has(i.rank)} onToggle={() => toggle(i.rank)} nReviews={r.meta.n_reviews} />
+          <Story key={i.rank} issue={i} expanded={expanded.has(i.rank)} onToggle={() => toggle(i.rank)} nReviews={r.meta.n_reviews} staleNote={staleNote} />
         ))}
       </div>
       <Replies replies={r.replies} storeKey={`na-replies-v2-${r.meta.hotel}-${r.meta.generated_at}`} onToast={onToast} />
@@ -212,7 +214,7 @@ export default function App() {
     else if (live) main = (
       <>
         {live.meta.truncated_to ? <p className="mono faint" style={{ fontSize: 12 }}>Only the most recent {live.meta.truncated_to} reviews were analysed (live limit).</p> : null}
-        <Broadsheet r={live} expanded={expanded} toggle={toggle} onToast={setToast} />
+        <Broadsheet r={live} expanded={expanded} toggle={toggle} onToast={setToast} staleNote={live.meta.stale_note} />
         <p style={{ marginTop: 24 }}><button className="btn" onClick={() => { setLive(null); dispatch({ type: "reset" }); }}>Run another audit</button></p>
       </>
     );

@@ -23,6 +23,17 @@ def test_source_kind():
     assert source_kind("https://www.govtech-example.com/a") == "other"
 
 
+def test_source_kind_review_sites():
+    for url in ["https://www.tripadvisor.com/Hotel_Review-g1", "https://www.tripadvisor.co.uk/Hotel_Review-g1",
+                "https://www.booking.com/hotel/us/x.html", "https://www.expedia.com/Austin-Hotels.h1.Hotel-Information",
+                "https://www.expedia.ca/x", "https://m.yelp.com/biz/x", "https://www.google.com/maps/place/x",
+                "https://maps.google.com/?cid=1", "https://maps.app.goo.gl/abc", "https://www.hotels.com/ho1"]:
+        assert source_kind(url) == "reviews", url
+    assert source_kind("https://www.google.com/search?q=x") == "other"
+    assert source_kind("https://www.notbooking.com/a") == "other"
+    assert source_kind("https://expediagroup-news.com/a") == "news"
+
+
 def test_source_date():
     assert source_date("2026-10-15T08:00:00Z", "https://a.com/x") == ("2026-10-15", "tavily")
     assert source_date("Wed, 15 Oct 2025 14:00:00 GMT", "https://a.com/x") == ("2025-10-15", "tavily")

@@ -272,6 +272,12 @@ spend cap trips, when keys are missing, or when Token Factory is unreachable.
 - **Root causes are hypotheses.** Tavily's basic search returns some low-quality pages (social posts, listicles).
   The agent cites what it found and labels confidence, but it can over-read a coincidence, such as a festival
   that happens to fall in the same weeks.
+- **Web search reflects today's web, not the review period.** An old review set (say, reviews that end in 2019)
+  gets weak or irrelevant sources: today's news can't explain a complaint from years ago, and most older pages are
+  filtered out as stale. Live runs show a note above the investigation when the newest review is more than 90
+  days old.
+- **Mold is always scored severity 5**, so a cosmetic mention ("a little mold on the shower grout") can be
+  escalated like a health hazard. Check the excerpt before acting on a mold escalation.
 - **Costs are estimates** from list prices. Billing reasoning tokens at the output rate is an assumption not yet
   checked against an invoice. Tavily credits are shown but not converted to dollars.
 - **The baseline is extrapolated** from a 20-review all-Ultra sample (extraction scales per review; investigation

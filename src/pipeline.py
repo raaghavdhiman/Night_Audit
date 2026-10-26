@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import asyncio
 import time
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 import pandas as pd
 
@@ -41,6 +41,20 @@ def _period(df: pd.DataFrame) -> str:
     if d.empty:
         return "undated reviews"
     return f"{d.min():%b %d, %Y} to {d.max():%b %d, %Y}"
+
+
+STALE_AFTER_DAYS = 90
+
+
+def stale_note(df: pd.DataFrame, today: date) -> str | None:
+    """A warning when the newest review is more than STALE_AFTER_DAYS old: Tavily searches today's web."""
+    d = df["date"].dropna()
+    if d.empty:
+        return None
+    newest = d.max().date()
+    if (today - newest).days <= STALE_AFTER_DAYS:
+        return None
+    return f"These reviews end in {newest:%B %Y}. Web search reflects today, so outside causes may not apply."
 
 
 async def run_pipeline(df: pd.DataFrame, meta: dict, routing: dict | None = None, ledger: Ledger | None = None,
@@ -196,6 +210,7 @@ async def _work(df, meta, routing, ledger, emit, check_budget, replies_k, extrac
             "n_extraction_failed": n_failed, "generated_at": datetime.now(timezone.utc).isoformat(timespec="seconds"),
             "synthetic": bool(meta.get("synthetic")), "source": meta.get("source", "upload"),
             "has_dates": tr["has_dates"], "truncated_to": meta.get("truncated_to"),
+            "stale_note": stale_note(df, date.today()),
             "wall_seconds": round(time.time() - t_start, 1),
         },
         "routing": [_stage_meta(s, routing) for s in STAGES],

@@ -11,8 +11,8 @@ function DropCapPara({ text }: { text: string }) {
   return <p><span className="dropcap-word">{m[1]}</span>{m[2]}</p>;
 }
 
-export function Story({ issue, lead, expanded, onToggle, nReviews }: {
-  issue: Issue; lead?: boolean; expanded: boolean; onToggle: () => void; nReviews: number;
+export function Story({ issue, lead, expanded, onToggle, nReviews, staleNote }: {
+  issue: Issue; lead?: boolean; expanded: boolean; onToggle: () => void; nReviews: number; staleNote?: string | null;
 }) {
   const s = issue.stats;
   const panelId = `inv-${issue.rank}`;
@@ -63,7 +63,7 @@ export function Story({ issue, lead, expanded, onToggle, nReviews }: {
             {expanded ? "Close the investigation" : `Open the investigation · ${issue.investigation.cited_source_ids.length} cited source${issue.investigation.cited_source_ids.length === 1 ? "" : "s"}`}
             <IconChevron />
           </button>
-          {expanded && <Investigation inv={issue.investigation} rank={issue.rank} id={panelId} />}
+          {expanded && <Investigation inv={issue.investigation} rank={issue.rank} id={panelId} staleNote={staleNote} />}
         </>
       )}
     </article>

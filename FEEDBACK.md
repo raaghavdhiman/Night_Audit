@@ -80,3 +80,13 @@ Newest entries at the bottom. Do not rewrite earlier entries.
 - Not verified locally: `docker build` (Docker is not installed on this machine). The Dockerfile is the
   standard two-stage pattern; first verification will be Render's build log.
 - Dev spend so far: ~$2.86 estimated (well under the $10 budget).
+
+## 2026-10-26 - known limitations (staleness, review sites, mold)
+- Web search reflects today's web, not the review period, so an old review set gets weak sources (today's news
+  can't explain a 2019 complaint, and older pages are filtered as stale). Live runs now show a note above the
+  investigation when the newest review is more than 90 days old; the cached demo is recent and unaffected.
+- Review and booking sites (Tripadvisor, Booking.com, Expedia, Hotels.com, Yelp, Google Maps) are now tagged
+  "guest reviews" instead of "other". They are kept in the list, but the UI says they corroborate guest reports
+  rather than give an independent outside cause. The demo was re-annotated offline (scripts/annotate_demo.py):
+  two uncited issue-3 sources (Yelp, Expedia) changed kind; no model or search calls.
+- Mold is always scored severity 5 by the extraction rubric, so a cosmetic mention can be over-escalated.

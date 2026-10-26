@@ -32,12 +32,13 @@ export interface AspectSummary {
   weekly: WeekPoint[];
 }
 
-export type SourceKind = "official" | "news" | "other" | "social";
+/** reviews: a guest-review or booking site (Tripadvisor, Booking.com, Expedia, Google Maps, ...) */
+export type SourceKind = "official" | "news" | "other" | "reviews" | "social";
 
 export interface Source {
   /** original id, as the model cites it in text and source_ids */
   id: number;
-  /** display number: cited sources are 1..k (official > news > other > social), the rest follow */
+  /** display number: cited sources are 1..k (official > news > other > reviews > social), the rest follow */
   n: number;
   title: string;
   url: string;
@@ -195,6 +196,8 @@ export interface AuditResult {
     source: string;
     has_dates: boolean;
     truncated_to: number | null;
+    /** set when the newest review is more than 90 days old; absent in older results */
+    stale_note?: string | null;
     wall_seconds: number;
     disclosure?: string;
   };
