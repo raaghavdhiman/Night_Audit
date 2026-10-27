@@ -106,6 +106,36 @@ export function MentionBars({ aspects, featured, period }: { aspects: AspectSumm
   );
 }
 
+export interface HBarRow { label: string; note?: string; value: number; text: string; muted?: boolean }
+
+/** Small horizontal bars in inline SVG: label (and note) left, bar from one baseline, value right. Single series, so no legend. */
+export function HBars({ rows, title }: { rows: HBarRow[]; title: string }) {
+  const W = 400, rowH = 36, labelW = 150, valW = 64, barH = 12;
+  const max = Math.max(...rows.map((r) => r.value), 1e-9);
+  const span = W - labelW - valW - 8;
+  const H = rows.length * rowH;
+  return (
+    <svg className="hbars" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${title}: ${rows.map((r) => `${r.label} ${r.text}`).join(", ")}`}>
+      {rows.map((r, i) => {
+        const y = i * rowH + 6;
+        const w = Math.max(2, (r.value / max) * span);
+        const rx = Math.min(4, w / 2);
+        // square at the baseline, 4px rounded at the data end
+        const d = `M${labelW},${y} h${w - rx} a${rx},${rx} 0 0 1 ${rx},${rx} v${barH - 2 * rx} a${rx},${rx} 0 0 1 ${-rx},${rx} h${-(w - rx)} z`;
+        return (
+          <g key={r.label}>
+            <title>{`${r.label}${r.note ? ` (${r.note})` : ""}: ${r.text}`}</title>
+            <text className="hb-label" x={0} y={y + 10}>{r.label}</text>
+            {r.note && <text className="hb-note" x={0} y={y + 24}>{r.note}</text>}
+            <path className={`hb-bar${r.muted ? " muted" : ""}`} d={d} />
+            <text className="hb-val" x={W} y={y + 10} textAnchor="end">{r.text}</text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
 /** Tiny weekly bars for the ledger table. */
 export function WeekBars({ weekly, hot }: { weekly: WeekPoint[]; hot?: boolean }) {
   const W = 96, H = 22;

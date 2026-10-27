@@ -1,32 +1,63 @@
-import { useState, type ReactNode } from "react";
-import { IconChevron, IconMoon, IconSun } from "./Icons";
+import { useLayoutEffect, useRef } from "react";
+import { IconMoon, IconSun } from "./Icons";
 import { longDate } from "../format";
 
-export type Mode = "demo" | "live";
+export type Route = "home" | "live" | "hood";
 
-export function Masthead({ hotel, city, edition, editionNote, mode, setMode, theme, toggleTheme, synthetic, summary, staleNote }: {
-  hotel: string; city: string; edition: Date; editionNote?: string; mode: Mode; setMode: (m: Mode) => void;
-  theme: "paper" | "night"; toggleTheme: () => void; synthetic: boolean; summary?: string | null; staleNote?: string | null;
+export const ROUTES: { route: Route; hash: string; label: string }[] = [
+  { route: "home", hash: "#/", label: "Tonight's Issues" },
+  { route: "live", hash: "#/live", label: "Run your own" },
+  { route: "hood", hash: "#/under-the-hood", label: "Under the hood" },
+];
+
+/** Slim sticky bar on every page: wordmark, the three page tabs (ink underline slides to the active one), theme. */
+export function Nav({ route, theme, toggleTheme }: { route: Route; theme: "paper" | "night"; toggleTheme: () => void }) {
+  const tabs = useRef<HTMLDivElement>(null);
+  const ink = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const place = () => {
+      const a = tabs.current?.querySelector<HTMLElement>('[aria-current="page"]');
+      if (!a || !ink.current) return;
+      ink.current.style.width = `${a.offsetWidth}px`;
+      ink.current.style.transform = `translateX(${a.offsetLeft}px)`;
+      if (tabs.current && (a.offsetLeft < tabs.current.scrollLeft || a.offsetLeft + a.offsetWidth > tabs.current.scrollLeft + tabs.current.clientWidth)) {
+        tabs.current.scrollLeft = a.offsetLeft - 16; // keep the active tab in view on a narrow bar
+      }
+    };
+    place();
+    window.addEventListener("resize", place);
+    document.fonts?.ready.then(place);
+    return () => window.removeEventListener("resize", place);
+  }, [route]);
+  return (
+    <nav className="topnav" aria-label="Pages">
+      <div className="topnav-in">
+        <a href="#/" className="wordmark">Night Audit</a>
+        <div className="tabs" ref={tabs}>
+          {ROUTES.map((t) => (
+            <a key={t.route} href={t.hash} className="tab" aria-current={route === t.route ? "page" : undefined}>{t.label}</a>
+          ))}
+          <span className="tab-ink" ref={ink} aria-hidden />
+        </div>
+        <button className="btn btn-sm btn-ghost theme-btn" onClick={toggleTheme} aria-label={`Switch to ${theme === "paper" ? "night" : "paper"} theme`}>
+          {theme === "paper" ? <IconMoon /> : <IconSun />} {theme === "paper" ? "Night" : "Paper"}
+        </button>
+      </div>
+    </nav>
+  );
+}
+
+export function Masthead({ title, city, edition, editionNote, live, synthetic, summary, staleNote }: {
+  title: string; city: string; edition: Date; editionNote?: string; live: boolean; synthetic: boolean;
+  summary?: string | null; staleNote?: string | null;
 }) {
   return (
     <header className="masthead">
-      <nav className="toolbar" aria-label="Edition controls">
-        <span className="wordmark">Night Audit</span>
-        <div className="toolbar-controls">
-          <div className="seg" role="group" aria-label="Mode">
-            <button aria-pressed={mode === "demo"} onClick={() => setMode("demo")}>Demo edition</button>
-            <button aria-pressed={mode === "live"} onClick={() => setMode("live")}>Live</button>
-          </div>
-          <button className="btn btn-sm btn-ghost" onClick={toggleTheme} aria-label={`Switch to ${theme === "paper" ? "night" : "paper"} theme`}>
-            {theme === "paper" ? <IconMoon /> : <IconSun />} {theme === "paper" ? "Night" : "Paper"}
-          </button>
-        </div>
-      </nav>
-      <h1 className="masthead-title">{hotel}</h1>
+      <h1 className="masthead-title">{title}</h1>
       {summary && <p className="masthead-sub">{summary}</p>}
       <hr className="rule-double" />
       <div className="dateline">
-        <span className="dl-ed">{mode === "live" ? "Live edition" : "Demo edition"}</span>
+        <span className="dl-ed"><span className="badge-ed">{live ? "Live edition" : "Demo edition"}</span></span>
         <span className="dl-date" title={editionNote}>{longDate(edition)}</span>
         <span className="dl-city">
           {city}
@@ -41,16 +72,8 @@ export function Masthead({ hotel, city, edition, editionNote, mode, setMode, the
 
 const REPO = import.meta.env.VITE_REPO_URL as string | undefined;
 
-/**
- * The honesty line, then "How this was built": everything behind the three cards opens below it.
- * Pass `open`/`setOpen` to control it from outside (the safety alert opens it).
- */
-export function Footer({ synthetic, children, open: openProp, setOpen: setOpenProp }: {
-  synthetic: boolean; children?: ReactNode; open?: boolean; setOpen?: (fn: (v: boolean) => boolean) => void;
-}) {
-  const [own, setOwn] = useState(false);
-  const open = openProp ?? own;
-  const setOpen = setOpenProp ?? setOwn;
+/** The honesty line and one plain link onward (to "Under the hood", or back to the front page from there). */
+export function Footer({ synthetic, link }: { synthetic: boolean; link: "hood" | "home" }) {
   return (
     <footer className="footer">
       <div className="footer-line">
@@ -60,21 +83,13 @@ export function Footer({ synthetic, children, open: openProp, setOpen: setOpenPr
             : "Live edition: computed from the reviews you uploaded. "}
           Root causes are hypotheses, not findings.
         </p>
-        <button className="how-toggle" aria-expanded={open} aria-controls="how" onClick={() => setOpen((v) => !v)}>
-          How this was built <IconChevron />
-        </button>
+        {link === "hood" ? <a className="footer-link" href="#/under-the-hood">Under the hood</a> : <a className="footer-link" href="#/">Tonight's Issues</a>}
       </div>
-      {open && (
-        <div className="how" id="how" role="region" aria-label="How this was built">
-          {children}
-          <Colophon synthetic={synthetic} />
-        </div>
-      )}
     </footer>
   );
 }
 
-function Colophon({ synthetic }: { synthetic: boolean }) {
+export function Colophon({ synthetic }: { synthetic: boolean }) {
   return (
     <section aria-labelledby="colophon-title">
       <div className="section-head"><h2 id="colophon-title">Method and licenses</h2></div>

@@ -3,6 +3,7 @@ import type { Hypothesis, Issue, Investigation, Source } from "../types";
 import { domain, pct, shortDate } from "../format";
 import { Sparkline } from "./Charts";
 import { IconChevron, IconExternal } from "./Icons";
+import { Collapse, CountUp } from "./Motion";
 import { withPlaceholders } from "./Replies";
 
 /** Cut a guest excerpt at a sentence end (or a word) near `max` characters. */
@@ -43,8 +44,8 @@ function Strip({ issue, lead }: { issue: Issue; lead?: boolean }) {
   return (
     <div className="card-strip">
       <div className="stat-pair">
-        <div className="stat-big"><b>{s.neg_total}</b><span>negative mentions</span></div>
-        <div className="stat-big"><b>{pct(s.recent_neg_rate)}</b><span>of recent reviews</span></div>
+        <div className="stat-big"><b><CountUp id={`neg-${issue.aspect}`} text={String(s.neg_total)} /></b><span>negative mentions</span></div>
+        <div className="stat-big"><b><CountUp id={`rate-${issue.aspect}`} text={pct(s.recent_neg_rate)} /></b><span>of recent reviews</span></div>
       </div>
       {w.length > 0 && (
         <figure className="card-spark">
@@ -63,7 +64,7 @@ function Strip({ issue, lead }: { issue: Issue; lead?: boolean }) {
 }
 
 /** One issue at a glance: numbers and trend, its likely cause, one pull-quote and source, and the drafted reply behind a toggle. */
-export function IssueCard({ issue, replyText, lead }: { issue: Issue; replyText?: string; lead?: boolean }) {
+export function IssueCard({ issue, replyText, lead, index = 0 }: { issue: Issue; replyText?: string; lead?: boolean; index?: number }) {
   const [open, setOpen] = useState(false);
   const [more, setMore] = useState(false);
   const inv = issue.investigation;
@@ -75,7 +76,7 @@ export function IssueCard({ issue, replyText, lead }: { issue: Issue; replyText?
   const replyId = `card-reply-${issue.rank}`;
   const moreId = `card-more-${issue.rank}`;
   return (
-    <article className={`card${lead ? " card-lead" : ""}`} aria-labelledby={`card-${issue.rank}`}>
+    <article className={`card${lead ? " card-lead" : ""}`} aria-labelledby={`card-${issue.rank}`} style={{ ["--i" as string]: index }}>
       <header className="card-head">
         <span className="card-n" aria-hidden>{issue.rank}</span>
         <div>
@@ -95,7 +96,7 @@ export function IssueCard({ issue, replyText, lead }: { issue: Issue; replyText?
               {more ? q1.excerpt : shortQuote(q1.excerpt)}”
             </blockquote>
           )}
-          {more && q2 && <blockquote className="pull pull-2">“{q2.excerpt}”</blockquote>}
+          {q2 && <Collapse open={more}><blockquote className="pull pull-2">“{q2.excerpt}”</blockquote></Collapse>}
           {canExpand && (
             <button className="read-more" aria-expanded={more} aria-controls={moreId} onClick={() => setMore((v) => !v)}>
               {more ? "Show less" : "Read more"}
@@ -113,12 +114,12 @@ export function IssueCard({ issue, replyText, lead }: { issue: Issue; replyText?
               <button className="expander" aria-expanded={open} aria-controls={replyId} onClick={() => setOpen((v) => !v)}>
                 {open ? "Hide suggested reply" : "See suggested reply"} <IconChevron />
               </button>
-              {open && (
-                <div className="card-reply" id={replyId}>
+              <Collapse open={open} id={replyId}>
+                <div className="card-reply">
                   <div className="card-draft">{replyText ? withPlaceholders(replyText) : "Draft failed to generate."}</div>
                   <p className="card-note">Draft only · nothing is sent. Confirm the highlighted points before sending.</p>
                 </div>
-              )}
+              </Collapse>
             </>
           )}
         </div>

@@ -1,17 +1,14 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { analyze, ApiError, getConfig, getDemo } from "./api";
 import type { AuditResult, PipelineEvent, ServerConfig } from "./types";
 import { initialRun, reduce, type RunState } from "./run";
-import { Footer, Masthead, RoutingNotes, type Mode } from "./components/Chrome";
-import { BuildDetails } from "./components/BuildDetails";
+import { Footer, Masthead, Nav, RoutingNotes, type Route } from "./components/Chrome";
 import { Folio } from "./components/Folio";
-import { AtAGlance, SafetyAlert } from "./components/FrontPage";
-import { IssueCard } from "./components/IssueCard";
-import { MentionBars } from "./components/Charts";
+import { FrontBody, replyKey } from "./components/FrontPage";
 import { Reconciliation } from "./components/Reconciliation";
-import { useReplyStore } from "./components/Replies";
+import { UnderTheHood } from "./components/UnderTheHood";
 import { LivePanel } from "./components/LivePanel";
-import { IconAlert } from "./components/Icons";
+import { IconAlert, IconPlay } from "./components/Icons";
 import { plural } from "./format";
 import { useTween } from "./tween";
 
@@ -25,6 +22,17 @@ function initialTheme(): Theme {
     /* ignore */
   }
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "night" : "paper";
+}
+
+const HASH: Record<string, Route> = { "#/": "home", "#/live": "live", "#/under-the-hood": "hood" };
+
+/** The page for the current hash. "#live" (old links) becomes "#/live"; anything unknown falls back to "#/". */
+function readRoute(): Route {
+  const h = location.hash || "#/";
+  if (HASH[h]) return HASH[h];
+  const fallback = h === "#live" ? "#/live" : "#/";
+  history.replaceState(null, "", fallback);
+  return HASH[fallback];
 }
 
 type RunAction = { type: "reset" } | { type: "event"; e: PipelineEvent };
@@ -45,6 +53,8 @@ function editionNote(r: AuditResult | null): string | undefined {
   return `A recorded run (${ran}). The demo keeps the date of the morning after its last week of reviews.`;
 }
 
+const folioNumber = (r: AuditResult | null) => `${r?.meta.generated_at?.slice(0, 10).replace(/-/g, "") ?? "pending"}-${r?.meta.n_reviews ?? 0}`;
+
 function Skeleton() {
   return (
     <div aria-busy="true" aria-label="Setting the type">
@@ -64,60 +74,11 @@ function summaryLine(r: AuditResult): string {
   return `${things}, from ${r.meta.truncated_to ? "the latest " : ""}${plural(r.meta.n_reviews, "review")}.`;
 }
 
-const replyKey = (r: AuditResult) => `na-replies-v2-${r.meta.hotel}-${r.meta.generated_at}`;
-
-/** The front page: figures and the mentions chart, the safety alert, up to three issue cards, then the footer. Keyed by replyKey. */
-function Results({ r, live, folioNo, onToast, onReplay, after }: {
-  r: AuditResult; live: boolean; folioNo: string; onToast: (m: string) => void; onReplay?: () => void; after?: React.ReactNode;
-}) {
-  const store = useReplyStore(replyKey(r));
-  const [howOpen, setHowOpen] = useState(false);
-  const [jump, setJump] = useState(0);
-  const reply = (rank: number) => r.replies.find((x) => x.issue_rank === rank);
-  const top = r.issues.slice(0, 3);
-  const featured = useMemo(() => new Map(r.issues.slice(0, 3).map((i) => [i.aspect, i.rank])), [r.issues]);
-  // the alert opens the panel; once it has rendered, bring the escalations into view
-  useEffect(() => {
-    if (!jump) return;
-    const el = document.getElementById("escalations");
-    const smooth = !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
-    el?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
-    el?.focus({ preventScroll: true });
-  }, [jump]);
-  return (
-    <>
-      <main id="main" className="front">
-        <div className="front-row">
-          <section aria-labelledby="k-front">
-            <div className="kicker" id="k-front">Front page</div>
-            <AtAGlance r={r} />
-          </section>
-          <section aria-labelledby="k-numbers">
-            <div className="kicker" id="k-numbers">By the numbers</div>
-            <MentionBars aspects={r.aspects} featured={featured} period={r.meta.period} />
-          </section>
-        </div>
-        <SafetyAlert n={r.escalations.length} onOpen={() => { setHowOpen(true); setJump((j) => j + 1); }} />
-        <div className="kicker">Fix first</div>
-        {r.issues.length === 0 && <p className="muted">No issue stood out in these reviews.</p>}
-        <div className="cards">
-          {top.map((i, k) => {
-            const rep = reply(i.rank);
-            return <IssueCard key={i.rank} issue={i} lead={k === 0} replyText={rep ? store.get(rep).text : undefined} />;
-          })}
-        </div>
-        {after}
-      </main>
-      <Footer synthetic={!live} open={howOpen} setOpen={setHowOpen}>
-        <BuildDetails r={r} live={live} folioNo={folioNo} store={store} onToast={onToast} onReplay={onReplay} />
-      </Footer>
-    </>
-  );
-}
-
 export default function App() {
   const [theme, setTheme] = useState<Theme>(initialTheme);
-  const [mode, setModeState] = useState<Mode>(() => (location.hash === "#live" ? "live" : "demo"));
+  const [route, setRoute] = useState<Route>(readRoute);
+  const [hoodLive, setHoodLive] = useState(false); // "Under the hood" shows the live run once there is one
+  const [replayDone, setReplayDone] = useState(false);
   const [demo, setDemo] = useState<AuditResult | null>(null);
   const [demoErr, setDemoErr] = useState<string | null>(null);
   const [config, setConfig] = useState<ServerConfig | null>(null);
@@ -162,15 +123,16 @@ export default function App() {
     setReplaying(false);
   };
 
-  const setMode = (m: Mode) => {
-    if (m === mode) return;
-    stopReplay();
-    if (m === "live" && run.status === "running") return setModeState(m);
-    if (run.status !== "running") dispatch({ type: "reset" });
-    history.replaceState(null, "", m === "live" ? "#live" : "#");
-    setModeState(m);
-    if (m === "live") refreshConfig();
-  };
+  useEffect(() => {
+    const onHash = () => {
+      const r = readRoute();
+      setRoute(r);
+      window.scrollTo(0, 0);
+      if (r === "live") refreshConfig();
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [refreshConfig]);
 
   /** Replay the recorded event stream of the demo run, compressed to ~16 s. */
   const replay = () => {
@@ -178,6 +140,7 @@ export default function App() {
     stopReplay();
     dispatch({ type: "reset" });
     setReplaying(true);
+    setReplayDone(false);
     window.scrollTo({ top: 0, behavior: "smooth" });
     const evs = demo.replay;
     const total = evs[evs.length - 1].t || 1;
@@ -186,7 +149,7 @@ export default function App() {
     evs.forEach((e) => {
       timers.current.push(window.setTimeout(() => dispatch({ type: "event", e }), (e.t || 0) * scale * 1000));
     });
-    timers.current.push(window.setTimeout(() => { dispatch({ type: "event", e: { type: "result" } }); setReplaying(false); }, total * scale * 1000 + 700));
+    timers.current.push(window.setTimeout(() => { dispatch({ type: "event", e: { type: "result" } }); setReplaying(false); setReplayDone(true); }, total * scale * 1000 + 700));
   };
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
@@ -194,6 +157,9 @@ export default function App() {
     abort.current?.abort();
     const ctl = new AbortController();
     abort.current = ctl;
+    stopReplay();
+    setReplayDone(false);
+    setHoodLive(true);
     setLive(null);
     setLiveErr(null);
     dispatch({ type: "reset" });
@@ -215,96 +181,118 @@ export default function App() {
     }
   };
 
-
-  const shown: AuditResult | null = mode === "demo" ? demo : live;
   const running = run.status === "running";
-  const inProgress = (mode === "demo" && replaying) || (mode === "live" && running);
+  const inProgress = replaying || running;
   // one running total for the reconciliation header and the folio beside it
-  const runActive = inProgress || (mode === "live" && !!run.folio && !live);
+  const runActive = inProgress || (!live && !!run.folio);
   const runCost = useTween(Math.max(run.folio?.total.cost_usd ?? 0, run.liveCost));
-  const folioNo = useMemo(() => {
-    const g = shown?.meta.generated_at?.slice(0, 10).replace(/-/g, "") ?? "pending";
-    return `${g}-${shown?.meta.n_reviews ?? 0}`;
-  }, [shown]);
+  const notice = (title: string, msg: string, action: React.ReactNode) => (
+    <section className="notice warn" role="alert">
+      <IconAlert className="glyph" />
+      <div>
+        <h3>{title}</h3>
+        <p>{msg}</p>
+        {action}
+      </div>
+    </section>
+  );
 
-  const hotel = mode === "demo" ? demo?.meta.hotel ?? "Hotel Wrenfield" : live?.meta.hotel ?? "Your hotel";
-  const city = mode === "demo" ? demo?.meta.city ?? "Austin, Texas" : live?.meta.city ?? "";
-  const routing = shown?.routing ?? config?.routing ?? demo?.routing ?? [];
-  // the finished edition, once there is one and no run is replacing it
-  const result = inProgress || (mode === "demo" && demoErr) ? null : shown;
-
-  let main: React.ReactNode = null;
-  if (mode === "demo") {
-    if (demoErr) {
-      main = (
-        <section className="notice warn" role="alert">
-          <IconAlert className="glyph" />
-          <div>
-            <h3>The demo edition didn't arrive.</h3>
-            <p>{demoErr}</p>
-            <button className="btn" onClick={loadDemo}>Try again</button>
-          </div>
-        </section>
-      );
-    } else if (!demo) main = <Skeleton />;
-    else if (replaying) main = <><Reconciliation run={run} cost={runCost} replay title="Replaying last night's audit" /><div style={{ marginTop: 18 }}><Skeleton /></div></>;
-  } else {
-    if (running) main = <><Reconciliation run={run} cost={runCost} /><div style={{ marginTop: 18 }}><Skeleton /></div></>;
+  let page: React.ReactNode;
+  if (route === "home") {
+    page = (
+      <>
+        <Masthead title={demo?.meta.hotel ?? "Hotel Wrenfield"} city={demo?.meta.city ?? "Austin, Texas"} edition={editionDate(demo)} editionNote={editionNote(demo)}
+          live={false} synthetic summary={demo ? summaryLine(demo) : null} staleNote={demo?.meta.stale_note} />
+        {demoErr ? <main id="main">{notice("The demo edition didn't arrive.", demoErr, <button className="btn" onClick={loadDemo}>Try again</button>)}</main>
+          : demo ? <FrontBody key={replyKey(demo)} r={demo} />
+          : <main id="main"><Skeleton /></main>}
+        <Footer synthetic link="hood" />
+      </>
+    );
+  } else if (route === "live") {
+    // a replay shows the demo run's progress; everything else here is the visitor's own run
+    const shownHere = replaying ? demo : live;
+    const showSide = inProgress || (!!liveErr && !!run.folio);
+    let body: React.ReactNode;
+    if (replaying) body = <><Reconciliation run={run} cost={runCost} replay title="Replaying last night's audit" /><div style={{ marginTop: 18 }}><Skeleton /></div></>;
+    else if (running) body = <><Reconciliation run={run} cost={runCost} /><div style={{ marginTop: 18 }}><Skeleton /></div></>;
     else if (liveErr) {
       const limited = ["ip_limit", "global_limit", "busy", "spend_cap", "BudgetExceeded"].includes(liveErr.code);
-      main = (
+      body = (
         <>
-          <section className="notice warn" role="alert">
-            <IconAlert className="glyph" />
-            <div>
-              <h3>{limited ? "The night desk is closed to new audits." : "The audit couldn't be completed."}</h3>
-              <p>{liveErr.message}</p>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <button className="btn btn-primary" onClick={() => setMode("demo")}>Read the demo edition</button>
-                {!limited && <button className="btn" onClick={() => { setLiveErr(null); dispatch({ type: "reset" }); }}>Try another file</button>}
-              </div>
+          {notice(limited ? "The night desk is closed to new audits." : "The audit couldn't be completed.", liveErr.message, (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <a className="btn btn-primary" href="#/">Read the demo edition</a>
+              {!limited && <button className="btn" onClick={() => { setLiveErr(null); dispatch({ type: "reset" }); }}>Try another file</button>}
             </div>
-          </section>
+          ))}
           {run.folio && <Reconciliation run={run} cost={runCost} title="Audit stopped" />}
         </>
       );
-    } else if (!live) main = <LivePanel config={config} onStart={startLive} onDemo={() => setMode("demo")} />;
+    } else if (!live) {
+      body = (
+        <>
+          {replayDone && <p className="replay-done">Replay finished. <a href="#/">Read the result on Tonight's Issues</a>.</p>}
+          <LivePanel config={config} onStart={startLive} onDemo={() => { location.hash = "#/"; }} />
+          {!!demo?.replay?.length && (
+            <p className="replay-link"><button className="linkish" onClick={replay}><IconPlay /> Replay the demo run</button></p>
+          )}
+        </>
+      );
+    }
+    page = (
+      <>
+        <Masthead title={shownHere?.meta.hotel ?? "Your hotel"} city={shownHere?.meta.city ?? ""} edition={editionDate(shownHere)} editionNote={editionNote(shownHere)}
+          live={!replaying} synthetic={replaying} summary={live && !inProgress ? summaryLine(live) : null} staleNote={!inProgress ? live?.meta.stale_note : null} />
+        {live && !inProgress && !liveErr ? (
+          <FrontBody key={replyKey(live)} r={live} after={
+            <p className="brief-after"><button className="btn" onClick={() => { setLive(null); dispatch({ type: "reset" }); }}>Run another audit</button></p>
+          } />
+        ) : (
+          <div className="sheet" style={showSide ? undefined : { gridTemplateColumns: "1fr" }}>
+            <main id="main" className="col-main">{body}</main>
+            {showSide && (
+              <aside className="col-side" aria-label="Running cost of this audit">
+                <div className="side-sticky" style={{ position: "sticky", top: 64 }}>
+                  <Folio folio={run.folio} routing={(replaying ? demo?.routing : null) ?? config?.routing ?? demo?.routing ?? []}
+                    stages={inProgress ? run.stages : undefined} baseline={null} nReviews={run.n_reviews}
+                    hotel={shownHere?.meta.hotel ?? "Your hotel"} folioNo={folioNumber(replaying ? demo : null)} live={!replaying}
+                    runningCost={runActive ? runCost : undefined} />
+                  <RoutingNotes />
+                </div>
+              </aside>
+            )}
+          </div>
+        )}
+        <Footer synthetic={replaying} link="hood" />
+      </>
+    );
+  } else {
+    const r = hoodLive && live ? live : demo;
+    page = (
+      <>
+        <Masthead title="Under the hood" city={r?.meta.hotel ?? ""} edition={editionDate(r)} editionNote={editionNote(r)} live={r === live && !!live}
+          synthetic={!!r?.meta.synthetic} summary="How the edition was made: the steps, the models, the bill, and every source." staleNote={r?.meta.stale_note} />
+        {live && (
+          <div className="seg hood-switch" role="group" aria-label="Which run">
+            <button aria-pressed={!hoodLive} onClick={() => setHoodLive(false)}>Demo run</button>
+            <button aria-pressed={hoodLive} onClick={() => setHoodLive(true)}>Your live run</button>
+          </div>
+        )}
+        {r ? <UnderTheHood key={replyKey(r)} r={r} live={r === live} folioNo={folioNumber(r)} onToast={setToast} />
+          : demoErr ? <main id="main">{notice("The demo edition didn't arrive.", demoErr, <button className="btn" onClick={loadDemo}>Try again</button>)}</main>
+          : <main id="main"><Skeleton /></main>}
+        <Footer synthetic={!!r?.meta.synthetic} link="home" />
+      </>
+    );
   }
-
-  // the running folio sits beside the progress ledger; a finished edition keeps it under "How this was built"
-  const showSide = inProgress || (mode === "live" && !live && !!run.folio);
 
   return (
     <>
-      <a href="#main" className="skip">Skip to the briefing</a>
+      <a href="#main" className="skip" onClick={(e) => { e.preventDefault(); document.getElementById("main")?.focus(); document.getElementById("main")?.scrollIntoView(); }}>Skip to the page</a>
+      <Nav route={route} theme={theme} toggleTheme={() => setTheme((t) => (t === "paper" ? "night" : "paper"))} />
       <div className="page">
-        <Masthead hotel={hotel} city={city} edition={editionDate(shown)} editionNote={editionNote(shown)} mode={mode} setMode={setMode}
-          theme={theme} toggleTheme={() => setTheme((t) => (t === "paper" ? "night" : "paper"))} synthetic={mode === "demo"}
-          summary={result ? summaryLine(result) : null} staleNote={result?.meta.stale_note} />
-        {result ? (
-          <Results key={replyKey(result)} r={result} live={mode === "live"} folioNo={folioNo} onToast={setToast}
-            onReplay={mode === "demo" && demo?.replay?.length ? replay : undefined}
-            after={mode === "live" && (
-              <p className="brief-after"><button className="btn" onClick={() => { setLive(null); dispatch({ type: "reset" }); }}>Run another audit</button></p>
-            )} />
-        ) : (
-          <>
-            <div className="sheet" style={showSide ? undefined : { gridTemplateColumns: "1fr" }}>
-              <main id="main" className="col-main">{main}</main>
-              {showSide && (
-                <aside className="col-side" aria-label="Cost of this briefing">
-                  <div className="side-sticky" style={{ position: "sticky", top: 12 }}>
-                    <Folio folio={run.folio} routing={routing} stages={inProgress ? run.stages : undefined} baseline={null}
-                      nReviews={run.n_reviews} hotel={hotel} folioNo={folioNo} live={mode === "live"}
-                      runningCost={runActive ? runCost : undefined} />
-                    <RoutingNotes />
-                  </div>
-                </aside>
-              )}
-            </div>
-            <Footer synthetic={mode === "demo"}>{!showSide && <RoutingNotes />}</Footer>
-          </>
-        )}
+        <div key={route} className="page-enter">{page}</div>
       </div>
       {toast && <div className="toast" role="status">{toast}</div>}
     </>
