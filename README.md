@@ -12,7 +12,36 @@ models on **Nebius Token Factory** and **Tavily** for runtime web search.
 - **Demo video:** `<link>`
 - **License:** MIT (see [LICENSE](LICENSE))
 
-![The demo edition: lead story, sparkline, guest folio](docs/screenshots/desk-top.png)
+The app has four tabs:
+
+- **Home:** what Night Audit does, one issue from the sample briefing, and plain answers about data and limits.
+- **Sample briefing:** the demo edition: the three issues to fix, likely causes with sources, guest-safety reviews, draft replies.
+- **Run your own:** upload a CSV of up to 150 reviews for a live run (rate-limited and spend-capped).
+- **Under the hood:** how the briefing was made: the four model desks, the bill, and every source.
+
+![Night Audit home page: the title, the one-line promise, buttons for the sample briefing and a live run, and the three steps](docs/screenshots/landing-desktop.webp)
+
+*Home: the promise, two ways in, the three steps, and one issue from the sample briefing.*
+
+<table>
+  <tr>
+    <td width="56%"><img src="docs/screenshots/briefing-desktop.webp" alt="Sample briefing on desktop, night theme: headline figures, a guest-safety alert, the lead issue with its weekly sparkline and likely cause, the mentions chart, and issues 2 and 3"></td>
+    <td width="22%"><img src="docs/screenshots/briefing-mobile.webp" alt="Sample briefing on a phone: the hotel nameplate, the verdict '3 things to fix this week, from 600 reviews', the guest-safety line, and the bottom tab bar"></td>
+    <td width="22%"><img src="docs/screenshots/briefing-mobile-issue.webp" alt="Sample briefing on a phone with issue 1 open: negative mentions, share of recent reviews, the weekly sparkline, the likely cause, a guest quote and its source"></td>
+  </tr>
+</table>
+
+*Sample briefing: the full front page on desktop (night theme); on a phone, the first screen and issue #1 opened.*
+
+![Under the hood: the four model desks with calls, tokens, time and cost, then the guest folio bill and the cost per stage](docs/screenshots/under-the-hood.webp)
+
+*Under the hood: one model per desk, metered, and the bill for the whole briefing.*
+
+![Run your own, night theme: the empty upload form with a CSV drop zone, hotel name and city fields, and the run limits](docs/screenshots/live.webp)
+
+*Run your own: the upload form for a live run on your reviews.*
+
+<sub>Screenshots show the demo edition (synthetic reviews for a fictional hotel).</sub>
 
 > **The demo data is synthetic.** Hotel Wrenfield is a fictional hotel in a real city (Austin, Texas). All 600
 > demo reviews were written by Nemotron Lightning from a scenario planted in code
@@ -34,14 +63,6 @@ models on **Nebius Token Factory** and **Tavily** for runtime web search.
 
 Two modes: **Demo edition** (cached real run, instant, zero cost, can replay the run's live progress) and
 **Live** (upload a CSV of up to 150 reviews; streams progress over SSE; rate-limited and spend-capped).
-
-![Investigation: cited sources numbered 1..k, tagged official / news / social, the rest behind "Show all"](docs/screenshots/desk-inv.png)
-
-![Replies for approval: commitments left as [GM to confirm: …] placeholders, one approved, one being edited](docs/screenshots/desk-replies.png)
-
-| Night theme | Phone |
-|---|---|
-| ![Night theme](docs/screenshots/desk-night.png) | ![Phone layout](docs/screenshots/phone-top.png) |
 
 ## How it works
 
