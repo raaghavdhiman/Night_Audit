@@ -16,7 +16,6 @@ function limitsText(config: ServerConfig | null) {
     size: `${int(Math.round(l.max_upload_bytes / 1000))} KB`,
     perIp: l.per_ip_daily_runs,
     global: l.global_daily_runs,
-    cap: `$${config.usage.spend_cap_usd.toFixed(2)}`,
   };
 }
 
@@ -60,7 +59,7 @@ function faqs(config: ServerConfig | null): { q: string; a: ReactNode }[] {
           <p>Night Audit's code reads your file in memory and does not save it. Specifically:</p>
           <ul className="faq-list">
             <li>To analyse them, the review text goes to NVIDIA Nemotron models on Nebius Token Factory: every review and its title, then short quotes for the trend and cause steps, and the full text of the reviews chosen for draft replies. Your hotel name and city go too.</li>
-            <li>Tavily receives only web-search queries about each issue and your city, at most 4 per issue.</li>
+            <li>Tavily receives only web-search queries, at most 4 per issue. A model writes them and is asked to include your city; it can see your hotel name and guest quotes, and nothing in the code stops either from appearing in a query.</li>
             <li>The finished briefing, including your reviews, is streamed back to your browser; the server does not save it. Reply drafts you edit are kept in your browser's local storage.</li>
             <li>The server keeps a cache of search queries and their results (reused for 7 days), a daily run count per visitor stored under a hashed IP address, and a running spend total. Its own log lines record a failed run's error and that total; the web server's standard access log records each request's address and path.</li>
             <li>While receiving an upload larger than about 1 MB, the web framework may buffer it in a temporary file before the size check rejects it.</li>
@@ -78,10 +77,10 @@ function faqs(config: ServerConfig | null): { q: string; a: ReactNode }[] {
       a: L ? (
         <p>
           Live mode is capped: {L.perIp} runs per visitor per day, {L.global} runs a day in total and up to {L.reviews} per upload.
-          A hard spending cap of {L.cap} covers the whole demo; once it is reached, live mode switches off. The sample briefing is always available.
+          A shared spending cap covers the whole demo; once it is reached, live mode switches off. The sample briefing is always available.
         </p>
       ) : (
-        <p>Live mode is capped by runs per visitor, runs per day, reviews per upload and a hard spending cap; the current limits are shown on Run your own. The sample briefing is always available.</p>
+        <p>Live mode is capped by runs per visitor, runs per day, reviews per upload and a shared spending cap; the current limits are shown on Run your own. The sample briefing is always available.</p>
       ),
     },
     {
