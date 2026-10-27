@@ -8,7 +8,7 @@ cost and why routing between models keeps it cheap.
 Built for the **Nebius × NVIDIA Global AI Hackathon, track "Best Apps and Agents"**, using NVIDIA Nemotron
 models on **Nebius Token Factory** and **Tavily** for runtime web search.
 
-- **Live demo:** `https://<your-render-service>.onrender.com` (free, no sign-in; demo edition needs no model calls)
+- **Live demo:** `https://night-audit.onrender.com` (free, no sign-in; demo edition needs no model calls)
 - **Demo video:** `<link>`
 - **License:** MIT (see [LICENSE](LICENSE))
 
