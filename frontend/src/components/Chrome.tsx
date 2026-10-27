@@ -12,7 +12,7 @@ export const ROUTES: { route: Route; hash: string; label: string; short: string 
 ];
 
 /**
- * Slim sticky bar on every page: wordmark, the four numbered section tabs (the current one filled), then the theme.
+ * Slim sticky bar on every page: wordmark, the four section tabs (the current one filled), then the theme.
  * On a phone the tabs leave the bar for a fixed bar at the foot of the screen; the DOM order, and so the keyboard
  * order, stays wordmark, tabs, theme.
  */
@@ -22,9 +22,8 @@ export function Nav({ route, theme, toggleTheme }: { route: Route; theme: "paper
       <div className="topnav-in">
         <a href="#/" className="wordmark">Night Audit</a>
         <div className="tabs">
-          {ROUTES.map((t, i) => (
+          {ROUTES.map((t) => (
             <a key={t.route} href={t.hash} className="nav-btn tab" aria-current={route === t.route ? "page" : undefined}>
-              <span className="nb-n" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
               <span className="nb-l nb-long">{t.label}</span>
               <span className="nb-l nb-short">{t.short}</span>
               {route === t.route && <span className="nb-mark" aria-hidden />}

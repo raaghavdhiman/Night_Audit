@@ -150,19 +150,19 @@ button { font: inherit; color: inherit; }
   font-variation-settings: "opsz" 72, "SOFT" 0, "WONK" 1; text-decoration: none; white-space: nowrap;
 }
 .wordmark:hover { color: var(--ink); }
-/* the nav's own inks: an amber that reads on the filled tab, and a softer shadow at night */
-.topnav { --nav-line: var(--ink); --nav-shadow: var(--ink); --nav-amber: #e2a34a; }
-:root[data-theme="night"] .topnav { --nav-line: var(--rule); --nav-shadow: var(--ink-3); --nav-amber: #8a4f0a; }
+/* the nav's own inks: a softer frame and shadow at night */
+.topnav { --nav-line: var(--ink); --nav-shadow: var(--ink); }
+:root[data-theme="night"] .topnav { --nav-line: var(--rule); --nav-shadow: var(--ink-3); }
 .tabs { display: flex; gap: 10px; margin-left: auto; }
-/* section tabs, set like boxed slugs: mono numeral, serif label, a 1px frame with the top-right corner cut, and a
+/* section tabs, set like boxed slugs: a serif label in a 1px frame with the top-right corner cut, and a
    solid offset shadow. Frame and shadow are clip-path pseudo-elements, so both follow the cut; the button's own box
    stays a plain rectangle and is the whole hit area. */
 .nav-btn {
   --cut: 8px; --nb-in: 0px; --nb-dx: 3px; --nb-dy: 3px; --nb-hx: 1px; --nb-hy: 1px;
-  --nb-face: var(--card); --nb-fg: var(--ink); --nb-num: var(--ink-3);
+  --nb-face: var(--card); --nb-fg: var(--ink);
   --nb-clip: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
   position: relative; isolation: isolate; flex: none; display: inline-flex; align-items: baseline; gap: 7px;
-  padding: 9px 15px 8px 12px; border: 0; background: none; color: var(--nb-fg); font: inherit; text-decoration: none; white-space: nowrap; cursor: pointer;
+  padding: 9px 16px 8px 14px; border: 0; background: none; color: var(--nb-fg); font: inherit; text-decoration: none; white-space: nowrap; cursor: pointer;
   transition: transform 0.12s var(--ease);
 }
 .nav-btn:hover { color: var(--nb-fg); } /* not the link amber: the press is the hover cue */
@@ -173,10 +173,9 @@ button { font: inherit; color: inherit; }
   background: linear-gradient(225deg, transparent 50%, var(--nav-line) 50%, var(--nav-line) calc(50% + 1px), transparent calc(50% + 1px)) top right / var(--cut) var(--cut) no-repeat, var(--nb-face);
   box-shadow: inset 0 0 0 1px var(--nav-line);
 }
-.nb-n { font-family: var(--font-mono); font-size: var(--fs-1); font-weight: 600; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: var(--nb-num); }
 .nb-l { font-family: var(--font-display); font-size: 15px; font-weight: 560; line-height: 1.1; letter-spacing: -0.005em; font-variation-settings: "opsz" 24; }
 .nb-short { display: none; }
-.nav-btn[aria-current="page"] { --nb-face: var(--ink); --nb-fg: var(--paper); --nb-num: var(--nav-amber); cursor: default; }
+.nav-btn[aria-current="page"] { --nb-face: var(--ink); --nb-fg: var(--paper); cursor: default; }
 /* the current section's marker: an amber corner tucked into the cut */
 .nb-mark { position: absolute; top: var(--nb-in); right: var(--nb-in); width: calc(var(--cut) - 2px); height: calc(var(--cut) - 2px); background: var(--accent); clip-path: polygon(0 0, 100% 0, 100% 100%); }
 .nav-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: calc(2px - var(--nb-in)); }
@@ -196,7 +195,7 @@ button { font: inherit; color: inherit; }
 @media (max-width: 960px) {
   .topnav-in { gap: 12px; }
   .tabs { gap: 7px; }
-  .nav-btn { gap: 5px; padding: 9px 10px 8px 8px; }
+  .nav-btn { gap: 5px; padding: 9px 12px 8px 10px; }
   .theme-btn { padding: 6px 10px 6px 8px; }
 }
 
@@ -982,10 +981,10 @@ button { font: inherit; color: inherit; }
   .front-compact .spark-draw .halo, .front-compact .trend-rising .arrow, .front-compact .mb-bar { animation: none; }
 }
 /* phone and small tablet: the top bar keeps the wordmark and the theme (48px); the four tabs become a fixed bar at the
-   foot of the screen, numeral over a short label, shadows pointing up. --nav-h is both bars, so a first screen sized
+   foot of the screen with short labels, shadows pointing up. --nav-h is both bars, so a first screen sized
    with it fits exactly between them. */
 @media (max-width: 860px) {
-  :root { --tabbar-h: calc(76px + env(safe-area-inset-bottom)); --nav-h: calc(49px + var(--tabbar-h)); }
+  :root { --tabbar-h: calc(68px + env(safe-area-inset-bottom)); --nav-h: calc(49px + var(--tabbar-h)); }
   body { padding-bottom: var(--tabbar-h); }
   .topnav { backdrop-filter: none; background: var(--paper); } /* solid: no blur here, since a filter would trap the fixed bar */
   .topnav-in { min-height: 48px; gap: 12px; }
@@ -998,8 +997,8 @@ button { font: inherit; color: inherit; }
     background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(8px);
   }
   .tabs .nav-btn {
-    --nb-dy: -3px; --nb-hy: -1px; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
-    height: 56px; padding: 6px 4px; white-space: normal; text-align: center;
+    --nb-dy: -3px; --nb-hy: -1px; align-items: center; justify-content: center;
+    height: 48px; padding: 4px; white-space: normal; text-align: center;
   }
   .tabs .nb-l { font-size: 14px; line-height: 1.05; text-wrap: balance; }
   .nb-long { display: none; }
