@@ -3,27 +3,38 @@ import { longDate } from "../format";
 
 export type Route = "landing" | "issues" | "live" | "hood";
 
-export const ROUTES: { route: Route; hash: string; label: string }[] = [
-  { route: "landing", hash: "#/", label: "Home" },
-  { route: "issues", hash: "#/issues", label: "Sample briefing" },
-  { route: "live", hash: "#/live", label: "Run your own" },
-  { route: "hood", hash: "#/under-the-hood", label: "Under the hood" },
+/** `short` is the label in the phone's bottom bar. */
+export const ROUTES: { route: Route; hash: string; label: string; short: string }[] = [
+  { route: "landing", hash: "#/", label: "Home", short: "Home" },
+  { route: "issues", hash: "#/issues", label: "Sample briefing", short: "Briefing" },
+  { route: "live", hash: "#/live", label: "Run your own", short: "Run it" },
+  { route: "hood", hash: "#/under-the-hood", label: "Under the hood", short: "Under the hood" },
 ];
 
-/** Slim sticky bar on every page: wordmark, the four page tabs as buttons (the current one filled), then the theme. */
+/**
+ * Slim sticky bar on every page: wordmark, the four numbered section tabs (the current one filled), then the theme.
+ * On a phone the tabs leave the bar for a fixed bar at the foot of the screen; the DOM order, and so the keyboard
+ * order, stays wordmark, tabs, theme.
+ */
 export function Nav({ route, theme, toggleTheme }: { route: Route; theme: "paper" | "night"; toggleTheme: () => void }) {
   return (
     <nav className="topnav" aria-label="Pages">
       <div className="topnav-in">
         <a href="#/" className="wordmark">Night Audit</a>
         <div className="tabs">
-          {ROUTES.map((t) => (
-            <a key={t.route} href={t.hash} className="nav-btn tab" aria-current={route === t.route ? "page" : undefined}>{t.label}</a>
+          {ROUTES.map((t, i) => (
+            <a key={t.route} href={t.hash} className="nav-btn tab" aria-current={route === t.route ? "page" : undefined}>
+              <span className="nb-n" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
+              <span className="nb-l nb-long">{t.label}</span>
+              <span className="nb-l nb-short">{t.short}</span>
+              {route === t.route && <span className="nb-mark" aria-hidden />}
+            </a>
           ))}
         </div>
         <span className="nav-sep" aria-hidden />
         <button className="nav-btn theme-btn" onClick={toggleTheme} aria-label={`Switch to ${theme === "paper" ? "night" : "paper"} theme`}>
-          {theme === "paper" ? <IconMoon /> : <IconSun />} {theme === "paper" ? "Night" : "Paper"}
+          {theme === "paper" ? <IconMoon /> : <IconSun />}
+          <span className="nb-l">{theme === "paper" ? "Night" : "Paper"}</span>
         </button>
       </div>
     </nav>

@@ -139,34 +139,66 @@ button { font: inherit; color: inherit; }
 .rule { border: 0; border-top: 1px solid var(--rule); margin: 0; }
 .rule-double { border: 0; height: 5px; border-top: 3px solid var(--rule); border-bottom: 1px solid var(--rule); margin: 0; }
 
-/* ---- top bar: wordmark, three page tabs, theme ---- */
+/* ---- top bar: wordmark, four section tabs, theme ---- */
 .topnav {
   position: sticky; top: 0; z-index: 8; border-bottom: 1px solid var(--rule-soft);
   background: color-mix(in srgb, var(--paper) 90%, transparent); backdrop-filter: blur(8px);
 }
-.topnav-in { max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter); display: flex; align-items: center; gap: 18px; min-height: 52px; }
+.topnav-in { max-width: var(--page); margin: 0 auto; padding: 0 var(--gutter); display: flex; align-items: center; gap: 18px; min-height: 60px; }
 .wordmark {
   color: var(--ink); font-family: var(--font-display); font-weight: 800; font-size: 21px; letter-spacing: -0.02em;
   font-variation-settings: "opsz" 72, "SOFT" 0, "WONK" 1; text-decoration: none; white-space: nowrap;
 }
 .wordmark:hover { color: var(--ink); }
-.tabs { display: flex; gap: 6px; margin-left: auto; }
-/* every tab is its own button, set like a box on the page: a 1px ink frame, square corners, the mono small-caps label */
+/* the nav's own inks: an amber that reads on the filled tab, and a softer shadow at night */
+.topnav { --nav-line: var(--ink); --nav-shadow: var(--ink); --nav-amber: #e2a34a; }
+:root[data-theme="night"] .topnav { --nav-line: var(--rule); --nav-shadow: var(--ink-3); --nav-amber: #8a4f0a; }
+.tabs { display: flex; gap: 10px; margin-left: auto; }
+/* section tabs, set like boxed slugs: mono numeral, serif label, a 1px frame with the top-right corner cut, and a
+   solid offset shadow. Frame and shadow are clip-path pseudo-elements, so both follow the cut; the button's own box
+   stays a plain rectangle and is the whole hit area. */
 .nav-btn {
-  display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: none; min-height: 34px; padding: 0 12px;
-  border: 1px solid var(--rule); background: transparent; color: var(--ink); cursor: pointer; text-decoration: none; white-space: nowrap;
-  font-family: var(--font-mono); font-size: var(--fs-1); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
-  transition: background 0.12s, box-shadow 0.12s, transform 0.12s;
+  --cut: 8px; --nb-in: 0px; --nb-dx: 3px; --nb-dy: 3px; --nb-hx: 1px; --nb-hy: 1px;
+  --nb-face: var(--card); --nb-fg: var(--ink); --nb-num: var(--ink-3);
+  --nb-clip: polygon(0 0, calc(100% - var(--cut)) 0, 100% var(--cut), 100% 100%, 0 100%);
+  position: relative; isolation: isolate; flex: none; display: inline-flex; align-items: baseline; gap: 7px;
+  padding: 9px 15px 8px 12px; border: 0; background: none; color: var(--nb-fg); font: inherit; text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: transform 0.12s var(--ease);
 }
-.nav-btn .icon { width: 14px; height: 14px; }
-.nav-btn[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: var(--paper); cursor: default; }
-.nav-btn:focus-visible { outline-offset: 2px; }
+.nav-btn:hover { color: var(--nb-fg); } /* not the link amber: the press is the hover cue */
+.nav-btn::before, .nav-btn::after { content: ""; position: absolute; inset: var(--nb-in); z-index: -1; clip-path: var(--nb-clip); }
+.nav-btn::before { background: var(--nav-shadow); transform: translate(var(--nb-dx), var(--nb-dy)); transition: transform 0.12s var(--ease); }
+.nav-btn::after {
+  /* the face, its frame, and the frame's diagonal along the cut */
+  background: linear-gradient(225deg, transparent 50%, var(--nav-line) 50%, var(--nav-line) calc(50% + 1px), transparent calc(50% + 1px)) top right / var(--cut) var(--cut) no-repeat, var(--nb-face);
+  box-shadow: inset 0 0 0 1px var(--nav-line);
+}
+.nb-n { font-family: var(--font-mono); font-size: var(--fs-1); font-weight: 600; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; color: var(--nb-num); }
+.nb-l { font-family: var(--font-display); font-size: 15px; font-weight: 560; line-height: 1.1; letter-spacing: -0.005em; font-variation-settings: "opsz" 24; }
+.nb-short { display: none; }
+.nav-btn[aria-current="page"] { --nb-face: var(--ink); --nb-fg: var(--paper); --nb-num: var(--nav-amber); cursor: default; }
+/* the current section's marker: an amber corner tucked into the cut */
+.nb-mark { position: absolute; top: var(--nb-in); right: var(--nb-in); width: calc(var(--cut) - 2px); height: calc(var(--cut) - 2px); background: var(--accent); clip-path: polygon(0 0, 100% 0, 100% 100%); }
+.nav-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: calc(2px - var(--nb-in)); }
+/* pressed toward the shadow: a little on hover, flat on press */
 @media (hover: hover) {
-  .nav-btn:not([aria-current="page"]):hover { color: var(--ink); background: var(--paper-2); transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--shadow-ink); }
+  .nav-btn:not([aria-current="page"]):hover { transform: translate(var(--nb-hx), var(--nb-hy)); }
+  .nav-btn:not([aria-current="page"]):hover::before { transform: translate(calc(var(--nb-dx) - var(--nb-hx)), calc(var(--nb-dy) - var(--nb-hy))); }
 }
-/* the theme switch is a setting, not a page: a thin rule sets it apart */
-.nav-sep { flex: none; align-self: center; width: 1px; height: 22px; background: var(--rule-soft); }
-.theme-btn { flex: none; }
+.nav-btn:not([aria-current="page"]):active { transform: translate(var(--nb-dx), var(--nb-dy)); }
+.nav-btn:not([aria-current="page"]):active::before { transform: none; }
+/* the theme switch is a setting, not a section: the same family, smaller, set apart by a thin rule */
+.nav-sep { flex: none; align-self: center; width: 1px; height: 26px; background: var(--rule-soft); }
+.theme-btn { --cut: 6px; --nb-dx: 2px; --nb-dy: 2px; align-items: center; gap: 6px; padding: 6px 12px 6px 10px; }
+.theme-btn .nb-l { font-size: 14px; }
+.theme-btn .icon { width: 14px; height: 14px; }
+/* just above the phone layout the full row is tight: close it up rather than crowd the edge */
+@media (max-width: 960px) {
+  .topnav-in { gap: 12px; }
+  .tabs { gap: 7px; }
+  .nav-btn { gap: 5px; padding: 9px 10px 8px 8px; }
+  .theme-btn { padding: 6px 10px 6px 8px; }
+}
 
 /* ---- masthead: nameplate, the verdict line, dateline between rules ---- */
 .masthead { text-align: center; }
@@ -898,7 +930,7 @@ button { font: inherit; color: inherit; }
 .l-links { display: flex; flex-wrap: wrap; gap: 8px 24px; }
 
 @media (max-width: 899.98px) {
-  :root { --nav-h: 53px; }
+  :root { --nav-h: 61px; }
   .page-enter { animation: none; }
   .masthead-orient { display: block; }
 
@@ -949,24 +981,31 @@ button { font: inherit; color: inherit; }
   .front-compact .spark-draw .line, .front-compact .spark-draw .area, .front-compact .spark-draw .dot,
   .front-compact .spark-draw .halo, .front-compact .trend-rising .arrow, .front-compact .mb-bar { animation: none; }
 }
-/* narrower than one row: wordmark and theme on the first line, the four tabs below at full width; tap targets 40px */
+/* phone and small tablet: the top bar keeps the wordmark and the theme (48px); the four tabs become a fixed bar at the
+   foot of the screen, numeral over a short label, shadows pointing up. --nav-h is both bars, so a first screen sized
+   with it fits exactly between them. */
 @media (max-width: 860px) {
-  :root { --nav-h: 105px; }
-  .topnav-in { flex-wrap: wrap; gap: 8px; min-height: 0; padding-top: 8px; padding-bottom: 8px; }
-  .wordmark { order: 1; }
+  :root { --tabbar-h: calc(76px + env(safe-area-inset-bottom)); --nav-h: calc(49px + var(--tabbar-h)); }
+  body { padding-bottom: var(--tabbar-h); }
+  .topnav { backdrop-filter: none; background: var(--paper); } /* solid: no blur here, since a filter would trap the fixed bar */
+  .topnav-in { min-height: 48px; gap: 12px; }
   .nav-sep { display: none; }
-  .theme-btn { order: 2; margin-left: auto; }
-  .tabs { order: 3; flex: 1 0 100%; display: grid; grid-template-columns: repeat(4, auto); }
-  .nav-btn { min-height: 40px; padding: 0 10px; }
+  .theme-btn { --nb-in: 6px; min-height: 44px; margin: 0 -6px 0 auto; padding: 14px 18px 14px 16px; }
+  .tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 8; margin: 0;
+    display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;
+    padding: 11px 14px calc(8px + env(safe-area-inset-bottom)) 12px; border-top: 1px solid var(--rule);
+    background: color-mix(in srgb, var(--paper) 94%, transparent); backdrop-filter: blur(8px);
+  }
+  .tabs .nav-btn {
+    --nb-dy: -3px; --nb-hy: -1px; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    height: 56px; padding: 6px 4px; white-space: normal; text-align: center;
+  }
+  .tabs .nb-l { font-size: 14px; line-height: 1.05; text-wrap: balance; }
+  .nb-long { display: none; }
+  .nb-short { display: block; }
 }
-/* phone: two tidy rows of two, so no label shrinks or hides */
-@media (max-width: 560px) {
-  :root { --nav-h: 151px; }
-  .tabs { grid-template-columns: 1fr 1fr; }
-  .nav-btn { letter-spacing: 0.04em; }
-}
-
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; transition-delay: 0s !important; }
-  .card:hover, .nav-btn:hover { transform: none !important; }
+  .card:hover { transform: none; }
 }
