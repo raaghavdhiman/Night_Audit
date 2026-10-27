@@ -6,7 +6,7 @@ import { IconAlert } from "./Icons";
 export function Escalations({ items }: { items: Escalation[] }) {
   if (!items.length) return null;
   return (
-    <aside className="escalate" aria-labelledby="esc-title">
+    <aside className="escalate" id="escalations" tabIndex={-1} aria-labelledby="esc-title">
       <h3 id="esc-title"><IconAlert /> Escalate today · health &amp; safety</h3>
       <ul>
         {items.map((e) => (

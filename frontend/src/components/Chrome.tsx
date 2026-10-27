@@ -22,18 +22,18 @@ export function Masthead({ hotel, city, edition, editionNote, mode, setMode, the
           </button>
         </div>
       </nav>
-      <hr className="rule-double" />
       <h1 className="masthead-title">{hotel}</h1>
-      <p className="dateline">
-        <span title={editionNote}>{longDate(edition)}</span>
-        {city ? <span> · {city}</span> : null}
-        {synthetic ? (
-          <span className="badge-synth" title="All demo reviews are synthetic; the hotel is fictional">Synthetic data</span>
-        ) : mode === "live" ? (
-          <span className="badge-live">Live edition</span>
-        ) : null}
-      </p>
       {summary && <p className="masthead-sub">{summary}</p>}
+      <hr className="rule-double" />
+      <div className="dateline">
+        <span className="dl-ed">{mode === "live" ? "Live edition" : "Demo edition"}</span>
+        <span className="dl-date" title={editionNote}>{longDate(edition)}</span>
+        <span className="dl-city">
+          {city}
+          {synthetic && <span className="badge-synth" title="All demo reviews are synthetic; the hotel is fictional">Synthetic data</span>}
+        </span>
+      </div>
+      <hr className="rule" />
       {staleNote && <p className="stale-line" role="note">{staleNote}</p>}
     </header>
   );
@@ -41,9 +41,16 @@ export function Masthead({ hotel, city, edition, editionNote, mode, setMode, the
 
 const REPO = import.meta.env.VITE_REPO_URL as string | undefined;
 
-/** The honesty line, then "How this was built": everything behind the three cards opens below it. */
-export function Footer({ synthetic, children }: { synthetic: boolean; children?: ReactNode }) {
-  const [open, setOpen] = useState(false);
+/**
+ * The honesty line, then "How this was built": everything behind the three cards opens below it.
+ * Pass `open`/`setOpen` to control it from outside (the safety alert opens it).
+ */
+export function Footer({ synthetic, children, open: openProp, setOpen: setOpenProp }: {
+  synthetic: boolean; children?: ReactNode; open?: boolean; setOpen?: (fn: (v: boolean) => boolean) => void;
+}) {
+  const [own, setOwn] = useState(false);
+  const open = openProp ?? own;
+  const setOpen = setOpenProp ?? setOwn;
   return (
     <footer className="footer">
       <div className="footer-line">

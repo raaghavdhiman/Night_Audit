@@ -1,4 +1,4 @@
-import type { WeekPoint } from "../types";
+import type { AspectSummary, WeekPoint } from "../types";
 import { shortDate } from "../format";
 
 /** Weekly negative mentions as a line + area, with an onset marker. Hand-built SVG. */
@@ -51,15 +51,58 @@ export function Sparkline({ weekly, onset, height = 92, labelled = true, title }
       )}
       <path className="area" d={area} />
       <path className="line" d={line} pathLength={600} />
-      {last && <circle className="dot" cx={x(n - 1)} cy={y(last.neg)} r={3.2} />}
+      {last && <circle className="dot" cx={x(n - 1)} cy={y(last.neg)} r={4} />}
       {labelled && last && (
         <>
           <text x={padX} y={H - 4}>{shortDate(weekly[0].week_start)}</text>
           <text x={W - padX} y={H - 4} textAnchor="end">{shortDate(last.week_start)}</text>
-          <text x={x(n - 1) - 6} y={Math.max(10, y(last.neg) - 6)} textAnchor="end" style={{ fill: "var(--oxblood-ink)", fontWeight: 600 }}>{last.neg}</text>
+          <text className="last" x={x(n - 1) - 6} y={Math.max(10, y(last.neg) - 6)} textAnchor="end">{last.neg}</text>
         </>
       )}
+      {/* hover targets wider than the line: one column per week, with a native tooltip */}
+      {weekly.map((w, i) => (
+        <rect key={w.week_start} className="hit" x={x(i) - (W - 2 * padX) / (2 * Math.max(1, n - 1))} y={0}
+          width={(W - 2 * padX) / Math.max(1, n - 1)} height={H}>
+          <title>{`Week of ${shortDate(w.week_start)}: ${w.neg} negative`}</title>
+        </rect>
+      ))}
     </svg>
+  );
+}
+
+/**
+ * "Issues by guest mentions": negative mentions per aspect over the period, max 6 bars, direct labels.
+ * The featured issues are highlighted (accent + "#rank" text) and always kept on the chart.
+ */
+export function MentionBars({ aspects, featured, period }: { aspects: AspectSummary[]; featured: Map<string, number>; period?: string }) {
+  const sorted = [...aspects].filter((a) => a.neg_total > 0).sort((a, b) => b.neg_total - a.neg_total);
+  const rows = sorted.slice(0, 6);
+  for (const a of sorted.slice(6)) {
+    if (!featured.has(a.aspect)) continue;
+    const drop = rows.map((r) => featured.has(r.aspect)).lastIndexOf(false);
+    if (drop < 0) break;
+    rows.splice(drop, 1);
+    rows.push(a); // smaller than everything kept, so the order holds
+  }
+  if (!rows.length) return null;
+  const max = rows[0].neg_total;
+  return (
+    <figure className="bars" aria-labelledby="bars-title">
+      <h2 className="bars-title" id="bars-title">Issues by guest mentions</h2>
+      <ol className="bars-list">
+        {rows.map((a) => {
+          const rank = featured.get(a.aspect);
+          return (
+            <li key={a.aspect} className={rank ? "hot" : undefined} title={`${a.label}: ${a.neg_total} negative mentions`}>
+              <span className="bar-label">{a.label}{rank ? <span className="bar-rank"> #{rank}</span> : null}</span>
+              <span className="bar-track" aria-hidden><i style={{ width: `${(100 * a.neg_total) / max}%` }} /></span>
+              <span className="bar-val">{a.neg_total}</span>
+            </li>
+          );
+        })}
+      </ol>
+      <figcaption>Negative mentions{period ? `, ${period}` : ""}. Highlighted with #: the issues to fix first, in their order.</figcaption>
+    </figure>
   );
 }
 

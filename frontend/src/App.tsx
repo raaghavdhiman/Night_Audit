@@ -5,7 +5,9 @@ import { initialRun, reduce, type RunState } from "./run";
 import { Footer, Masthead, RoutingNotes, type Mode } from "./components/Chrome";
 import { BuildDetails } from "./components/BuildDetails";
 import { Folio } from "./components/Folio";
+import { AtAGlance, SafetyAlert } from "./components/FrontPage";
 import { IssueCard } from "./components/IssueCard";
+import { MentionBars } from "./components/Charts";
 import { Reconciliation } from "./components/Reconciliation";
 import { useReplyStore } from "./components/Replies";
 import { LivePanel } from "./components/LivePanel";
@@ -64,23 +66,49 @@ function summaryLine(r: AuditResult): string {
 
 const replyKey = (r: AuditResult) => `na-replies-v2-${r.meta.hotel}-${r.meta.generated_at}`;
 
-/** The results page: at most three issue cards, then the footer that opens everything else. Keyed by replyKey. */
+/** The front page: figures and the mentions chart, the safety alert, up to three issue cards, then the footer. Keyed by replyKey. */
 function Results({ r, live, folioNo, onToast, onReplay, after }: {
   r: AuditResult; live: boolean; folioNo: string; onToast: (m: string) => void; onReplay?: () => void; after?: React.ReactNode;
 }) {
   const store = useReplyStore(replyKey(r));
+  const [howOpen, setHowOpen] = useState(false);
+  const [jump, setJump] = useState(0);
   const reply = (rank: number) => r.replies.find((x) => x.issue_rank === rank);
+  const top = r.issues.slice(0, 3);
+  const featured = useMemo(() => new Map(r.issues.slice(0, 3).map((i) => [i.aspect, i.rank])), [r.issues]);
+  // the alert opens the panel; once it has rendered, bring the escalations into view
+  useEffect(() => {
+    if (!jump) return;
+    const el = document.getElementById("escalations");
+    const smooth = !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+    el?.scrollIntoView({ behavior: smooth ? "smooth" : "auto", block: "start" });
+    el?.focus({ preventScroll: true });
+  }, [jump]);
   return (
     <>
-      <main id="main" className="brief">
+      <main id="main" className="front">
+        <div className="front-row">
+          <section aria-labelledby="k-front">
+            <div className="kicker" id="k-front">Front page</div>
+            <AtAGlance r={r} />
+          </section>
+          <section aria-labelledby="k-numbers">
+            <div className="kicker" id="k-numbers">By the numbers</div>
+            <MentionBars aspects={r.aspects} featured={featured} period={r.meta.period} />
+          </section>
+        </div>
+        <SafetyAlert n={r.escalations.length} onOpen={() => { setHowOpen(true); setJump((j) => j + 1); }} />
+        <div className="kicker">Fix first</div>
         {r.issues.length === 0 && <p className="muted">No issue stood out in these reviews.</p>}
-        {r.issues.slice(0, 3).map((i) => {
-          const rep = reply(i.rank);
-          return <IssueCard key={i.rank} issue={i} replyText={rep ? store.get(rep).text : undefined} />;
-        })}
+        <div className="cards">
+          {top.map((i, k) => {
+            const rep = reply(i.rank);
+            return <IssueCard key={i.rank} issue={i} lead={k === 0} replyText={rep ? store.get(rep).text : undefined} />;
+          })}
+        </div>
         {after}
       </main>
-      <Footer synthetic={!live}>
+      <Footer synthetic={!live} open={howOpen} setOpen={setHowOpen}>
         <BuildDetails r={r} live={live} folioNo={folioNo} store={store} onToast={onToast} onReplay={onReplay} />
       </Footer>
     </>

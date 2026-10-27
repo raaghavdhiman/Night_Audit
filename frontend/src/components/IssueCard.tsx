@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { Hypothesis, Issue, Investigation, Source } from "../types";
-import { domain } from "../format";
+import { domain, pct, shortDate } from "../format";
+import { Sparkline } from "./Charts";
 import { IconChevron, IconExternal } from "./Icons";
 import { withPlaceholders } from "./Replies";
 
@@ -27,46 +28,101 @@ function bestSource(inv: Investigation, h: Hypothesis): Source | undefined {
   return pick(h.evidence_ids) ?? pick(inv.cited_source_ids);
 }
 
-/** One issue at a glance: what it is, its likely cause, the evidence, and the drafted reply behind a toggle. */
-export function IssueCard({ issue, replyText }: { issue: Issue; replyText?: string }) {
+/** stats.direction (last week vs the week before, computed in code) in plain words. */
+const TREND = {
+  rising: { arrow: "↑", word: "Rising" },
+  steady: { arrow: "→", word: "Flat" },
+  easing: { arrow: "↓", word: "Falling" },
+} as const;
+
+/** The numbers first: mention count, share of recent reviews, the weekly series, and the direction. */
+function Strip({ issue, lead }: { issue: Issue; lead?: boolean }) {
+  const s = issue.stats;
+  const t = s.direction ? TREND[s.direction] : undefined;
+  const w = issue.weekly;
+  return (
+    <div className="card-strip">
+      <div className="stat-pair">
+        <div className="stat-big"><b>{s.neg_total}</b><span>negative mentions</span></div>
+        <div className="stat-big"><b>{pct(s.recent_neg_rate)}</b><span>of recent reviews</span></div>
+      </div>
+      {w.length > 0 && (
+        <figure className="card-spark">
+          <Sparkline weekly={w} onset={s.onset_week} height={lead ? 104 : 56} labelled={lead} title={`Issue ${issue.rank}: ${issue.title}`} />
+          {!lead && <figcaption>per week · {shortDate(w[0].week_start)} – {shortDate(w[w.length - 1].week_start)}</figcaption>}
+        </figure>
+      )}
+      {t && (
+        <p className={`trend trend-${s.direction}`}>
+          <span className="arrow" aria-hidden>{t.arrow}</span> {t.word}
+          {s.prev_week_neg !== null && <span className="trend-detail"> · {s.last_week_neg} last week, {s.prev_week_neg} the week before</span>}
+        </p>
+      )}
+    </div>
+  );
+}
+
+/** One issue at a glance: numbers and trend, its likely cause, one pull-quote and source, and the drafted reply behind a toggle. */
+export function IssueCard({ issue, replyText, lead }: { issue: Issue; replyText?: string; lead?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [more, setMore] = useState(false);
   const inv = issue.investigation;
   const cause = inv?.hypotheses[0];
   const source = inv && cause ? bestSource(inv, cause) : undefined;
-  const quotes = issue.quotes.slice(0, 2);
+  const [q1, q2] = issue.quotes;
+  const causeText = cause ? sentence(cause.hypothesis) : "";
+  const canExpand = !!q2 || causeText.length > 90;
   const replyId = `card-reply-${issue.rank}`;
+  const moreId = `card-more-${issue.rank}`;
   return (
-    <article className="card" aria-labelledby={`card-${issue.rank}`}>
-      <h2 className="card-title" id={`card-${issue.rank}`}>
+    <article className={`card${lead ? " card-lead" : ""}`} aria-labelledby={`card-${issue.rank}`}>
+      <header className="card-head">
         <span className="card-n" aria-hidden>{issue.rank}</span>
-        <span>{issue.title}</span>
-      </h2>
-      <p className="card-cause">
-        {cause ? <><b>Likely cause:</b> {sentence(cause.hypothesis)}</> : "No likely cause was found; see how this was built."}
-      </p>
-      {(quotes.length > 0 || source) && (
-        <div className="card-evidence">
-          {quotes.map((q) => <blockquote key={q.review_id}>“{shortQuote(q.excerpt)}”</blockquote>)}
+        <div>
+          <span className="chip">{issue.department}</span>
+          <h2 className="card-title" id={`card-${issue.rank}`}><span className="sr-only">Issue {issue.rank}: </span>{issue.title}</h2>
+        </div>
+      </header>
+      <div className="card-body">
+        <Strip issue={issue} lead={lead} />
+        <div className="card-text" id={moreId}>
+          <p className={`card-cause${more ? "" : " clamp"}`}>
+            {cause ? <><b>Likely cause:</b> {causeText}</> : "No likely cause was found; see how this was built."}
+          </p>
+          {q1 && (
+            <blockquote className="pull">
+              <span className="pull-mark" aria-hidden>“</span>
+              {more ? q1.excerpt : shortQuote(q1.excerpt)}”
+            </blockquote>
+          )}
+          {more && q2 && <blockquote className="pull pull-2">“{q2.excerpt}”</blockquote>}
+          {canExpand && (
+            <button className="read-more" aria-expanded={more} aria-controls={moreId} onClick={() => setMore((v) => !v)}>
+              {more ? "Show less" : "Read more"}
+            </button>
+          )}
           {source && (
-            <a className="card-source" href={source.url} target="_blank" rel="noopener noreferrer nofollow">
-              <span className="site">{domain(source.url)}</span> · {source.title || domain(source.url)} <IconExternal />
-            </a>
+            <p className="card-source-line">
+              <a className="card-source" href={source.url} target="_blank" rel="noopener noreferrer nofollow">
+                <span className="site">{domain(source.url)}</span> · {source.title || domain(source.url)} <IconExternal />
+              </a>
+            </p>
+          )}
+          {replyText !== undefined && (
+            <>
+              <button className="expander" aria-expanded={open} aria-controls={replyId} onClick={() => setOpen((v) => !v)}>
+                {open ? "Hide suggested reply" : "See suggested reply"} <IconChevron />
+              </button>
+              {open && (
+                <div className="card-reply" id={replyId}>
+                  <div className="card-draft">{replyText ? withPlaceholders(replyText) : "Draft failed to generate."}</div>
+                  <p className="card-note">Draft only · nothing is sent. Confirm the highlighted points before sending.</p>
+                </div>
+              )}
+            </>
           )}
         </div>
-      )}
-      {replyText !== undefined && (
-        <>
-          <button className="expander" aria-expanded={open} aria-controls={replyId} onClick={() => setOpen((v) => !v)}>
-            {open ? "Hide suggested reply" : "See suggested reply"} <IconChevron />
-          </button>
-          {open && (
-            <div className="card-reply" id={replyId}>
-              <div className="card-draft">{replyText ? withPlaceholders(replyText) : "Draft failed to generate."}</div>
-              <p className="card-note">Draft only · nothing is sent. Confirm the highlighted points before sending.</p>
-            </div>
-          )}
-        </>
-      )}
+      </div>
     </article>
   );
 }
