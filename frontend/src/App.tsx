@@ -8,6 +8,7 @@ import { FrontBody, orientLine, replyKey } from "./components/FrontPage";
 import { Reconciliation } from "./components/Reconciliation";
 import { UnderTheHood } from "./components/UnderTheHood";
 import { LivePanel } from "./components/LivePanel";
+import { Landing } from "./components/Landing";
 import { IconAlert, IconPlay } from "./components/Icons";
 import { plural } from "./format";
 import { useTween } from "./tween";
@@ -24,9 +25,9 @@ function initialTheme(): Theme {
   return window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "night" : "paper";
 }
 
-const HASH: Record<string, Route> = { "#/": "home", "#/live": "live", "#/under-the-hood": "hood" };
+const HASH: Record<string, Route> = { "#/": "landing", "#/issues": "issues", "#/live": "live", "#/under-the-hood": "hood" };
 
-/** The page for the current hash. "#live" (old links) becomes "#/live"; anything unknown falls back to "#/". */
+/** The page for the current hash. "#live" (old links) becomes "#/live"; anything unknown falls back to "#/", the landing page. */
 function readRoute(): Route {
   const h = location.hash || "#/";
   if (HASH[h]) return HASH[h];
@@ -198,7 +199,9 @@ export default function App() {
   );
 
   let page: React.ReactNode;
-  if (route === "home") {
+  if (route === "landing") {
+    page = <Landing demo={demo} config={config} />;
+  } else if (route === "issues") {
     const mast = (
       <Masthead title={demo?.meta.hotel ?? "Hotel Wrenfield"} city={demo?.meta.city ?? "Austin, Texas"} edition={editionDate(demo)} editionNote={editionNote(demo)}
         live={false} synthetic summary={demo ? summaryLine(demo) : null} orient={demo ? orientLine(demo) : null} staleNote={demo?.meta.stale_note} />
@@ -224,7 +227,7 @@ export default function App() {
         <>
           {notice(limited ? "The night desk is closed to new audits." : "The audit couldn't be completed.", liveErr.message, (
             <div className="notice-actions">
-              <a className="btn btn-primary" href="#/">Read the demo edition</a>
+              <a className="btn btn-primary" href="#/issues">Read the demo edition</a>
               {!limited && <button className="btn" onClick={() => { setLiveErr(null); dispatch({ type: "reset" }); }}>Try another file</button>}
             </div>
           ))}
@@ -234,8 +237,8 @@ export default function App() {
     } else if (!live) {
       body = (
         <>
-          {replayDone && <p className="replay-done">Replay finished. <a href="#/">Read the result on Tonight's Issues</a>.</p>}
-          <LivePanel config={config} onStart={startLive} onDemo={() => { location.hash = "#/"; }} />
+          {replayDone && <p className="replay-done">Replay finished. <a href="#/issues">Read the result in the sample briefing</a>.</p>}
+          <LivePanel config={config} onStart={startLive} onDemo={() => { location.hash = "#/issues"; }} />
           {!!demo?.replay?.length && (
             <p className="replay-link"><button className="linkish" onClick={replay}><IconPlay /> Replay the demo run</button></p>
           )}
@@ -289,7 +292,7 @@ export default function App() {
         {r ? <UnderTheHood key={replyKey(r)} r={r} live={r === live} folioNo={folioNumber(r)} onToast={setToast} />
           : demoErr ? <main id="main">{notice("The demo edition didn't arrive.", demoErr, <button className="btn" onClick={loadDemo}>Try again</button>)}</main>
           : <main id="main"><Skeleton /></main>}
-        <Footer synthetic={!!r?.meta.synthetic} link="home" />
+        <Footer synthetic={!!r?.meta.synthetic} link="issues" />
       </>
     );
   }

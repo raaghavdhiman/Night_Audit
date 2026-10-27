@@ -78,7 +78,7 @@ function SafetyFold({ r }: { r: AuditResult }) {
 }
 
 /**
- * The front-page body for a finished edition (the demo on "Tonight's Issues", a live run on "Run your own"):
+ * The front-page body for a finished edition (the demo on "Sample briefing", a live run on "Run your own"):
  * the figures strip and the safety alert, then the lead story with a rail (mentions chart, guest-safety reviews)
  * and issues 2 and 3 below. On a phone it is a briefing instead: the masthead, verdict and alert fill the
  * first screen, the issues follow as rows, and the figures wait behind "See the numbers".

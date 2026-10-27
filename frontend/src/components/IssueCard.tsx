@@ -84,21 +84,12 @@ export function IssueCard({ issue, replyText, lead, index = 0 }: { issue: Issue;
  * The row is the button of an accordion; the panel is the card body, unchanged.
  */
 export function IssueRow({ issue, replyText, lead, open, onToggle }: { issue: Issue; replyText?: string; lead?: boolean; open: boolean; onToggle: () => void }) {
-  const s = issue.stats;
-  const t = s.direction ? TREND[s.direction] : undefined;
   const panel = `row-panel-${issue.rank}`;
   return (
     <article className={`irow${open ? " open" : ""}`} aria-labelledby={`row-${issue.rank}`}>
       <h2 className="irow-h">
         <button className="irow-btn" id={`row-${issue.rank}`} aria-expanded={open} aria-controls={panel} onClick={onToggle}>
-          <span className="irow-n" aria-hidden>{issue.rank}</span>
-          <span className="irow-main">
-            <span className="irow-title"><span className="sr-only">Issue {issue.rank}: </span>{issue.title}</span>
-            <span className="irow-meta">
-              <span className="irow-fig"><b>{s.neg_total}</b> negative mentions</span>
-              {t && <span className={`irow-trend is-${s.direction}`}><span aria-hidden>{t.arrow}</span> {t.word}</span>}
-            </span>
-          </span>
+          <RowHead issue={issue} />
           <IconChevron />
         </button>
       </h2>
@@ -109,6 +100,29 @@ export function IssueRow({ issue, replyText, lead, open, onToggle }: { issue: Is
         </div>
       </Collapse>
     </article>
+  );
+}
+
+/** The same row on its own, not interactive: the landing page's preview of the sample briefing. */
+export function IssuePreview({ issue }: { issue: Issue }) {
+  return <div className="irow-btn irow-static"><RowHead issue={issue} /></div>;
+}
+
+/** Rank, title, negative mentions and the direction. */
+function RowHead({ issue }: { issue: Issue }) {
+  const s = issue.stats;
+  const t = s.direction ? TREND[s.direction] : undefined;
+  return (
+    <>
+      <span className="irow-n" aria-hidden>{issue.rank}</span>
+      <span className="irow-main">
+        <span className="irow-title"><span className="sr-only">Issue {issue.rank}: </span>{issue.title}</span>
+        <span className="irow-meta">
+          <span className="irow-fig"><b>{s.neg_total}</b> negative mentions</span>
+          {t && <span className={`irow-trend is-${s.direction}`}><span aria-hidden>{t.arrow}</span> {t.word}</span>}
+        </span>
+      </span>
+    </>
   );
 }
 

@@ -2,10 +2,11 @@ import { useLayoutEffect, useRef } from "react";
 import { IconMoon, IconSun } from "./Icons";
 import { longDate } from "../format";
 
-export type Route = "home" | "live" | "hood";
+export type Route = "landing" | "issues" | "live" | "hood";
 
 export const ROUTES: { route: Route; hash: string; label: string }[] = [
-  { route: "home", hash: "#/", label: "Tonight's Issues" },
+  { route: "landing", hash: "#/", label: "Home" },
+  { route: "issues", hash: "#/issues", label: "Sample briefing" },
   { route: "live", hash: "#/live", label: "Run your own" },
   { route: "hood", hash: "#/under-the-hood", label: "Under the hood" },
 ];
@@ -74,7 +75,7 @@ export function Masthead({ title, city, edition, editionNote, live, synthetic, s
 const REPO = import.meta.env.VITE_REPO_URL as string | undefined;
 
 /** The honesty line and one plain link onward (to "Under the hood", or back to the front page from there). */
-export function Footer({ synthetic, link }: { synthetic: boolean; link: "hood" | "home" }) {
+export function Footer({ synthetic, link }: { synthetic: boolean; link: "hood" | "issues" }) {
   return (
     <footer className="footer">
       <div className="footer-line">
@@ -84,7 +85,7 @@ export function Footer({ synthetic, link }: { synthetic: boolean; link: "hood" |
             : "Live edition: computed from the reviews you uploaded. "}
           Root causes are hypotheses, not findings.
         </p>
-        {link === "hood" ? <a className="footer-link" href="#/under-the-hood">Under the hood</a> : <a className="footer-link" href="#/">Tonight's Issues</a>}
+        {link === "hood" ? <a className="footer-link" href="#/under-the-hood">Under the hood</a> : <a className="footer-link" href="#/issues">Sample briefing</a>}
       </div>
     </footer>
   );

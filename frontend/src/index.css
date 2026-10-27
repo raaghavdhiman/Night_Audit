@@ -816,6 +816,89 @@ button { font: inherit; color: inherit; }
 /* ---- the front page on a phone or narrow tablet: a briefing that opens as it is read (COMPACT in FrontPage.tsx) ---- */
 .reveal { opacity: 0; transform: translateY(8px); transition: opacity 0.2s ease-out, transform 0.2s var(--ease); }
 .reveal.in { opacity: 1; transform: none; }
+
+/* issues as ruled rows; each row is the button of its own panel (also the landing page's static preview) */
+.irows { margin-top: 30px; }
+.irows > .reveal { border-top: 1px solid var(--rule); }
+.irows > .reveal:last-child { border-bottom: 1px solid var(--rule); }
+.irow-h { margin: 0; font: inherit; }
+.irow-btn {
+  display: grid; grid-template-columns: 1.1em minmax(0, 1fr) auto; column-gap: 12px; align-items: start; width: 100%;
+  padding: 16px 0; border: 0; background: none; color: var(--ink); text-align: left; cursor: pointer; font: inherit;
+}
+.irow-static { cursor: default; }
+.irow-btn:focus-visible { outline-offset: 2px; }
+.irow-n {
+  font-family: var(--font-display); font-weight: 800; font-size: var(--fs-5); line-height: 0.8; color: var(--accent-ink);
+  font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1; letter-spacing: -0.04em;
+}
+.irow-main { min-width: 0; }
+.irow-title {
+  display: block; font-family: var(--font-display); font-weight: 750; font-size: var(--fs-3); line-height: 1.22;
+  letter-spacing: -0.01em; font-variation-settings: "opsz" 72, "SOFT" 0; text-wrap: pretty;
+}
+.irow-meta {
+  display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px;
+  font-family: var(--font-mono); font-size: var(--fs-1); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2);
+}
+.irow-fig b { color: var(--ink); font-weight: 600; font-feature-settings: "tnum", "zero"; }
+.irow-trend { font-weight: 600; }
+.irow-trend.is-rising { color: var(--accent-ink); }
+.irow-btn .chev { margin-top: 2px; color: var(--ink-2); transition: transform 0.25s var(--ease); }
+.irow-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.irow-panel { padding: 2px 0 24px; }
+.irow .card-strip { padding-bottom: 16px; border-bottom: 1px solid var(--rule-soft); }
+.irow .card-spark { flex: 1 0 100%; }
+.irow .read-more { margin-left: 0; }
+
+/* ---- landing: the front door, one idea per section ---- */
+.hero { text-align: center; padding: clamp(40px, 7vw, 88px) 0 clamp(40px, 6vw, 72px); }
+.hero-title { margin: 0 0 18px; }
+.hero-rule { max-width: 560px; margin: 0 auto; }
+.hero-promise {
+  margin: 22px auto 30px; max-width: 30ch; font-family: var(--font-display); font-style: italic; font-size: var(--fs-4);
+  line-height: 1.25; text-wrap: balance; font-variation-settings: "opsz" 36;
+}
+.hero-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; }
+.hero-note { margin: 18px 0 0; font-family: var(--font-mono); font-size: var(--fs-1); letter-spacing: 0.04em; color: var(--ink-2); }
+.landing { max-width: 760px; margin: 0 auto; }
+.landing:focus { outline: none; }
+.l-section { padding: 44px 0 8px; border-top: 3px solid var(--rule); margin-top: 28px; }
+.l-section .kicker { margin-bottom: 8px; }
+.l-h { margin: 0 0 22px; font-family: var(--font-display); font-weight: 750; font-size: var(--fs-4); line-height: 1.15; letter-spacing: -0.015em; }
+.l-steps { list-style: none; margin: 0; padding: 0; }
+.l-steps li { display: grid; grid-template-columns: 34px minmax(0, 1fr); column-gap: 14px; padding: 16px 0; border-top: 1px solid var(--rule-soft); }
+.l-steps li:first-child { border-top: 0; padding-top: 4px; }
+.l-step-n {
+  font-family: var(--font-display); font-weight: 800; font-size: var(--fs-5); line-height: 0.8; color: var(--accent-ink);
+  font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1; letter-spacing: -0.04em;
+}
+.l-steps h3 { margin: 0 0 4px; font-family: var(--font-display); font-size: var(--fs-3); font-weight: 750; line-height: 1.25; }
+.l-steps p { margin: 0; font-size: var(--fs-3); line-height: 1.5; color: var(--ink-2); max-width: var(--measure); }
+.l-preview { margin: 0; padding: 4px 18px 14px; background: var(--card); border: 1px solid var(--frame); box-shadow: 4px 4px 0 var(--shadow-ink); }
+.l-preview figcaption { padding-top: 10px; border-top: 1px solid var(--rule-soft); font-family: var(--font-mono); font-size: var(--fs-1); color: var(--ink-2); letter-spacing: 0.04em; }
+.faq-item { border-top: 1px solid var(--rule); }
+.faq-item:last-child { border-bottom: 1px solid var(--rule); }
+.faq-q { margin: 0; font: inherit; }
+.faq-q button {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; width: 100%; padding: 16px 0; cursor: pointer;
+  border: 0; background: none; color: var(--ink); text-align: left;
+  font-family: var(--font-display); font-size: var(--fs-3); font-weight: 650; line-height: 1.3;
+}
+.faq-q button:focus-visible { outline-offset: 2px; }
+.faq-q .chev { color: var(--ink-2); transition: transform 0.25s var(--ease); }
+.faq-q button[aria-expanded="true"] .chev { transform: rotate(180deg); }
+.faq-a { padding: 0 0 18px; font-size: var(--fs-3); line-height: 1.55; max-width: var(--measure); }
+.faq-a p { margin: 0 0 10px; }
+.faq-a p:last-child { margin-bottom: 0; }
+.faq-list { margin: 0 0 10px; padding-left: 1.1em; }
+.faq-list li { margin-bottom: 8px; }
+.faq-list li::marker { color: var(--accent-ink); }
+.l-footer { display: grid; gap: 10px; max-width: 760px; margin-left: auto; margin-right: auto; }
+.l-footer p { margin: 0; }
+.l-credits { display: flex; flex-wrap: wrap; gap: 4px 24px; font-family: var(--font-mono); font-size: var(--fs-1); letter-spacing: 0.04em; color: var(--ink-2); }
+.l-links { display: flex; flex-wrap: wrap; gap: 8px 24px; }
+
 @media (max-width: 899.98px) {
   :root { --nav-h: 53px; }
   .page-enter { animation: none; }
@@ -846,38 +929,11 @@ button { font: inherit; color: inherit; }
   .safety-line[aria-expanded="true"] .safety-chev { transform: rotate(90deg); }
   .safety-fold .escalate { margin: 0; border-top: 0; box-shadow: none; }
 
-  /* issues as ruled rows; each row is the button of its own panel */
-  .irows { margin-top: 30px; }
-  .irows > .reveal { border-top: 1px solid var(--rule); }
-  .irows > .reveal:last-child { border-bottom: 1px solid var(--rule); }
-  .irow-h { margin: 0; font: inherit; }
-  .irow-btn {
-    display: grid; grid-template-columns: 1.1em minmax(0, 1fr) auto; column-gap: 12px; align-items: start; width: 100%;
-    padding: 16px 0; border: 0; background: none; color: var(--ink); text-align: left; cursor: pointer; font: inherit;
-  }
-  .irow-btn:focus-visible { outline-offset: 2px; }
-  .irow-n {
-    font-family: var(--font-display); font-weight: 800; font-size: var(--fs-5); line-height: 0.8; color: var(--accent-ink);
-    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1; letter-spacing: -0.04em;
-  }
-  .irow-main { min-width: 0; }
-  .irow-title {
-    display: block; font-family: var(--font-display); font-weight: 750; font-size: var(--fs-3); line-height: 1.22;
-    letter-spacing: -0.01em; font-variation-settings: "opsz" 72, "SOFT" 0; text-wrap: pretty;
-  }
-  .irow-meta {
-    display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px;
-    font-family: var(--font-mono); font-size: var(--fs-1); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2);
-  }
-  .irow-fig b { color: var(--ink); font-weight: 600; font-feature-settings: "tnum", "zero"; }
-  .irow-trend { font-weight: 600; }
-  .irow-trend.is-rising { color: var(--accent-ink); }
-  .irow-btn .chev { margin-top: 2px; color: var(--ink-2); transition: transform 0.25s var(--ease); }
-  .irow-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
-  .irow-panel { padding: 2px 0 24px; }
-  .irow .card-strip { padding-bottom: 16px; border-bottom: 1px solid var(--rule-soft); }
-  .irow .card-spark { flex: 1 0 100%; }
-  .irow .read-more { margin-left: 0; }
+  /* landing: the hero and its two buttons are the whole first screen */
+  .hero { display: flex; flex-direction: column; justify-content: center; min-height: calc(100svh - var(--nav-h)); padding: 24px 0 32px; }
+  .hero-actions { flex-direction: column; align-items: stretch; max-width: 320px; width: 100%; margin: 0 auto; }
+  .hero-actions .btn { justify-content: center; }
+  .l-section { padding-top: 36px; }
 
   /* the figures and the mentions chart wait behind one toggle */
   .numbers { margin-top: 30px; }
@@ -897,6 +953,10 @@ button { font: inherit; color: inherit; }
 }
 @media (max-width: 760px) {
   :root { --nav-h: 81px; } /* the bar wraps to two lines */
+}
+@media (max-width: 430px) {
+  /* four tabs on one line at phone width */
+  .tab { padding-left: 2px; padding-right: 2px; letter-spacing: 0; }
 }
 
 @media (prefers-reduced-motion: reduce) {
