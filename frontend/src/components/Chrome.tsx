@@ -47,14 +47,15 @@ export function Nav({ route, theme, toggleTheme }: { route: Route; theme: "paper
   );
 }
 
-export function Masthead({ title, city, edition, editionNote, live, synthetic, summary, staleNote }: {
+export function Masthead({ title, city, edition, editionNote, live, synthetic, summary, orient, staleNote }: {
   title: string; city: string; edition: Date; editionNote?: string; live: boolean; synthetic: boolean;
-  summary?: string | null; staleNote?: string | null;
+  summary?: string | null; orient?: string | null; staleNote?: string | null;
 }) {
   return (
     <header className="masthead">
       <h1 className="masthead-title">{title}</h1>
       {summary && <p className="masthead-sub">{summary}</p>}
+      {summary && orient && <p className="masthead-orient">{orient}</p>}
       <hr className="rule-double" />
       <div className="dateline">
         <span className="dl-ed"><span className="badge-ed">{live ? "Live edition" : "Demo edition"}</span></span>

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
 import { useTween } from "../tween";
 
 const reduced = () => typeof window !== "undefined" && !!window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -42,4 +42,33 @@ export function Collapse({ open, id, children }: { open: boolean; id?: string; c
       <div className="collapse-in">{children}</div>
     </div>
   );
+}
+
+/** True while `query` matches; follows the viewport as it changes. */
+export function useMedia(query: string) {
+  return useSyncExternalStore(
+    (cb) => {
+      const m = window.matchMedia?.(query);
+      m?.addEventListener("change", cb);
+      return () => m?.removeEventListener("change", cb);
+    },
+    () => !!window.matchMedia?.(query).matches,
+  );
+}
+
+/** A short fade and slide the first time the block enters the viewport; shown at once without IntersectionObserver or with reduced motion. */
+export function Reveal({ className, children }: { className?: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [shown, setShown] = useState(() => reduced() || typeof IntersectionObserver === "undefined");
+  useEffect(() => {
+    if (shown || !ref.current) return;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting) return;
+      setShown(true);
+      io.disconnect();
+    });
+    io.observe(ref.current);
+    return () => io.disconnect();
+  }, [shown]);
+  return <div ref={ref} className={`reveal${shown ? " in" : ""}${className ? ` ${className}` : ""}`}>{children}</div>;
 }

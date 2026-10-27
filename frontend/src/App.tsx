@@ -4,7 +4,7 @@ import type { AuditResult, PipelineEvent, ServerConfig } from "./types";
 import { initialRun, reduce, type RunState } from "./run";
 import { Footer, Masthead, Nav, RoutingNotes, type Route } from "./components/Chrome";
 import { Folio } from "./components/Folio";
-import { FrontBody, replyKey } from "./components/FrontPage";
+import { FrontBody, orientLine, replyKey } from "./components/FrontPage";
 import { Reconciliation } from "./components/Reconciliation";
 import { UnderTheHood } from "./components/UnderTheHood";
 import { LivePanel } from "./components/LivePanel";
@@ -199,13 +199,15 @@ export default function App() {
 
   let page: React.ReactNode;
   if (route === "home") {
+    const mast = (
+      <Masthead title={demo?.meta.hotel ?? "Hotel Wrenfield"} city={demo?.meta.city ?? "Austin, Texas"} edition={editionDate(demo)} editionNote={editionNote(demo)}
+        live={false} synthetic summary={demo ? summaryLine(demo) : null} orient={demo ? orientLine(demo) : null} staleNote={demo?.meta.stale_note} />
+    );
     page = (
       <>
-        <Masthead title={demo?.meta.hotel ?? "Hotel Wrenfield"} city={demo?.meta.city ?? "Austin, Texas"} edition={editionDate(demo)} editionNote={editionNote(demo)}
-          live={false} synthetic summary={demo ? summaryLine(demo) : null} staleNote={demo?.meta.stale_note} />
-        {demoErr ? <main id="main">{notice("The demo edition didn't arrive.", demoErr, <button className="btn" onClick={loadDemo}>Try again</button>)}</main>
-          : demo ? <FrontBody key={replyKey(demo)} r={demo} />
-          : <main id="main"><Skeleton /></main>}
+        {demoErr ? <>{mast}<main id="main">{notice("The demo edition didn't arrive.", demoErr, <button className="btn" onClick={loadDemo}>Try again</button>)}</main></>
+          : demo ? <FrontBody key={replyKey(demo)} r={demo} head={mast} />
+          : <>{mast}<main id="main"><Skeleton /></main></>}
         <Footer synthetic link="hood" />
       </>
     );
@@ -240,15 +242,19 @@ export default function App() {
         </>
       );
     }
+    const mast = (
+      <Masthead title={shownHere?.meta.hotel ?? "Your hotel"} city={shownHere?.meta.city ?? ""} edition={editionDate(shownHere)} editionNote={editionNote(shownHere)}
+        live={!replaying} synthetic={replaying} summary={live && !inProgress ? summaryLine(live) : null} orient={live ? orientLine(live) : null}
+        staleNote={!inProgress ? live?.meta.stale_note : null} />
+    );
     page = (
       <>
-        <Masthead title={shownHere?.meta.hotel ?? "Your hotel"} city={shownHere?.meta.city ?? ""} edition={editionDate(shownHere)} editionNote={editionNote(shownHere)}
-          live={!replaying} synthetic={replaying} summary={live && !inProgress ? summaryLine(live) : null} staleNote={!inProgress ? live?.meta.stale_note : null} />
         {live && !inProgress && !liveErr ? (
-          <FrontBody key={replyKey(live)} r={live} after={
+          <FrontBody key={replyKey(live)} r={live} head={mast} after={
             <p className="brief-after"><button className="btn" onClick={() => { setLive(null); dispatch({ type: "reset" }); }}>Run another audit</button></p>
           } />
         ) : (
+          <>{mast}
           <div className="sheet" style={showSide ? undefined : { gridTemplateColumns: "1fr" }}>
             <main id="main" className="col-main">{body}</main>
             {showSide && (
@@ -263,6 +269,7 @@ export default function App() {
               </aside>
             )}
           </div>
+          </>
         )}
         <Footer synthetic={replaying} link="hood" />
       </>

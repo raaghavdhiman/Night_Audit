@@ -65,6 +65,54 @@ function Strip({ issue, lead }: { issue: Issue; lead?: boolean }) {
 
 /** One issue at a glance: numbers and trend, its likely cause, one pull-quote and source, and the drafted reply behind a toggle. */
 export function IssueCard({ issue, replyText, lead, index = 0 }: { issue: Issue; replyText?: string; lead?: boolean; index?: number }) {
+  return (
+    <article className={`card${lead ? " card-lead" : ""}`} aria-labelledby={`card-${issue.rank}`} style={{ ["--i" as string]: index }}>
+      <header className="card-head">
+        <span className="card-n" aria-hidden>{issue.rank}</span>
+        <div>
+          <span className="chip">{issue.department}</span>
+          <h2 className="card-title" id={`card-${issue.rank}`}><span className="sr-only">Issue {issue.rank}: </span>{issue.title}</h2>
+        </div>
+      </header>
+      <CardBody issue={issue} replyText={replyText} lead={lead} />
+    </article>
+  );
+}
+
+/**
+ * The same issue as one compact row on a phone: rank, title, negative mentions and the direction.
+ * The row is the button of an accordion; the panel is the card body, unchanged.
+ */
+export function IssueRow({ issue, replyText, lead, open, onToggle }: { issue: Issue; replyText?: string; lead?: boolean; open: boolean; onToggle: () => void }) {
+  const s = issue.stats;
+  const t = s.direction ? TREND[s.direction] : undefined;
+  const panel = `row-panel-${issue.rank}`;
+  return (
+    <article className={`irow${open ? " open" : ""}`} aria-labelledby={`row-${issue.rank}`}>
+      <h2 className="irow-h">
+        <button className="irow-btn" id={`row-${issue.rank}`} aria-expanded={open} aria-controls={panel} onClick={onToggle}>
+          <span className="irow-n" aria-hidden>{issue.rank}</span>
+          <span className="irow-main">
+            <span className="irow-title"><span className="sr-only">Issue {issue.rank}: </span>{issue.title}</span>
+            <span className="irow-meta">
+              <span className="irow-fig"><b>{s.neg_total}</b> negative mentions</span>
+              {t && <span className={`irow-trend is-${s.direction}`}><span aria-hidden>{t.arrow}</span> {t.word}</span>}
+            </span>
+          </span>
+          <IconChevron />
+        </button>
+      </h2>
+      <Collapse open={open} id={panel}>
+        <div className="irow-panel">
+          <span className="chip">{issue.department}</span>
+          <CardBody issue={issue} replyText={replyText} lead={lead} />
+        </div>
+      </Collapse>
+    </article>
+  );
+}
+
+function CardBody({ issue, replyText, lead }: { issue: Issue; replyText?: string; lead?: boolean }) {
   const [open, setOpen] = useState(false);
   const [more, setMore] = useState(false);
   const inv = issue.investigation;
@@ -76,54 +124,45 @@ export function IssueCard({ issue, replyText, lead, index = 0 }: { issue: Issue;
   const replyId = `card-reply-${issue.rank}`;
   const moreId = `card-more-${issue.rank}`;
   return (
-    <article className={`card${lead ? " card-lead" : ""}`} aria-labelledby={`card-${issue.rank}`} style={{ ["--i" as string]: index }}>
-      <header className="card-head">
-        <span className="card-n" aria-hidden>{issue.rank}</span>
-        <div>
-          <span className="chip">{issue.department}</span>
-          <h2 className="card-title" id={`card-${issue.rank}`}><span className="sr-only">Issue {issue.rank}: </span>{issue.title}</h2>
-        </div>
-      </header>
-      <div className="card-body">
-        <Strip issue={issue} lead={lead} />
-        <div className="card-text" id={moreId}>
-          <p className={`card-cause${more ? "" : " clamp"}`}>
-            {cause ? <><b>Likely cause:</b> {causeText}</> : "No likely cause was found; see how this was built."}
+    <div className="card-body">
+      <Strip issue={issue} lead={lead} />
+      <div className="card-text" id={moreId}>
+        <p className={`card-cause${more ? "" : " clamp"}`}>
+          {cause ? <><b>Likely cause:</b> {causeText}</> : "No likely cause was found; see how this was built."}
+        </p>
+        {q1 && (
+          <blockquote className="pull">
+            <span className="pull-mark" aria-hidden>“</span>
+            {more ? q1.excerpt : shortQuote(q1.excerpt)}”
+          </blockquote>
+        )}
+        {q2 && <Collapse open={more}><blockquote className="pull pull-2">“{q2.excerpt}”</blockquote></Collapse>}
+        {canExpand && (
+          <button className="read-more" aria-expanded={more} aria-controls={moreId} onClick={() => setMore((v) => !v)}>
+            {more ? "Show less" : "Read more"}
+          </button>
+        )}
+        {source && (
+          <p className="card-source-line">
+            <a className="card-source" href={source.url} target="_blank" rel="noopener noreferrer nofollow">
+              <span className="site">{domain(source.url)}</span> · {source.title || domain(source.url)} <IconExternal />
+            </a>
           </p>
-          {q1 && (
-            <blockquote className="pull">
-              <span className="pull-mark" aria-hidden>“</span>
-              {more ? q1.excerpt : shortQuote(q1.excerpt)}”
-            </blockquote>
-          )}
-          {q2 && <Collapse open={more}><blockquote className="pull pull-2">“{q2.excerpt}”</blockquote></Collapse>}
-          {canExpand && (
-            <button className="read-more" aria-expanded={more} aria-controls={moreId} onClick={() => setMore((v) => !v)}>
-              {more ? "Show less" : "Read more"}
+        )}
+        {replyText !== undefined && (
+          <>
+            <button className="expander" aria-expanded={open} aria-controls={replyId} onClick={() => setOpen((v) => !v)}>
+              {open ? "Hide suggested reply" : "See suggested reply"} <IconChevron />
             </button>
-          )}
-          {source && (
-            <p className="card-source-line">
-              <a className="card-source" href={source.url} target="_blank" rel="noopener noreferrer nofollow">
-                <span className="site">{domain(source.url)}</span> · {source.title || domain(source.url)} <IconExternal />
-              </a>
-            </p>
-          )}
-          {replyText !== undefined && (
-            <>
-              <button className="expander" aria-expanded={open} aria-controls={replyId} onClick={() => setOpen((v) => !v)}>
-                {open ? "Hide suggested reply" : "See suggested reply"} <IconChevron />
-              </button>
-              <Collapse open={open} id={replyId}>
-                <div className="card-reply">
-                  <div className="card-draft">{replyText ? withPlaceholders(replyText) : "Draft failed to generate."}</div>
-                  <p className="card-note">Draft only · nothing is sent. Confirm the highlighted points before sending.</p>
-                </div>
-              </Collapse>
-            </>
-          )}
-        </div>
+            <Collapse open={open} id={replyId}>
+              <div className="card-reply">
+                <div className="card-draft">{replyText ? withPlaceholders(replyText) : "Draft failed to generate."}</div>
+                <p className="card-note">Draft only · nothing is sent. Confirm the highlighted points before sending.</p>
+              </div>
+            </Collapse>
+          </>
+        )}
       </div>
-    </article>
+    </div>
   );
 }

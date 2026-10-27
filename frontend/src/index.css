@@ -183,6 +183,7 @@ button { font: inherit; color: inherit; }
 .dl-ed { text-align: left; }
 .dl-date { font-family: var(--font-display); font-style: italic; font-size: var(--fs-2); letter-spacing: 0; text-transform: none; color: var(--ink); }
 .dl-city { display: flex; justify-content: flex-end; align-items: center; gap: 10px; flex-wrap: wrap; }
+.masthead-orient { display: none; margin: -8px auto 18px; font-family: var(--font-mono); font-size: var(--fs-1); letter-spacing: 0.06em; color: var(--ink-2); }
 .stale-line { margin: 10px auto 0; max-width: 70ch; font-size: var(--fs-2); font-style: italic; color: var(--ink-2); }
 .badge-ed, .badge-synth {
   display: inline-block; padding: 1px 7px; border: 1px solid currentColor;
@@ -237,7 +238,6 @@ button { font: inherit; color: inherit; }
 }
 .glance dt { font-family: var(--font-mono); font-size: var(--fs-1); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-2); line-height: 1.35; }
 .g-top dd { color: var(--accent-ink); }
-.g-alert dd { color: var(--alert-ink); }
 
 /* the one alert line, guest safety only */
 .safety-alert {
@@ -246,8 +246,10 @@ button { font: inherit; color: inherit; }
   transition: background 0.15s, color 0.15s;
 }
 .safety-go { margin-left: auto; white-space: nowrap; font-family: var(--font-mono); font-size: var(--fs-1); letter-spacing: 0.08em; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; }
-.safety-alert:hover { background: var(--alert); color: var(--card); }
-:root[data-theme="night"] .safety-alert:hover { color: var(--paper); }
+@media (hover: hover) {
+  .safety-alert:hover { background: var(--alert); color: var(--card); }
+  :root[data-theme="night"] .safety-alert:hover { color: var(--paper); }
+}
 
 /* ---- front page: lead story with a rail, then issues 2 and 3 ---- */
 .front-grid {
@@ -809,6 +811,92 @@ button { font: inherit; color: inherit; }
   .folio .total td { border-top: 0; padding-top: 9px; }
   .folio .total td:first-child { grid-column: 1; }
   .folio .total td:nth-child(n + 2) { padding-top: 9px; }
+}
+
+/* ---- the front page on a phone or narrow tablet: a briefing that opens as it is read (COMPACT in FrontPage.tsx) ---- */
+.reveal { opacity: 0; transform: translateY(8px); transition: opacity 0.2s ease-out, transform 0.2s var(--ease); }
+.reveal.in { opacity: 1; transform: none; }
+@media (max-width: 899.98px) {
+  :root { --nav-h: 53px; }
+  .page-enter { animation: none; }
+  .masthead-orient { display: block; }
+
+  /* the first screen, set like a front page: nameplate and dateline at the head, the verdict in the middle,
+     the one alert line at the foot. Visual order only; the DOM order (and reading order) is unchanged. */
+  .cover { display: flex; flex-direction: column; min-height: calc(100svh - var(--nav-h)); padding-bottom: 20px; }
+  .cover .masthead { flex: 1; display: flex; flex-direction: column; }
+  .cover .masthead > * { order: 4; }
+  .cover .masthead-title { order: 0; margin-bottom: 18px; }
+  .cover .rule-double { order: 1; }
+  .cover .dateline { order: 2; }
+  .cover .rule { order: 3; }
+  .cover .masthead-sub {
+    order: 5; margin: auto auto 14px; padding-top: 32px; max-width: 14ch;
+    font-size: var(--fs-5); line-height: 1.06; letter-spacing: -0.02em;
+  }
+  .cover .masthead-orient { order: 6; margin: 0 auto auto; }
+  .safety-fold { padding-top: 32px; }
+  /* no guest-safety reviews: no alert slot; the verdict centres between the two double rules that frame the page */
+  .cover.no-alert { padding-bottom: 24px; }
+  .cover.no-alert .masthead-sub { padding-top: 0; }
+  .cover.no-alert::after { content: ""; height: 5px; border-top: 1px solid var(--rule); border-bottom: 3px solid var(--rule); }
+  .safety-line { margin: 0; padding: 12px 14px; flex-wrap: nowrap; }
+  .safety-line .pulse-dot::after { animation: none; }
+  .safety-chev { margin-left: auto; font-size: var(--fs-4); line-height: 0.8; font-weight: 400; transition: transform 0.2s var(--ease); }
+  .safety-line[aria-expanded="true"] .safety-chev { transform: rotate(90deg); }
+  .safety-fold .escalate { margin: 0; border-top: 0; box-shadow: none; }
+
+  /* issues as ruled rows; each row is the button of its own panel */
+  .irows { margin-top: 30px; }
+  .irows > .reveal { border-top: 1px solid var(--rule); }
+  .irows > .reveal:last-child { border-bottom: 1px solid var(--rule); }
+  .irow-h { margin: 0; font: inherit; }
+  .irow-btn {
+    display: grid; grid-template-columns: 1.1em minmax(0, 1fr) auto; column-gap: 12px; align-items: start; width: 100%;
+    padding: 16px 0; border: 0; background: none; color: var(--ink); text-align: left; cursor: pointer; font: inherit;
+  }
+  .irow-btn:focus-visible { outline-offset: 2px; }
+  .irow-n {
+    font-family: var(--font-display); font-weight: 800; font-size: var(--fs-5); line-height: 0.8; color: var(--accent-ink);
+    font-variation-settings: "opsz" 144, "SOFT" 0, "WONK" 1; letter-spacing: -0.04em;
+  }
+  .irow-main { min-width: 0; }
+  .irow-title {
+    display: block; font-family: var(--font-display); font-weight: 750; font-size: var(--fs-3); line-height: 1.22;
+    letter-spacing: -0.01em; font-variation-settings: "opsz" 72, "SOFT" 0; text-wrap: pretty;
+  }
+  .irow-meta {
+    display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 6px;
+    font-family: var(--font-mono); font-size: var(--fs-1); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2);
+  }
+  .irow-fig b { color: var(--ink); font-weight: 600; font-feature-settings: "tnum", "zero"; }
+  .irow-trend { font-weight: 600; }
+  .irow-trend.is-rising { color: var(--accent-ink); }
+  .irow-btn .chev { margin-top: 2px; color: var(--ink-2); transition: transform 0.25s var(--ease); }
+  .irow-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .irow-panel { padding: 2px 0 24px; }
+  .irow .card-strip { padding-bottom: 16px; border-bottom: 1px solid var(--rule-soft); }
+  .irow .card-spark { flex: 1 0 100%; }
+  .irow .read-more { margin-left: 0; }
+
+  /* the figures and the mentions chart wait behind one toggle */
+  .numbers { margin-top: 30px; }
+  .numbers-btn {
+    display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 14px 0; cursor: pointer;
+    border: 0; border-top: 3px solid var(--rule); border-bottom: 1px solid var(--rule); background: none; color: var(--ink);
+    font-family: var(--font-mono); font-size: var(--fs-1); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .numbers-btn .chev { transition: transform 0.25s var(--ease); }
+  .numbers-btn[aria-expanded="true"] .chev { transform: rotate(180deg); }
+  .numbers-in { padding-top: 4px; }
+  .numbers-in .bars { margin-top: 22px; }
+
+  /* calm: nothing draws or nudges on arrival */
+  .front-compact .spark-draw .line, .front-compact .spark-draw .area, .front-compact .spark-draw .dot,
+  .front-compact .spark-draw .halo, .front-compact .trend-rising .arrow, .front-compact .mb-bar { animation: none; }
+}
+@media (max-width: 760px) {
+  :root { --nav-h: 81px; } /* the bar wraps to two lines */
 }
 
 @media (prefers-reduced-motion: reduce) {
