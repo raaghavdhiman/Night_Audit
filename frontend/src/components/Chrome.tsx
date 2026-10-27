@@ -1,4 +1,3 @@
-import { useLayoutEffect, useRef } from "react";
 import { IconMoon, IconSun } from "./Icons";
 import { longDate } from "../format";
 
@@ -11,36 +10,19 @@ export const ROUTES: { route: Route; hash: string; label: string }[] = [
   { route: "hood", hash: "#/under-the-hood", label: "Under the hood" },
 ];
 
-/** Slim sticky bar on every page: wordmark, the three page tabs (ink underline slides to the active one), theme. */
+/** Slim sticky bar on every page: wordmark, the four page tabs as buttons (the current one filled), then the theme. */
 export function Nav({ route, theme, toggleTheme }: { route: Route; theme: "paper" | "night"; toggleTheme: () => void }) {
-  const tabs = useRef<HTMLDivElement>(null);
-  const ink = useRef<HTMLSpanElement>(null);
-  useLayoutEffect(() => {
-    const place = () => {
-      const a = tabs.current?.querySelector<HTMLElement>('[aria-current="page"]');
-      if (!a || !ink.current) return;
-      ink.current.style.width = `${a.offsetWidth}px`;
-      ink.current.style.transform = `translateX(${a.offsetLeft}px)`;
-      if (tabs.current && (a.offsetLeft < tabs.current.scrollLeft || a.offsetLeft + a.offsetWidth > tabs.current.scrollLeft + tabs.current.clientWidth)) {
-        tabs.current.scrollLeft = a.offsetLeft - 16; // keep the active tab in view on a narrow bar
-      }
-    };
-    place();
-    window.addEventListener("resize", place);
-    document.fonts?.ready.then(place);
-    return () => window.removeEventListener("resize", place);
-  }, [route]);
   return (
     <nav className="topnav" aria-label="Pages">
       <div className="topnav-in">
         <a href="#/" className="wordmark">Night Audit</a>
-        <div className="tabs" ref={tabs}>
+        <div className="tabs">
           {ROUTES.map((t) => (
-            <a key={t.route} href={t.hash} className="tab" aria-current={route === t.route ? "page" : undefined}>{t.label}</a>
+            <a key={t.route} href={t.hash} className="nav-btn tab" aria-current={route === t.route ? "page" : undefined}>{t.label}</a>
           ))}
-          <span className="tab-ink" ref={ink} aria-hidden />
         </div>
-        <button className="btn btn-sm btn-ghost theme-btn" onClick={toggleTheme} aria-label={`Switch to ${theme === "paper" ? "night" : "paper"} theme`}>
+        <span className="nav-sep" aria-hidden />
+        <button className="nav-btn theme-btn" onClick={toggleTheme} aria-label={`Switch to ${theme === "paper" ? "night" : "paper"} theme`}>
           {theme === "paper" ? <IconMoon /> : <IconSun />} {theme === "paper" ? "Night" : "Paper"}
         </button>
       </div>

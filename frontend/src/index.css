@@ -150,19 +150,22 @@ button { font: inherit; color: inherit; }
   font-variation-settings: "opsz" 72, "SOFT" 0, "WONK" 1; text-decoration: none; white-space: nowrap;
 }
 .wordmark:hover { color: var(--ink); }
-.tabs { position: relative; display: flex; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; }
-.tabs::-webkit-scrollbar { display: none; }
-.tab {
-  flex: none; padding: 16px 12px 15px; text-decoration: none; white-space: nowrap; color: var(--ink-2);
-  font-family: var(--font-mono); font-size: var(--fs-1); font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
-  transition: color 0.15s;
+.tabs { display: flex; gap: 6px; margin-left: auto; }
+/* every tab is its own button, set like a box on the page: a 1px ink frame, square corners, the mono small-caps label */
+.nav-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px; flex: none; min-height: 34px; padding: 0 12px;
+  border: 1px solid var(--rule); background: transparent; color: var(--ink); cursor: pointer; text-decoration: none; white-space: nowrap;
+  font-family: var(--font-mono); font-size: var(--fs-1); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+  transition: background 0.12s, box-shadow 0.12s, transform 0.12s;
 }
-.tab:hover, .tab[aria-current="page"] { color: var(--ink); }
-.tab:focus-visible { outline-offset: -4px; }
-.tab-ink {
-  position: absolute; left: 0; bottom: 0; height: 3px; width: 0; background: var(--accent);
-  transition: transform 0.32s var(--ease), width 0.32s var(--ease);
+.nav-btn .icon { width: 14px; height: 14px; }
+.nav-btn[aria-current="page"] { background: var(--ink); border-color: var(--ink); color: var(--paper); cursor: default; }
+.nav-btn:focus-visible { outline-offset: 2px; }
+@media (hover: hover) {
+  .nav-btn:not([aria-current="page"]):hover { color: var(--ink); background: var(--paper-2); transform: translate(-1px, -1px); box-shadow: 2px 2px 0 var(--shadow-ink); }
 }
+/* the theme switch is a setting, not a page: a thin rule sets it apart */
+.nav-sep { flex: none; align-self: center; width: 1px; height: 22px; background: var(--rule-soft); }
 .theme-btn { flex: none; }
 
 /* ---- masthead: nameplate, the verdict line, dateline between rules ---- */
@@ -765,11 +768,6 @@ button { font: inherit; color: inherit; }
   .receipt { max-width: 480px; }
 }
 @media (max-width: 760px) {
-  .topnav-in { flex-wrap: wrap; gap: 0 12px; min-height: 0; padding-top: 8px; }
-  .wordmark { order: 1; }
-  .theme-btn { order: 2; margin-left: auto; }
-  .tabs { order: 3; flex: 1 0 100%; margin: 0 calc(-1 * var(--gutter)); padding: 0 var(--gutter); justify-content: space-between; }
-  .tab { padding: 10px 4px 11px; letter-spacing: 0.04em; }
   .dateline { grid-template-columns: 1fr; text-align: center; }
   .dl-ed { text-align: center; }
   .dl-city { justify-content: center; }
@@ -951,15 +949,24 @@ button { font: inherit; color: inherit; }
   .front-compact .spark-draw .line, .front-compact .spark-draw .area, .front-compact .spark-draw .dot,
   .front-compact .spark-draw .halo, .front-compact .trend-rising .arrow, .front-compact .mb-bar { animation: none; }
 }
-@media (max-width: 760px) {
-  :root { --nav-h: 81px; } /* the bar wraps to two lines */
+/* narrower than one row: wordmark and theme on the first line, the four tabs below at full width; tap targets 40px */
+@media (max-width: 860px) {
+  :root { --nav-h: 105px; }
+  .topnav-in { flex-wrap: wrap; gap: 8px; min-height: 0; padding-top: 8px; padding-bottom: 8px; }
+  .wordmark { order: 1; }
+  .nav-sep { display: none; }
+  .theme-btn { order: 2; margin-left: auto; }
+  .tabs { order: 3; flex: 1 0 100%; display: grid; grid-template-columns: repeat(4, auto); }
+  .nav-btn { min-height: 40px; padding: 0 10px; }
 }
-@media (max-width: 430px) {
-  /* four tabs on one line at phone width */
-  .tab { padding-left: 2px; padding-right: 2px; letter-spacing: 0; }
+/* phone: two tidy rows of two, so no label shrinks or hides */
+@media (max-width: 560px) {
+  :root { --nav-h: 151px; }
+  .tabs { grid-template-columns: 1fr 1fr; }
+  .nav-btn { letter-spacing: 0.04em; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.001ms !important; animation-delay: 0s !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; transition-delay: 0s !important; }
-  .card:hover { transform: none; }
+  .card:hover, .nav-btn:hover { transform: none !important; }
 }
