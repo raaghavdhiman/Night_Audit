@@ -22,7 +22,7 @@ export function AtAGlance({ r }: { r: AuditResult }) {
   return (
     <dl className="glance" aria-label="At a glance">
       {figures.map((f) => (
-        <div className="glance-cell" key={f.key}>
+        <div className={`glance-cell g-${f.key}${f.key === "safety" && r.escalations.length ? " g-alert" : ""}`} key={f.key}>
           <dt>{f.label}</dt>
           <dd><CountUp id={`glance-${r.meta.generated_at}-${f.key}`} text={f.value} /></dd>
         </div>
@@ -52,40 +52,50 @@ function SafetyAlert({ n }: { n: number }) {
 
 /**
  * The front-page body for a finished edition (the demo on "Tonight's Issues", a live run on "Run your own"):
- * figures and the mentions chart, the safety alert, up to three issue cards, then the escalations.
- * Remount it per result (key by replyKey) so the reply drafts load for that result.
+ * the figures strip and the safety alert, then the lead story with a rail (mentions chart, guest-safety reviews)
+ * and issues 2 and 3 below. Remount it per result (key by replyKey) so the reply drafts load for that result.
  */
 export function FrontBody({ r, after }: { r: AuditResult; after?: ReactNode }) {
   const store = useReplyStore(replyKey(r));
   const top = r.issues.slice(0, 3);
   const featured = useMemo(() => new Map(r.issues.slice(0, 3).map((i) => [i.aspect, i.rank])), [r.issues]);
+  const card = (k: number) => {
+    const i = top[k];
+    const rep = r.replies.find((x) => x.issue_rank === i.rank);
+    return <IssueCard key={i.rank} issue={i} lead={k === 0} index={k} replyText={rep ? store.get(rep).text : undefined} />;
+  };
   return (
     <main id="main" className="front">
-      <div className="front-row">
-        <section aria-labelledby="k-front">
-          <div className="kicker" id="k-front">Front page</div>
-          <AtAGlance r={r} />
-        </section>
-        <section aria-labelledby="k-numbers">
+      <section className="glance-strip" aria-labelledby="k-front">
+        <h2 className="sr-only" id="k-front">At a glance</h2>
+        <AtAGlance r={r} />
+      </section>
+      <SafetyAlert n={r.escalations.length} />
+      {r.issues.length === 0 && <p className="muted">No issue stood out in these reviews.</p>}
+      <div className={`front-grid${r.escalations.length ? "" : " no-esc"}`}>
+        {top.length > 0 && (
+          <div className="fg-lead">
+            <div className="kicker">Fix first</div>
+            {card(0)}
+          </div>
+        )}
+        <section className="fg-chart" aria-labelledby="k-numbers">
           <div className="kicker" id="k-numbers">By the numbers</div>
           <MentionBars aspects={r.aspects} featured={featured} period={r.meta.period} />
         </section>
+        {r.escalations.length > 0 && (
+          <section className="fg-esc front-esc" aria-label="Guest-safety reviews">
+            <div className="kicker kicker-alert">Call today</div>
+            <Escalations items={r.escalations} />
+          </section>
+        )}
+        {top.length > 1 && (
+          <div className="fg-rest">
+            <div className="kicker">Then</div>
+            <div className="cards">{top.slice(1).map((_, k) => card(k + 1))}</div>
+          </div>
+        )}
       </div>
-      <SafetyAlert n={r.escalations.length} />
-      <div className="kicker">Fix first</div>
-      {r.issues.length === 0 && <p className="muted">No issue stood out in these reviews.</p>}
-      <div className="cards">
-        {top.map((i, k) => {
-          const rep = r.replies.find((x) => x.issue_rank === i.rank);
-          return <IssueCard key={i.rank} issue={i} lead={k === 0} index={k} replyText={rep ? store.get(rep).text : undefined} />;
-        })}
-      </div>
-      {r.escalations.length > 0 && (
-        <section className="front-esc" aria-label="Guest-safety reviews">
-          <div className="kicker">Call today</div>
-          <Escalations items={r.escalations} />
-        </section>
-      )}
       {after}
     </main>
   );

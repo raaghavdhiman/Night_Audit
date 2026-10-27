@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { AuditResult, StageName } from "../types";
-import { int, modelShort, plural, usd } from "../format";
-import { HBars } from "./Charts";
+import { int, modelShort, plural, secs, tokens, usd } from "../format";
+import { HBars, SavingsChart } from "./Charts";
 import { Colophon, RoutingNotes } from "./Chrome";
 import { Folio } from "./Folio";
 import { replyKey } from "./FrontPage";
@@ -44,15 +44,36 @@ export function UnderTheHood({ r, live, folioNo, onToast }: { r: AuditResult; li
     <main id="main" className="hood">
       <section aria-labelledby="k-how">
         <div className="kicker" id="k-how">How it works</div>
-        <ol className="steps">
-          {STEPS.map((s, i) => (
-            <li key={s.stage} className="step" style={{ ["--i" as string]: i }}>
-              <span className="step-n">{i + 1}</span>
-              <h3>{s.name}</h3>
-              <p>{s.what}</p>
-              <span className="step-model">{model(s.stage)}</span>
-            </li>
-          ))}
+        <h2 className="hood-h">Four desks, one model each</h2>
+        <ol className="pipeline" aria-label="The pipeline, in order">
+          {STEPS.map((s, i) => {
+            const x = route.get(s.stage);
+            const row = by.get(s.stage);
+            return (
+              <li key={s.stage} className="station" style={{ ["--i" as string]: i }}>
+                <span className="st-node" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
+                <h3>{s.name}</h3>
+                {x && (
+                  <p className="st-model">
+                    <span className="st-family">Nemotron</span> {modelShort(x.model)}
+                    <span className={`st-think${x.thinking ? " on" : ""}`}>{x.thinking ? "thinking" : "no thinking"}</span>
+                  </p>
+                )}
+                <p className="st-what">{s.what}</p>
+                {row && (
+                  <dl className="st-stats">
+                    <div><dt>calls</dt><dd>{int(row.calls)}</dd></div>
+                    <div><dt>tokens</dt><dd>{tokens(row.tokens_in + row.tokens_out)}</dd></div>
+                    <div><dt>time</dt><dd>{secs(row.wall_seconds)}</dd></div>
+                    <div><dt>cost</dt><dd>{usd(row.cost_usd, 4)}</dd></div>
+                  </dl>
+                )}
+                {s.stage === "investigate" && row?.tool_calls ? (
+                  <p className="st-branch">+ Tavily web search · {plural(row.tool_calls, "query", "queries")}</p>
+                ) : null}
+              </li>
+            );
+          })}
         </ol>
       </section>
 
@@ -64,6 +85,16 @@ export function UnderTheHood({ r, live, folioNo, onToast }: { r: AuditResult; li
               nReviews={m.n_reviews} hotel={m.hotel} folioNo={folioNo} live={live} />
           </div>
           <div className="bill-side">
+            {r.baseline && (
+              <figure className="box box-saved">
+                <h3 className="box-title">Saved vs. an all-Ultra run</h3>
+                {typeof r.savings_pct === "number" && <p className="saved-figure"><b>{Math.round(r.savings_pct)}%</b> saved</p>}
+                <SavingsChart run={r.folio.total.cost_usd} runText={usd(r.folio.total.cost_usd, 4)}
+                  baseline={r.baseline.extrapolated_cost_usd} baselineText={usd(r.baseline.extrapolated_cost_usd, 2)}
+                  baselineNote="thinking on, estimated" />
+                <figcaption>Baseline {r.baseline.label}.</figcaption>
+              </figure>
+            )}
             <figure className="box">
               <h3 className="box-title">Cost per stage</h3>
               <HBars title="Cost per stage" rows={STEPS.filter((s) => by.has(s.stage)).map((s) => {
@@ -74,19 +105,6 @@ export function UnderTheHood({ r, live, folioNo, onToast }: { r: AuditResult; li
                 {plural(r.folio.total.calls, "model call")} · {r.folio.stages.reduce((a, s) => a + (s.tool_calls ?? 0), 0)} web searches (Tavily credits, not in the total).
               </figcaption>
             </figure>
-            {r.baseline && (
-              <figure className="box">
-                <h3 className="box-title">Saved vs. an all-Ultra run</h3>
-                <HBars title="This run vs. all-Ultra baseline" rows={[
-                  { label: "This run", note: "each stage on its own model", value: r.folio.total.cost_usd, text: usd(r.folio.total.cost_usd, 4) },
-                  { label: "All-Ultra", note: "thinking on, estimated", value: r.baseline.extrapolated_cost_usd, text: usd(r.baseline.extrapolated_cost_usd, 2), muted: true },
-                ]} />
-                <figcaption>
-                  {typeof r.savings_pct === "number" ? <><b className="saved">{Math.round(r.savings_pct)}% saved</b> · </> : null}
-                  baseline {r.baseline.label}.
-                </figcaption>
-              </figure>
-            )}
             <div className="box"><RoutingNotes /></div>
           </div>
         </div>

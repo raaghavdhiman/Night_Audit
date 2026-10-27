@@ -29,8 +29,8 @@ export function Reconciliation({ run, cost, title = "Reconciling tonight's revie
             else state = "in progress";
           } else state = "waiting";
           return (
-            <li className="stage" key={st}>
-              <span className="idx">{String(i + 1).padStart(2, "0")}</span>
+            <li className={`stage ${s.status}`} key={st}>
+              <span className="idx" aria-hidden>{String(i + 1).padStart(2, "0")}</span>
               <span className="leader">
                 <span className="name">{NAMES[st]}</span>
                 <span className="dots" aria-hidden />

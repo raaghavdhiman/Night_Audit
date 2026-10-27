@@ -97,7 +97,7 @@ export function Replies({ replies, store, onToast }: { replies: Reply[]; store: 
               <blockquote>“{r.excerpt}”</blockquote>
               {s.status === "discarded" ? (
                 <div className="reply-actions">
-                  <span className="muted" style={{ fontSize: 13.5 }}>Draft discarded.</span>
+                  <span className="muted">Draft discarded.</span>
                   <button className="btn btn-sm btn-ghost" onClick={() => set(r, { status: "pending" })}><IconUndo /> Undo</button>
                 </div>
               ) : (

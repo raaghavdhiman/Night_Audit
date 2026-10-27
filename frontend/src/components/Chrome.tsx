@@ -106,10 +106,10 @@ export function Colophon({ synthetic }: { synthetic: boolean }) {
           </p>
         </div>
         <div>
-          <p className="mono" style={{ fontSize: 12 }}>
+          <p className="mono">
             Nebius × NVIDIA Global AI Hackathon · Best Apps &amp; Agents
           </p>
-          <p style={{ fontSize: 12.5 }}>
+          <p>
             Model evaluation used Datafiniti hotel reviews (CC BY-NC-SA 4.0) locally; that data is not redistributed or shown here.
           </p>
           {REPO && <p><a href={REPO} target="_blank" rel="noopener noreferrer">Source code (MIT)</a></p>}
@@ -123,7 +123,7 @@ export function RoutingNotes() {
   return (
     <section aria-labelledby="routing-title">
       <div className="kicker" id="routing-title">Why each desk gets its model</div>
-      <ul className="limits" style={{ fontSize: 11.5 }}>
+      <ul className="limits limits-routing">
         <li><span>Extract → Super, no thinking</span><span>neg-issue F1 0.80 · $0.40/1k</span></li>
         <li><span>Lightning, no thinking</span><span>F1 0.75 · $0.09/1k</span></li>
         <li><span>Lightning, thinking</span><span>F1 0.89 · 66 s/review</span></li>
@@ -131,7 +131,7 @@ export function RoutingNotes() {
         <li><span>Investigate → Ultra + Tavily</span><span>≤4 searches/issue</span></li>
         <li><span>Replies → Lightning</span><span>short drafts, cheap</span></li>
       </ul>
-      <p className="faint" style={{ fontSize: 11.5, marginTop: 6 }}>
+      <p className="routing-note">
         F1 vs. an Ultra-with-thinking reference on 100 real reviews; see results/eval_summary.md in the repo.
       </p>
     </section>

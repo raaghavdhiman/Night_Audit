@@ -3,7 +3,7 @@ import type { Hypothesis, Issue, Investigation, Source } from "../types";
 import { domain, pct, shortDate } from "../format";
 import { Sparkline } from "./Charts";
 import { IconChevron, IconExternal } from "./Icons";
-import { Collapse, CountUp } from "./Motion";
+import { Collapse } from "./Motion";
 import { withPlaceholders } from "./Replies";
 
 /** Cut a guest excerpt at a sentence end (or a word) near `max` characters. */
@@ -44,12 +44,12 @@ function Strip({ issue, lead }: { issue: Issue; lead?: boolean }) {
   return (
     <div className="card-strip">
       <div className="stat-pair">
-        <div className="stat-big"><b><CountUp id={`neg-${issue.aspect}`} text={String(s.neg_total)} /></b><span>negative mentions</span></div>
-        <div className="stat-big"><b><CountUp id={`rate-${issue.aspect}`} text={pct(s.recent_neg_rate)} /></b><span>of recent reviews</span></div>
+        <div className="stat-big"><b>{s.neg_total}</b><span>negative mentions</span></div>
+        <div className="stat-big"><b>{pct(s.recent_neg_rate)}</b><span>of recent reviews</span></div>
       </div>
       {w.length > 0 && (
         <figure className="card-spark">
-          <Sparkline weekly={w} onset={s.onset_week} height={lead ? 104 : 56} labelled={lead} title={`Issue ${issue.rank}: ${issue.title}`} />
+          <Sparkline weekly={w} onset={s.onset_week} height={lead ? 112 : 64} labelled={lead} title={`Issue ${issue.rank}: ${issue.title}`} />
           {!lead && <figcaption>per week · {shortDate(w[0].week_start)} – {shortDate(w[w.length - 1].week_start)}</figcaption>}
         </figure>
       )}

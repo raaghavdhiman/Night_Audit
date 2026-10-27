@@ -47,7 +47,7 @@ export function Folio({ folio, routing, baseline, savingsPct, stages, nReviews, 
         <div className="s">{hotel} · Night Audit · Cost of tonight's briefing</div>
       </div>
       <div className="folio-meta">
-        <span>Folio № {folioNo}</span>
+        <span>Folio <span className="numero">№</span> {folioNo}</span>
         <span style={{ textAlign: "right" }}>{nReviews.toLocaleString()} reviews</span>
         <span>Rate: list price</span>
         <span style={{ textAlign: "right" }}>{live ? "Live run" : "Recorded run"}</span>

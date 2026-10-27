@@ -62,7 +62,7 @@ function Skeleton() {
       <div className="skeleton sk-head" />
       <div className="skeleton sk-head" style={{ width: "55%" }} />
       {Array.from({ length: 6 }).map((_, i) => <div key={i} className="skeleton sk-line" style={{ width: `${92 - i * 7}%` }} />)}
-      <p className="mono faint" style={{ fontSize: 12 }}>Setting the type…</p>
+      <p className="sk-note">Setting the type…</p>
     </div>
   );
 }
@@ -187,7 +187,7 @@ export default function App() {
   const runActive = inProgress || (!live && !!run.folio);
   const runCost = useTween(Math.max(run.folio?.total.cost_usd ?? 0, run.liveCost));
   const notice = (title: string, msg: string, action: React.ReactNode) => (
-    <section className="notice warn" role="alert">
+    <section className="notice" role="alert">
       <IconAlert className="glyph" />
       <div>
         <h3>{title}</h3>
@@ -221,7 +221,7 @@ export default function App() {
       body = (
         <>
           {notice(limited ? "The night desk is closed to new audits." : "The audit couldn't be completed.", liveErr.message, (
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <div className="notice-actions">
               <a className="btn btn-primary" href="#/">Read the demo edition</a>
               {!limited && <button className="btn" onClick={() => { setLiveErr(null); dispatch({ type: "reset" }); }}>Try another file</button>}
             </div>

@@ -54,7 +54,7 @@ export function Investigation({ inv, rank, id, staleNote }: { inv: Inv; rank: nu
       {staleNote && <p className="stale-note" role="note">{staleNote}</p>}
       <div className="insert-head">
         <h3>The investigation</h3>
-        <span className="mono faint" style={{ fontSize: 11.5 }}>
+        <span className="insert-meta">
           Nemotron Ultra · {inv.searches_used}/{inv.max_searches} web searches{inv.mode !== "tool_calling" ? " · fallback mode" : " · tool calling"}
         </span>
       </div>
@@ -148,7 +148,7 @@ export function Investigation({ inv, rank, id, staleNote }: { inv: Inv; rank: nu
             {showAll ? "Show cited sources only" : `Show all ${inv.sources.length} searched`}
           </button>
         )}
-        <p className="faint" style={{ fontSize: 12, marginTop: 10, fontFamily: "var(--font-ui)" }}>
+        <p className="trail-note">
           Hypotheses are the agent's reasoning over search results, not verified facts. ● marks sources cited above.
           Results older than 12 months or about another city are not used as evidence.
           {hasReviewSites && " Sources tagged guest reviews come from review and booking sites: they corroborate what guests report, but are not an independent outside cause."}
