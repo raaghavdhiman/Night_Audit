@@ -23,7 +23,7 @@ function load(key: string): Record<string, St> {
 const PLACEHOLDER = /(\[GM to confirm:[^\]]*\])/g;
 
 /** The draft with its "[GM to confirm: ...]" placeholders marked. */
-function withPlaceholders(text: string): ReactNode[] {
+export function withPlaceholders(text: string): ReactNode[] {
   return text.split(PLACEHOLDER).map((part, i) => (i % 2 ? <mark key={i} className="confirm">{part}</mark> : part));
 }
 
@@ -39,9 +39,14 @@ function AutoGrow(props: React.TextareaHTMLAttributes<HTMLTextAreaElement> & { v
   return <textarea ref={ref} rows={3} {...props} />;
 }
 
-export function Replies({ replies, storeKey, onToast }: { replies: Reply[]; storeKey: string; onToast: (m: string) => void }) {
+export interface ReplyStore {
+  get: (r: Reply) => St;
+  set: (r: Reply, patch: Partial<St>) => void;
+}
+
+/** Reply drafts, edits and approvals, kept in localStorage. Read once per key: remount the owner when the key changes. */
+export function useReplyStore(storeKey: string): ReplyStore {
   const [st, setSt] = useState<Record<string, St>>(() => load(storeKey));
-  useEffect(() => setSt(load(storeKey)), [storeKey]);
   useEffect(() => {
     try {
       localStorage.setItem(storeKey, JSON.stringify(st));
@@ -49,9 +54,13 @@ export function Replies({ replies, storeKey, onToast }: { replies: Reply[]; stor
       /* storage unavailable: state just won't persist */
     }
   }, [st, storeKey]);
-
   const get = (r: Reply): St => st[r.review_id] ?? { status: "pending", text: r.draft, editing: false };
   const set = (r: Reply, patch: Partial<St>) => setSt((s) => ({ ...s, [r.review_id]: { ...get(r), ...patch } }));
+  return { get, set };
+}
+
+export function Replies({ replies, store, onToast }: { replies: Reply[]; store: ReplyStore; onToast: (m: string) => void }) {
+  const { get, set } = store;
   const approvedN = replies.filter((r) => get(r).status === "approved").length;
 
   const copy = async (text: string) => {

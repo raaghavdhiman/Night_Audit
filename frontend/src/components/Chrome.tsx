@@ -1,88 +1,105 @@
-import { IconMoon, IconPlay, IconSun } from "./Icons";
-import { longDate, plural } from "../format";
+import { useState, type ReactNode } from "react";
+import { IconChevron, IconMoon, IconSun } from "./Icons";
+import { longDate } from "../format";
 
 export type Mode = "demo" | "live";
 
-export function Masthead({ hotel, city, period, edition, editionNote, mode, setMode, theme, toggleTheme, synthetic, nReviews, onReplay, replaying, canReplay }: {
-  hotel: string; city: string; period: string; edition: Date; editionNote?: string; mode: Mode; setMode: (m: Mode) => void;
-  theme: "paper" | "night"; toggleTheme: () => void; synthetic: boolean; nReviews: number;
-  onReplay?: () => void; replaying?: boolean; canReplay?: boolean;
+export function Masthead({ hotel, city, edition, editionNote, mode, setMode, theme, toggleTheme, synthetic, summary, staleNote }: {
+  hotel: string; city: string; edition: Date; editionNote?: string; mode: Mode; setMode: (m: Mode) => void;
+  theme: "paper" | "night"; toggleTheme: () => void; synthetic: boolean; summary?: string | null; staleNote?: string | null;
 }) {
   return (
     <header className="masthead">
-      <div className="masthead-top">
-        <span>The morning briefing for the General Manager</span>
-        <span className="mono">{nReviews ? `${plural(nReviews, "review")} reconciled` : "awaiting reviews"}</span>
-      </div>
-      <hr className="rule-double" />
-      <h1 className="masthead-title">Night Audit</h1>
-      <p className="masthead-sub">Every guest review, reconciled overnight — the three things to fix this week, and why.</p>
-      <hr className="rule" />
-      <div className="dateline">
-        <span>{hotel}{city ? ` · ${city}` : ""}</span>
-        <span title={editionNote}>Edition of {longDate(edition)}</span>
-        <span>
-          {synthetic ? (
-            <span className="badge-synth" title="All demo reviews are synthetic; the hotel is fictional">Synthetic data</span>
-          ) : mode === "live" ? (
-            <span className="badge-live">Live edition</span>
-          ) : null}
-          {period ? <span className="mono faint" style={{ fontSize: 11.5, marginLeft: 8 }}>{period}</span> : null}
-        </span>
-      </div>
-      <hr className="rule" />
       <nav className="toolbar" aria-label="Edition controls">
-        <div className="seg" role="group" aria-label="Mode">
-          <button aria-pressed={mode === "demo"} onClick={() => setMode("demo")}>Demo edition</button>
-          <button aria-pressed={mode === "live"} onClick={() => setMode("live")}>Live</button>
-        </div>
-        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          {canReplay && (
-            <button className="btn btn-sm" onClick={onReplay} disabled={replaying}>
-              <IconPlay /> {replaying ? "Replaying the audit…" : "Replay last night's audit"}
-            </button>
-          )}
+        <span className="wordmark">Night Audit</span>
+        <div className="toolbar-controls">
+          <div className="seg" role="group" aria-label="Mode">
+            <button aria-pressed={mode === "demo"} onClick={() => setMode("demo")}>Demo edition</button>
+            <button aria-pressed={mode === "live"} onClick={() => setMode("live")}>Live</button>
+          </div>
           <button className="btn btn-sm btn-ghost" onClick={toggleTheme} aria-label={`Switch to ${theme === "paper" ? "night" : "paper"} theme`}>
             {theme === "paper" ? <IconMoon /> : <IconSun />} {theme === "paper" ? "Night" : "Paper"}
           </button>
         </div>
       </nav>
+      <hr className="rule-double" />
+      <h1 className="masthead-title">{hotel}</h1>
+      <p className="dateline">
+        <span title={editionNote}>{longDate(edition)}</span>
+        {city ? <span> · {city}</span> : null}
+        {synthetic ? (
+          <span className="badge-synth" title="All demo reviews are synthetic; the hotel is fictional">Synthetic data</span>
+        ) : mode === "live" ? (
+          <span className="badge-live">Live edition</span>
+        ) : null}
+      </p>
+      {summary && <p className="masthead-sub">{summary}</p>}
+      {staleNote && <p className="stale-line" role="note">{staleNote}</p>}
     </header>
   );
 }
 
 const REPO = import.meta.env.VITE_REPO_URL as string | undefined;
 
-export function Footer({ synthetic }: { synthetic: boolean }) {
+/** The honesty line, then "How this was built": everything behind the three cards opens below it. */
+export function Footer({ synthetic, children }: { synthetic: boolean; children?: ReactNode }) {
+  const [open, setOpen] = useState(false);
   return (
     <footer className="footer">
-      <div>
+      <div className="footer-line">
         <p className="disclosure">
           {synthetic
-            ? "Demo edition: every review of Hotel Wrenfield is synthetic, written by Nemotron Lightning from a planted scenario. The hotel is fictional; the city and the web sources are real."
-            : "Live edition: computed from the reviews you uploaded. Root causes are hypotheses, not findings."}
+            ? "Demo edition: every review is synthetic and the hotel is fictional; the city and the web sources are real. "
+            : "Live edition: computed from the reviews you uploaded. "}
+          Root causes are hypotheses, not findings.
         </p>
-        <p>
-          Built with NVIDIA Nemotron (Lightning, Super, Ultra) on Nebius Token Factory, and Tavily for runtime web search.
-          Counts are computed in code; models interpret, investigate and draft. Replies are drafts for a human to approve — nothing is sent.
-        </p>
+        <button className="how-toggle" aria-expanded={open} aria-controls="how" onClick={() => setOpen((v) => !v)}>
+          How this was built <IconChevron />
+        </button>
       </div>
-      <div>
-        <p className="mono" style={{ fontSize: 12 }}>
-          Nebius × NVIDIA Global AI Hackathon · Best Apps &amp; Agents
-        </p>
-        <p style={{ fontSize: 12.5 }}>
-          Model evaluation used Datafiniti hotel reviews (CC BY-NC-SA 4.0) locally; that data is not redistributed or shown here.
-        </p>
-        {REPO && <p><a href={REPO} target="_blank" rel="noopener noreferrer">Source code (MIT)</a></p>}
-      </div>
+      {open && (
+        <div className="how" id="how" role="region" aria-label="How this was built">
+          {children}
+          <Colophon synthetic={synthetic} />
+        </div>
+      )}
     </footer>
+  );
+}
+
+function Colophon({ synthetic }: { synthetic: boolean }) {
+  return (
+    <section aria-labelledby="colophon-title">
+      <div className="section-head"><h2 id="colophon-title">Method and licenses</h2></div>
+      <div className="colophon">
+        <div>
+          <p className="disclosure">
+            {synthetic
+              ? "Demo edition: every review of Hotel Wrenfield is synthetic, written by Nemotron Lightning from a planted scenario. The hotel is fictional; the city and the web sources are real."
+              : "Live edition: computed from the reviews you uploaded. Root causes are hypotheses, not findings."}
+          </p>
+          <p>
+            Built with NVIDIA Nemotron (Lightning, Super, Ultra) on Nebius Token Factory, and Tavily for runtime web search.
+            Counts are computed in code; models interpret, investigate and draft. Replies are drafts for a human to approve — nothing is sent.
+          </p>
+        </div>
+        <div>
+          <p className="mono" style={{ fontSize: 12 }}>
+            Nebius × NVIDIA Global AI Hackathon · Best Apps &amp; Agents
+          </p>
+          <p style={{ fontSize: 12.5 }}>
+            Model evaluation used Datafiniti hotel reviews (CC BY-NC-SA 4.0) locally; that data is not redistributed or shown here.
+          </p>
+          {REPO && <p><a href={REPO} target="_blank" rel="noopener noreferrer">Source code (MIT)</a></p>}
+        </div>
+      </div>
+    </section>
   );
 }
 
 export function RoutingNotes() {
   return (
-    <section style={{ marginTop: 22 }} aria-labelledby="routing-title">
+    <section aria-labelledby="routing-title">
       <div className="kicker" id="routing-title">Why each desk gets its model</div>
       <ul className="limits" style={{ fontSize: 11.5 }}>
         <li><span>Extract → Super, no thinking</span><span>neg-issue F1 0.80 · $0.40/1k</span></li>

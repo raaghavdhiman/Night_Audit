@@ -3,13 +3,14 @@ import { analyze, ApiError, getConfig, getDemo } from "./api";
 import type { AuditResult, PipelineEvent, ServerConfig } from "./types";
 import { initialRun, reduce, type RunState } from "./run";
 import { Footer, Masthead, RoutingNotes, type Mode } from "./components/Chrome";
-import { Story } from "./components/Story";
+import { BuildDetails } from "./components/BuildDetails";
 import { Folio } from "./components/Folio";
+import { IssueCard } from "./components/IssueCard";
 import { Reconciliation } from "./components/Reconciliation";
-import { Replies } from "./components/Replies";
-import { Escalations, LedgerTable } from "./components/Sections";
+import { useReplyStore } from "./components/Replies";
 import { LivePanel } from "./components/LivePanel";
 import { IconAlert } from "./components/Icons";
+import { plural } from "./format";
 import { useTween } from "./tween";
 
 type Theme = "paper" | "night";
@@ -54,22 +55,34 @@ function Skeleton() {
   );
 }
 
-function Broadsheet({ r, expanded, toggle, onToast, staleNote }: {
-  r: AuditResult; expanded: Set<number>; toggle: (n: number) => void; onToast: (m: string) => void; staleNote?: string | null;
+/** "3 things to fix this week, from 600 reviews." */
+function summaryLine(r: AuditResult): string {
+  const k = Math.min(3, r.issues.length);
+  const things = k === 0 ? "Nothing stood out to fix this week" : `${k === 1 ? "1 thing" : `${k} things`} to fix this week`;
+  return `${things}, from ${r.meta.truncated_to ? "the latest " : ""}${plural(r.meta.n_reviews, "review")}.`;
+}
+
+const replyKey = (r: AuditResult) => `na-replies-v2-${r.meta.hotel}-${r.meta.generated_at}`;
+
+/** The results page: at most three issue cards, then the footer that opens everything else. Keyed by replyKey. */
+function Results({ r, live, folioNo, onToast, onReplay, after }: {
+  r: AuditResult; live: boolean; folioNo: string; onToast: (m: string) => void; onReplay?: () => void; after?: React.ReactNode;
 }) {
-  const [lead, ...rest] = r.issues;
+  const store = useReplyStore(replyKey(r));
+  const reply = (rank: number) => r.replies.find((x) => x.issue_rank === rank);
   return (
     <>
-      {lead && <Story issue={lead} lead expanded={expanded.has(lead.rank)} onToggle={() => toggle(lead.rank)} nReviews={r.meta.n_reviews} staleNote={staleNote} />}
-      <Escalations items={r.escalations} />
-      {rest.length > 0 && <hr className="rule" style={{ margin: "22px 0 14px" }} />}
-      <div className="seconds">
-        {rest.map((i) => (
-          <Story key={i.rank} issue={i} expanded={expanded.has(i.rank)} onToggle={() => toggle(i.rank)} nReviews={r.meta.n_reviews} staleNote={staleNote} />
-        ))}
-      </div>
-      <Replies replies={r.replies} storeKey={`na-replies-v2-${r.meta.hotel}-${r.meta.generated_at}`} onToast={onToast} />
-      <LedgerTable aspects={r.aspects} issues={r.issues} />
+      <main id="main" className="brief">
+        {r.issues.length === 0 && <p className="muted">No issue stood out in these reviews.</p>}
+        {r.issues.slice(0, 3).map((i) => {
+          const rep = reply(i.rank);
+          return <IssueCard key={i.rank} issue={i} replyText={rep ? store.get(rep).text : undefined} />;
+        })}
+        {after}
+      </main>
+      <Footer synthetic={!live}>
+        <BuildDetails r={r} live={live} folioNo={folioNo} store={store} onToast={onToast} onReplay={onReplay} />
+      </Footer>
     </>
   );
 }
@@ -84,7 +97,6 @@ export default function App() {
   const [liveErr, setLiveErr] = useState<{ message: string; code: string } | null>(null);
   const [run, dispatch] = useReducer(runReducer, undefined, initialRun);
   const [replaying, setReplaying] = useState(false);
-  const [expanded, setExpanded] = useState<Set<number>>(new Set([1]));
   const [toast, setToast] = useState<string | null>(null);
   const abort = useRef<AbortController | null>(null);
   const timers = useRef<number[]>([]);
@@ -156,7 +168,6 @@ export default function App() {
     abort.current = ctl;
     setLive(null);
     setLiveErr(null);
-    setExpanded(new Set([1]));
     dispatch({ type: "reset" });
     dispatch({ type: "event", e: { type: "accepted", n_reviews: 0 } });
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -176,7 +187,6 @@ export default function App() {
     }
   };
 
-  const toggle = (n: number) => setExpanded((s) => { const x = new Set(s); if (x.has(n)) x.delete(n); else x.add(n); return x; });
 
   const shown: AuditResult | null = mode === "demo" ? demo : live;
   const running = run.status === "running";
@@ -192,8 +202,10 @@ export default function App() {
   const hotel = mode === "demo" ? demo?.meta.hotel ?? "Hotel Wrenfield" : live?.meta.hotel ?? "Your hotel";
   const city = mode === "demo" ? demo?.meta.city ?? "Austin, Texas" : live?.meta.city ?? "";
   const routing = shown?.routing ?? config?.routing ?? demo?.routing ?? [];
+  // the finished edition, once there is one and no run is replacing it
+  const result = inProgress || (mode === "demo" && demoErr) ? null : shown;
 
-  let main: React.ReactNode;
+  let main: React.ReactNode = null;
   if (mode === "demo") {
     if (demoErr) {
       main = (
@@ -208,16 +220,8 @@ export default function App() {
       );
     } else if (!demo) main = <Skeleton />;
     else if (replaying) main = <><Reconciliation run={run} cost={runCost} replay title="Replaying last night's audit" /><div style={{ marginTop: 18 }}><Skeleton /></div></>;
-    else main = <Broadsheet r={demo} expanded={expanded} toggle={toggle} onToast={setToast} />;
   } else {
     if (running) main = <><Reconciliation run={run} cost={runCost} /><div style={{ marginTop: 18 }}><Skeleton /></div></>;
-    else if (live) main = (
-      <>
-        {live.meta.truncated_to ? <p className="mono faint" style={{ fontSize: 12 }}>Only the most recent {live.meta.truncated_to} reviews were analysed (live limit).</p> : null}
-        <Broadsheet r={live} expanded={expanded} toggle={toggle} onToast={setToast} staleNote={live.meta.stale_note} />
-        <p style={{ marginTop: 24 }}><button className="btn" onClick={() => { setLive(null); dispatch({ type: "reset" }); }}>Run another audit</button></p>
-      </>
-    );
     else if (liveErr) {
       const limited = ["ip_limit", "global_limit", "busy", "spend_cap", "BudgetExceeded"].includes(liveErr.code);
       main = (
@@ -236,35 +240,43 @@ export default function App() {
           {run.folio && <Reconciliation run={run} cost={runCost} title="Audit stopped" />}
         </>
       );
-    } else main = <LivePanel config={config} onStart={startLive} onDemo={() => setMode("demo")} />;
+    } else if (!live) main = <LivePanel config={config} onStart={startLive} onDemo={() => setMode("demo")} />;
   }
 
-  const sideFolio = inProgress || (mode === "live" && run.folio && !live) ? run.folio : shown?.folio ?? null;
-  const showSide = mode === "demo" ? !!demo : !!(live || running || run.folio);
+  // the running folio sits beside the progress ledger; a finished edition keeps it under "How this was built"
+  const showSide = inProgress || (mode === "live" && !live && !!run.folio);
 
   return (
     <>
       <a href="#main" className="skip">Skip to the briefing</a>
       <div className="page">
-        <Masthead hotel={hotel} city={city} period={shown?.meta.period ?? ""} edition={editionDate(shown)} editionNote={editionNote(shown)} mode={mode} setMode={setMode}
-          theme={theme} toggleTheme={() => setTheme((t) => (t === "paper" ? "night" : "paper"))}
-          synthetic={mode === "demo"} nReviews={shown?.meta.n_reviews ?? run.n_reviews}
-          canReplay={mode === "demo" && !!demo?.replay?.length} onReplay={replay} replaying={replaying} />
-        <div className="sheet" style={showSide ? undefined : { gridTemplateColumns: "1fr" }}>
-          <main id="main" className="col-main">{main}</main>
-          {showSide && (
-            <aside className="col-side" aria-label="Cost of this briefing">
-              <div className="side-sticky" style={{ position: "sticky", top: 12 }}>
-                <Folio folio={sideFolio} routing={routing} stages={inProgress ? run.stages : undefined}
-                  baseline={inProgress ? null : shown?.baseline} savingsPct={shown?.savings_pct}
-                  nReviews={inProgress ? run.n_reviews : shown?.meta.n_reviews ?? run.n_reviews} hotel={hotel} folioNo={folioNo} live={mode === "live"}
-                  runningCost={runActive ? runCost : undefined} />
-                <RoutingNotes />
-              </div>
-            </aside>
-          )}
-        </div>
-        <Footer synthetic={mode === "demo"} />
+        <Masthead hotel={hotel} city={city} edition={editionDate(shown)} editionNote={editionNote(shown)} mode={mode} setMode={setMode}
+          theme={theme} toggleTheme={() => setTheme((t) => (t === "paper" ? "night" : "paper"))} synthetic={mode === "demo"}
+          summary={result ? summaryLine(result) : null} staleNote={result?.meta.stale_note} />
+        {result ? (
+          <Results key={replyKey(result)} r={result} live={mode === "live"} folioNo={folioNo} onToast={setToast}
+            onReplay={mode === "demo" && demo?.replay?.length ? replay : undefined}
+            after={mode === "live" && (
+              <p className="brief-after"><button className="btn" onClick={() => { setLive(null); dispatch({ type: "reset" }); }}>Run another audit</button></p>
+            )} />
+        ) : (
+          <>
+            <div className="sheet" style={showSide ? undefined : { gridTemplateColumns: "1fr" }}>
+              <main id="main" className="col-main">{main}</main>
+              {showSide && (
+                <aside className="col-side" aria-label="Cost of this briefing">
+                  <div className="side-sticky" style={{ position: "sticky", top: 12 }}>
+                    <Folio folio={run.folio} routing={routing} stages={inProgress ? run.stages : undefined} baseline={null}
+                      nReviews={run.n_reviews} hotel={hotel} folioNo={folioNo} live={mode === "live"}
+                      runningCost={runActive ? runCost : undefined} />
+                    <RoutingNotes />
+                  </div>
+                </aside>
+              )}
+            </div>
+            <Footer synthetic={mode === "demo"}>{!showSide && <RoutingNotes />}</Footer>
+          </>
+        )}
       </div>
       {toast && <div className="toast" role="status">{toast}</div>}
     </>

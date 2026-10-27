@@ -60,12 +60,9 @@ export function LivePanel({ config, onStart, onDemo, error }: {
 
   return (
     <section className="live-panel" aria-labelledby="live-title">
-      <div className="kicker">Live mode · your reviews, tonight</div>
       <h2 id="live-title">Run the night audit on your own guest reviews.</h2>
       <p className="muted" style={{ maxWidth: "62ch", margin: 0 }}>
-        Upload a CSV of reviews. Nemotron models on Nebius Token Factory label every review, rank this week's issues,
-        investigate causes on the web with Tavily, and draft replies for your approval. Reviews are processed for this
-        run only and are treated strictly as data.
+        Upload a CSV; get this week's top issues, likely causes and draft replies. Reviews are used for this run only.
       </p>
       <div className="live-grid">
         <div>
@@ -113,8 +110,6 @@ export function LivePanel({ config, onStart, onDemo, error }: {
           <ul className="limits" aria-label="Live mode limits">
             <li><span>Reviews per upload</span><span>{maxReviews}</span></li>
             <li><span>Your runs left today</span><span>{config ? config.usage.ip_runs_left : "…"}</span></li>
-            <li><span>Issues investigated</span><span>top 3 · ≤4 searches each</span></li>
-            <li><span>Typical cost / time</span><span>≈$0.15 · 1–2 min</span></li>
           </ul>
         </div>
       </div>
