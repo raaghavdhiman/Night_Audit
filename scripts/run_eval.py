@@ -295,7 +295,11 @@ def main():
            "Rule (fixed before the final run): the cheapest config that (1) fails JSON on at most 2% of "
            "reviews after one retry, (2) recovers at least 2 of the reference's top-3 negative aspects on "
            f"every reference, and (3) has negative-issue F1 within 0.10 of the best config vs {prim_name} "
-           f"(best = {best:.2f}; `ultra_off` excluded from 'best' because it is the reference's own model).", "",
+           f"(best = {best:.2f}; "
+           + ("`ultra_off` excluded from 'best' because it is the reference's own model)."
+              if prim_name.startswith("silver") else
+              "all configs count toward 'best'; `ultra_off` is excluded only when the reference is its own "
+              "output, the silver set)."), "",
            "| config | JSON ok | issue-level ok | review-level ok | cost per 1k reviews |",
            "|---|---|---|---|---|"]
     md += [f"| {n} | {'yes' if r['json'] else 'no'} | {'yes' if r['issue_level'] else 'no'} | "
