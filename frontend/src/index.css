@@ -460,7 +460,8 @@ button { font: inherit; color: inherit; }
 .deck { font-family: var(--font-display); font-style: italic; font-size: var(--fs-3); color: var(--ink-2); margin: 0 0 14px; line-height: 1.4; max-width: var(--measure); }
 .body-copy { font-family: var(--font-display); font-size: var(--fs-3); line-height: 1.6; max-width: var(--measure); font-variation-settings: "opsz" 14; }
 .body-copy p { margin: 0 0 12px; }
-.trend-easing {
+/* the story deck's "Easing" tag only; the issue card's falling line is .trend.trend-easing and stays plain */
+.deck .trend-easing {
   font-family: var(--font-mono); font-style: normal; font-size: var(--fs-1); letter-spacing: 0.1em; text-transform: uppercase;
   color: var(--accent-ink); border: 1px solid currentColor; padding: 0 5px; margin-right: 4px; vertical-align: 2px;
 }
