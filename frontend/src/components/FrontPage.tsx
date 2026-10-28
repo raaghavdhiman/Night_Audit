@@ -91,13 +91,14 @@ export function FrontBody({ r, head, after }: { r: AuditResult; head: ReactNode;
   const featured = useMemo(() => new Map(r.issues.slice(0, 3).map((i) => [i.aspect, i.rank])), [r.issues]);
   const [openRows, setOpenRows] = useState<Set<number>>(() => new Set(top.slice(0, 1).map((i) => i.rank)));
   const [numbers, setNumbers] = useState(false);
+  const labelled = !r.meta.synthetic; // live runs name the cause and the guest quote; the demo keeps its wording
   const replyText = (rank: number) => {
     const rep = r.replies.find((x) => x.issue_rank === rank);
     return rep ? store.get(rep).text : undefined;
   };
   const card = (k: number) => {
     const i = top[k];
-    return <IssueCard key={i.rank} issue={i} lead={k === 0} index={k} replyText={replyText(i.rank)} />;
+    return <IssueCard key={i.rank} issue={i} lead={k === 0} index={k} replyText={replyText(i.rank)} labelled={labelled} />;
   };
   const toggleRow = (rank: number) => setOpenRows((s) => {
     const n = new Set(s);
@@ -118,7 +119,7 @@ export function FrontBody({ r, head, after }: { r: AuditResult; head: ReactNode;
             <div className="kicker" id="k-issues">{top.length > 1 ? "Fix in this order" : "Fix first"}</div>
             {top.map((i, k) => (
               <Reveal key={i.rank}>
-                <IssueRow issue={i} lead={k === 0} replyText={replyText(i.rank)} open={openRows.has(i.rank)} onToggle={() => toggleRow(i.rank)} />
+                <IssueRow issue={i} lead={k === 0} replyText={replyText(i.rank)} open={openRows.has(i.rank)} onToggle={() => toggleRow(i.rank)} labelled={labelled} />
               </Reveal>
             ))}
           </section>

@@ -5,6 +5,7 @@ import { initialRun, reduce, type RunState } from "./run";
 import { Footer, Masthead, Nav, RoutingNotes, type Route } from "./components/Chrome";
 import { Folio } from "./components/Folio";
 import { FrontBody, orientLine, replyKey } from "./components/FrontPage";
+import { SMALL_SAMPLE } from "./components/IssueCard";
 import { Reconciliation } from "./components/Reconciliation";
 import { UnderTheHood } from "./components/UnderTheHood";
 import { LivePanel } from "./components/LivePanel";
@@ -68,9 +69,12 @@ function Skeleton() {
   );
 }
 
-/** "3 things to fix this week, from 600 reviews." */
+/** "3 things to fix this week, from 600 reviews." When every issue shown is a small sample, it says so instead. */
 function summaryLine(r: AuditResult): string {
   const k = Math.min(3, r.issues.length);
+  if (k > 0 && r.issues.slice(0, k).every((i) => i.stats.neg_total < SMALL_SAMPLE)) {
+    return `Few complaints in ${r.meta.truncated_to ? "the latest" : "these"} ${plural(r.meta.n_reviews, "review")}. Here is what came up.`;
+  }
   const things = k === 0 ? "Nothing stood out to fix this week" : `${k === 1 ? "1 thing" : `${k} things`} to fix this week`;
   return `${things}, from ${r.meta.truncated_to ? "the latest " : ""}${plural(r.meta.n_reviews, "review")}.`;
 }

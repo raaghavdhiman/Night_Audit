@@ -354,11 +354,24 @@ button { font: inherit; color: inherit; }
 .card-lead .card-head > div { margin-bottom: 0; }
 .card-lead .stat-big b { font-size: var(--fs-5); }
 .card-lead .trend { grid-column: 1 / -1; }
+/* thin evidence, said plainly: outlined and neutral, never the accent */
+.sample-notes { display: flex; flex-wrap: wrap; gap: 6px; margin: 12px 0 0; }
+.note-chip {
+  display: inline-block; padding: 1px 6px; border: 1px solid var(--ink-3); color: var(--ink-2); white-space: nowrap;
+  font-family: var(--font-mono); font-size: var(--fs-1); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; line-height: 1.5;
+}
+.irow-meta .note-chip { padding: 0 5px; line-height: 1.4; }
 
 .card-text { max-width: var(--measure); }
 .card-cause { margin: 0 0 14px; font-family: var(--font-display); font-size: var(--fs-3); line-height: 1.5; font-variation-settings: "opsz" 14; }
 .card-cause.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow: hidden; }
 .card-cause b { font-family: var(--font-ui); font-weight: 700; color: var(--accent-ink); }
+/* live runs name the parts: the cause (a web-research hypothesis) and the guests' words are separate things */
+.card-label {
+  margin: 0 0 4px; font-family: var(--font-mono); font-size: var(--fs-1); font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--ink-2);
+}
+.card-label + .card-cause { margin-bottom: 8px; }
 .pull {
   position: relative; margin: 0 0 10px; padding-left: 28px; font-family: var(--font-display); font-style: italic; font-weight: 400;
   font-size: var(--fs-3); line-height: 1.45; color: var(--ink); font-variation-settings: "opsz" 36;

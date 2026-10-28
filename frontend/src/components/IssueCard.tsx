@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Hypothesis, Issue, Investigation, Source } from "../types";
-import { domain, pct, shortDate } from "../format";
+import { domain, pct, plural, shortDate } from "../format";
 import { Sparkline } from "./Charts";
 import { IconChevron, IconExternal } from "./Icons";
 import { Collapse } from "./Motion";
@@ -36,17 +36,34 @@ const TREND = {
   easing: { arrow: "↓", word: "Falling" },
 } as const;
 
+/** Below this many negative mentions an issue is flagged as a small sample. */
+export const SMALL_SAMPLE = 5;
+
+/** Plain notes on thin evidence, read from the counts: few mentions, or none in the recent weeks. */
+function sampleNotes(s: Issue["stats"]): string[] {
+  const notes: string[] = [];
+  if (s.neg_total < SMALL_SAMPLE) notes.push(`Small sample: ${plural(s.neg_total, "mention")}`);
+  if (s.recent_neg_rate === 0) notes.push("Not seen recently");
+  return notes;
+}
+
+const NoteChips = ({ notes }: { notes: string[] }) => <>{notes.map((n) => <span key={n} className="note-chip">{n}</span>)}</>;
+
 /** The numbers first: mention count, share of recent reviews, the weekly series, and the direction. */
 function Strip({ issue, lead }: { issue: Issue; lead?: boolean }) {
   const s = issue.stats;
   const t = s.direction ? TREND[s.direction] : undefined;
   const w = issue.weekly;
+  const notes = sampleNotes(s);
+  const pair = (
+    <div className="stat-pair">
+      <div className="stat-big"><b>{s.neg_total}</b><span>negative mentions</span></div>
+      <div className="stat-big"><b>{pct(s.recent_neg_rate)}</b><span>of recent reviews</span></div>
+    </div>
+  );
   return (
     <div className="card-strip">
-      <div className="stat-pair">
-        <div className="stat-big"><b>{s.neg_total}</b><span>negative mentions</span></div>
-        <div className="stat-big"><b>{pct(s.recent_neg_rate)}</b><span>of recent reviews</span></div>
-      </div>
+      {notes.length ? <div className="stat-col">{pair}<p className="sample-notes"><NoteChips notes={notes} /></p></div> : pair}
       {w.length > 0 && (
         <figure className="card-spark">
           <Sparkline weekly={w} onset={s.onset_week} height={lead ? 112 : 64} labelled={lead} title={`Issue ${issue.rank}: ${issue.title}`} />
@@ -63,8 +80,11 @@ function Strip({ issue, lead }: { issue: Issue; lead?: boolean }) {
   );
 }
 
-/** One issue at a glance: numbers and trend, its likely cause, one pull-quote and source, and the drafted reply behind a toggle. */
-export function IssueCard({ issue, replyText, lead, index = 0 }: { issue: Issue; replyText?: string; lead?: boolean; index?: number }) {
+/**
+ * One issue at a glance: numbers and trend, its likely cause, one pull-quote and source, and the drafted reply behind a toggle.
+ * `labelled` (live runs) names the parts: the cause as a web-research hypothesis with its source, then the guests' words.
+ */
+export function IssueCard({ issue, replyText, lead, index = 0, labelled }: { issue: Issue; replyText?: string; lead?: boolean; index?: number; labelled?: boolean }) {
   return (
     <article className={`card${lead ? " card-lead" : ""}`} aria-labelledby={`card-${issue.rank}`} style={{ ["--i" as string]: index }}>
       <header className="card-head">
@@ -74,7 +94,7 @@ export function IssueCard({ issue, replyText, lead, index = 0 }: { issue: Issue;
           <h2 className="card-title" id={`card-${issue.rank}`}><span className="sr-only">Issue {issue.rank}: </span>{issue.title}</h2>
         </div>
       </header>
-      <CardBody issue={issue} replyText={replyText} lead={lead} />
+      <CardBody issue={issue} replyText={replyText} lead={lead} labelled={labelled} />
     </article>
   );
 }
@@ -83,7 +103,7 @@ export function IssueCard({ issue, replyText, lead, index = 0 }: { issue: Issue;
  * The same issue as one compact row on a phone: rank, title, negative mentions and the direction.
  * The row is the button of an accordion; the panel is the card body, unchanged.
  */
-export function IssueRow({ issue, replyText, lead, open, onToggle }: { issue: Issue; replyText?: string; lead?: boolean; open: boolean; onToggle: () => void }) {
+export function IssueRow({ issue, replyText, lead, open, onToggle, labelled }: { issue: Issue; replyText?: string; lead?: boolean; open: boolean; onToggle: () => void; labelled?: boolean }) {
   const panel = `row-panel-${issue.rank}`;
   return (
     <article className={`irow${open ? " open" : ""}`} aria-labelledby={`row-${issue.rank}`}>
@@ -96,7 +116,7 @@ export function IssueRow({ issue, replyText, lead, open, onToggle }: { issue: Is
       <Collapse open={open} id={panel}>
         <div className="irow-panel">
           <span className="chip">{issue.department}</span>
-          <CardBody issue={issue} replyText={replyText} lead={lead} />
+          <CardBody issue={issue} replyText={replyText} lead={lead} labelled={labelled} />
         </div>
       </Collapse>
     </article>
@@ -108,7 +128,7 @@ export function IssuePreview({ issue }: { issue: Issue }) {
   return <div className="irow-btn irow-static"><RowHead issue={issue} /></div>;
 }
 
-/** Rank, title, negative mentions and the direction. */
+/** Rank, title, negative mentions, the direction, and any small-sample notes. */
 function RowHead({ issue }: { issue: Issue }) {
   const s = issue.stats;
   const t = s.direction ? TREND[s.direction] : undefined;
@@ -120,13 +140,14 @@ function RowHead({ issue }: { issue: Issue }) {
         <span className="irow-meta">
           <span className="irow-fig"><b>{s.neg_total}</b> negative mentions</span>
           {t && <span className={`irow-trend is-${s.direction}`}><span aria-hidden>{t.arrow}</span> {t.word}</span>}
+          <NoteChips notes={sampleNotes(s)} />
         </span>
       </span>
     </>
   );
 }
 
-function CardBody({ issue, replyText, lead }: { issue: Issue; replyText?: string; lead?: boolean }) {
+function CardBody({ issue, replyText, lead, labelled }: { issue: Issue; replyText?: string; lead?: boolean; labelled?: boolean }) {
   const [open, setOpen] = useState(false);
   const [more, setMore] = useState(false);
   const inv = issue.investigation;
@@ -137,13 +158,23 @@ function CardBody({ issue, replyText, lead }: { issue: Issue; replyText?: string
   const canExpand = !!q2 || causeText.length > 90;
   const replyId = `card-reply-${issue.rank}`;
   const moreId = `card-more-${issue.rank}`;
+  const sourceLine = source && (
+    <p className="card-source-line">
+      <a className="card-source" href={source.url} target="_blank" rel="noopener noreferrer nofollow">
+        <span className="site">{domain(source.url)}</span> · {source.title || domain(source.url)} <IconExternal />
+      </a>
+    </p>
+  );
   return (
     <div className="card-body">
       <Strip issue={issue} lead={lead} />
       <div className="card-text" id={moreId}>
+        {labelled && cause && <p className="card-label">Possible cause (from web research)</p>}
         <p className={`card-cause${more ? "" : " clamp"}`}>
-          {cause ? <><b>Likely cause:</b> {causeText}</> : "No likely cause was found; see how this was built."}
+          {!cause ? "No likely cause was found; see how this was built." : labelled ? causeText : <><b>Likely cause:</b> {causeText}</>}
         </p>
+        {labelled && sourceLine}
+        {labelled && q1 && <p className="card-label">From guests</p>}
         {q1 && (
           <blockquote className="pull">
             <span className="pull-mark" aria-hidden>“</span>
@@ -156,13 +187,7 @@ function CardBody({ issue, replyText, lead }: { issue: Issue; replyText?: string
             {more ? "Show less" : "Read more"}
           </button>
         )}
-        {source && (
-          <p className="card-source-line">
-            <a className="card-source" href={source.url} target="_blank" rel="noopener noreferrer nofollow">
-              <span className="site">{domain(source.url)}</span> · {source.title || domain(source.url)} <IconExternal />
-            </a>
-          </p>
-        )}
+        {!labelled && sourceLine}
         {replyText !== undefined && (
           <>
             <button className="expander" aria-expanded={open} aria-controls={replyId} onClick={() => setOpen((v) => !v)}>
