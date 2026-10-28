@@ -53,12 +53,11 @@ occupancy past static breakfast prep."
 ### 7 · The bill, and why routing matters (2:10–2:35)
 **Screen:** zoom on the **Guest Folio**: Extract $0.239, Trends $0.003, Investigate $0.075, Replies $0.0007,
 Total **$0.318**, and the stamp **All-Ultra baseline $2.18 (measured on 20 reviews, extrapolated), saved 85%**.
-Optional 3-second cut to `results/eval_summary.md`'s decision table.
+Optional 3-second cut to the "vs human labels (30 rows)" quality table in `results/eval_summary.md`.
 **Say:** "Every call is metered. Running everything on Ultra with thinking would cost $2.18 for this briefing;
-routing costs 32 cents. On 30 real reviews I labeled by hand, the cheap models scored close to each other; Super
-without thinking was clearly better on the larger test sets and on severity, sentiment and department, for about
-32 cents more per thousand reviews. So we ship Super, even though our pre-set rule picked Lightning by a narrow
-margin, and the README says so."
+routing costs 32 cents. On 30 real reviews I labeled by hand, the models scored close to each other. Super did
+clearly better on the larger tests, for about three cents more per hundred reviews. So we ship Super, and the
+README explains why."
 
 ### 8 · Live mode and close (2:35–2:45)
 **Action:** click **Live** to show the upload panel and its limits, drop the sample CSV, and start it (show the
