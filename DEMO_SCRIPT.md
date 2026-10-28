@@ -55,8 +55,10 @@ occupancy past static breakfast prep."
 Total **$0.318**, and the stamp **All-Ultra baseline $2.18 (measured on 20 reviews, extrapolated), saved 85%**.
 Optional 3-second cut to `results/eval_summary.md`'s decision table.
 **Say:** "Every call is metered. Running everything on Ultra with thinking would cost $2.18 for this briefing;
-routing costs 32 cents. We chose each model by evaluation: Lightning without thinking missed too much,
-Lightning with thinking took 66 seconds a review, and Super without thinking was the sweet spot."
+routing costs 32 cents. On 30 real reviews I labeled by hand, the cheap models scored close to each other; Super
+without thinking was clearly better on the larger test sets and on severity, sentiment and department, for about
+32 cents more per thousand reviews. So we ship Super, even though our pre-set rule picked Lightning by a narrow
+margin, and the README says so."
 
 ### 8 · Live mode and close (2:35–2:45)
 **Action:** click **Live** to show the upload panel and its limits, drop the sample CSV, and start it (show the
