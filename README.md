@@ -93,34 +93,73 @@ Each stage uses a different model on purpose, and the choice for each one comes 
 
 | Stage | Model on Token Factory | Thinking | Why |
 |---|---|---|---|
-| Extract | `nvidia/nemotron-3-super-120b-a12b` | off | Best quality per dollar that passed the pre-registered rule (below). |
+| Extract | `nvidia/nemotron-3-super-120b-a12b` | off | Chosen over the pre-registered rule's pick (Lightning, thinking off); see "Model choice" below. |
 | Trends | `nvidia/nemotron-3-super-120b-a12b` | **on** | Same top 3 as thinking off, but more specific headlines, for about $0.002 more. |
 | Investigate | `nvidia/Nemotron-3-Ultra-550b-a55b` | **on** | Multi-step tool use and reasoning over web evidence. Hard-capped at 4 searches per issue. |
 | Replies | `nvidia/Nemotron-3_5-Lightning` | off | Short, constrained drafts. Cheapest and fastest. |
 
 ### Extraction eval ([results/eval_summary.md](results/eval_summary.md))
 
-100 real hotel reviews (Datafiniti, used locally only) plus 160 synthetic reviews. The real reviews are scored
-against a **silver reference: Ultra with thinking ON**, i.e. the expensive all-Ultra baseline. The hand-label
-sheet had 0 rows labeled when this ran; `scripts/run_eval.py` switches to human labels automatically once ≥30
-rows are labeled. The synthetic reviews are scored against the aspects planted in code.
+**Evaluated on 30 real hotel reviews labeled by hand by the author (one labeler, so a sanity check, not ground
+truth).** The reviews come from Datafiniti and are used locally only.
 
-| config | neg-issue F1 vs silver (real) | neg-issue F1 vs planted (synthetic) | mean latency / review | JSON fail after retry | cost / 1k reviews |
+| config | aspect F1 | negative-issue F1 | sentiment agree | severity within 1 | cost per 1k reviews |
 |---|---|---|---|---|---|
-| Lightning, thinking off | 0.75 | 0.79 | 1.7 s | 0% | $0.09 |
-| Lightning, thinking on | 0.89 | 0.91 | **65.9 s** | 1.5% | $1.23 |
-| **Super, thinking off** ✔ | **0.80** | **0.86** | 1.4 s | 0% | **$0.40** |
-| Ultra, thinking off | 0.88* | 0.93 | 1.6 s | 0% | $1.34 |
-| Ultra, thinking on (reference) | — | — | 5.5 s | 0% | $4.27 |
+| lightning_off | 0.70 | 0.55 | 87% | 81% | $0.085 |
+| super_off (shipped) | 0.72 | 0.57 | 91% | 88% | $0.409 |
+| ultra_off | 0.77 | 0.65 | 88% | 84% | $1.349 |
+| lightning_on (thinking) | 0.77 | 0.63 | 88% | 84% | $1.325 (29 reviews scored) |
 
-\* inflated: same model as the reference.
+Aspect F1 matches aspect names per review. Negative-issue F1 matches (aspect, negative) pairs, which is what
+feeds the issue ranking. Sentiment and severity are scored on aspects that both the config and the labeler found.
+lightning_on failed JSON on one labeled review even after a retry, so it was scored on 29.
 
-**Rule (fixed before the final run):** take the cheapest config with ≤2% JSON failures that recovers at least 2 of
-the reference's top-3 issues on every reference, and whose negative-issue F1 is within 0.10 of the best config
-(Ultra excluded from "best" because it is the reference). Lightning thinking-off is 5× cheaper but falls short on
-review-level quality. Lightning thinking-on matches Ultra's quality but reasons about 4,700 tokens per short review
-and is about 45× slower. **Super with thinking off** is the sweet spot. The original plan had been Lightning; the
-data changed it.
+**Counts on real data are approximate.** Counts shown in the briefing are computed in code from model labels, not
+by the model. Against the human labels the count error was 47% for the shipped config (sum of per-aspect count
+differences divided by the human-labeled negative mentions), so treat real-data counts as approximate.
+
+Two secondary references, with their caveats:
+
+*Silver reference: Ultra with thinking ON on 100 real reviews* (the expensive all-Ultra baseline). This measures how
+close a cheaper config gets to that baseline, not accuracy.
+
+| config | aspect F1 | negative-issue F1 | sentiment agree | severity within 1 | dept agree |
+|---|---|---|---|---|---|
+| lightning_off | 0.79 | 0.73 | 95% | 97% | 77% |
+| super_off (shipped) | 0.86 | 0.80 | 98% | 98% | 87% |
+| ultra_off | 0.95* | 0.88* | 97% | 98% | 94% |
+| lightning_on (thinking) | 0.93 | 0.88 | 98% | 100% | 95% |
+
+\* inflated: same model as the reference. lightning_on was scored on 98 of 100.
+
+*Synthetic: 120 reviews with aspects planted in code.* Recall is the meaningful number here, because the review
+writer may add aspects beyond the planted ones, and those count as false positives.
+
+| config | aspect recall | aspect F1 | negative-issue F1 | dept agree |
+|---|---|---|---|---|
+| lightning_off | 0.78 | 0.74 | 0.80 | 79% |
+| super_off (shipped) | 0.92 | 0.81 | 0.89 | 89% |
+| ultra_off | 0.92 | 0.83 | 0.92 | 92% |
+| lightning_on (thinking) | 0.91 | 0.83 | 0.89 | 92% |
+
+**Synthetic scores are higher than real-review scores and should not be read as real-world accuracy.** The same
+goes for silver. For the shipped config, negative-issue F1 is 0.89 on synthetic, 0.80 against silver and 0.57
+against the human labels.
+
+Reliability over all 220 eval reviews: every config had 0% JSON failure after one retry except lightning_on (1.4%).
+Mean latency per review was 1.94 s (ultra_off), 3.23 s (super_off), 3.78 s (lightning_off) and 58.77 s
+(lightning_on); see [FEEDBACK.md](FEEDBACK.md) on thinking mode.
+
+#### Model choice
+
+The rule was fixed before the final run. It takes the cheapest config that fails JSON on at most 2% of reviews,
+recovers at least 2 of the reference's top-3 negative aspects on every reference, and has negative-issue F1 within
+0.10 of the best config against human labels (best = 0.65, ultra_off). It selected **lightning_off**, by a narrow
+margin: 0.093 below the best, against a limit of 0.10. **We ship super_off instead, which deviates from the
+rule.** 30 labels cannot separate the two (0.55 vs 0.57). super_off is clearly better on the larger comparison sets
+(negative-issue F1 0.80 vs 0.73 against silver, 0.89 vs 0.80 on synthetic). It is also better on severity (88% vs
+81% within 1 on human labels), sentiment (91% vs 87%) and department agreement (87% vs 77% against silver). The cost
+difference is about $0.32 per 1,000 reviews.
 
 ### Trends eval ([results/eval_trends.md](results/eval_trends.md))
 
@@ -284,12 +323,14 @@ spend cap trips, when keys are missing, or when Token Factory is unreachable.
 
 ## Limitations (honest)
 
-- **No human-labeled ground truth yet.** Extraction quality was measured against Ultra-with-thinking (silver) and
-  against synthetic planted aspects. Neither substitutes for a hotel professional's labels; re-run
-  `run_eval.py` once the label sheet is filled in.
+- **Human labels are thin.** 30 real reviews were labeled by one person (the author, not a hotel professional).
+  That is a sanity check, not ground truth, and too few to separate close configs. Re-run `run_eval.py` as more
+  rows of the label sheet are filled in.
 - **The headline validation is on synthetic data**, written by a Nemotron model from a known plan. Real reviews
-  are messier. The pipeline handles glued manager replies and "...More" truncation, but how well it ranks issues
-  on a real hotel's reviews is untested.
+  are messier, and scores on them are lower (negative-issue F1 0.57 against human labels for the shipped config).
+  The pipeline handles glued manager replies and "...More" truncation. On the 30 hand-labeled reviews it recovered
+  2 of the top-3 negative aspects, with a 47% count error. How well it ranks issues over time on one real hotel's
+  reviews is untested.
 - **Root causes are hypotheses.** Tavily's basic search returns some low-quality pages (social posts, listicles).
   The agent cites what it found and labels confidence, but it can over-read a coincidence, such as a festival
   that happens to fall in the same weeks.

@@ -90,3 +90,15 @@ Newest entries at the bottom. Do not rewrite earlier entries.
   rather than give an independent outside cause. The demo was re-annotated offline (scripts/annotate_demo.py):
   two uncited issue-3 sources (Yelp, Expedia) changed kind; no model or search calls.
 - Mold is always scored severity 5 by the extraction rubric, so a cosmetic mention can be over-escalated.
+
+## 2026-10-28 - thinking mode for bulk extraction (final eval run, 30 human labels)
+- Lightning with thinking ON (`lightning_on`) over the 220 eval reviews (100 real + 120 synthetic): 1,123,804
+  reasoning tokens, 20.5% JSON failure on the first try (1.4% after one retry), 58.77 s mean latency per review,
+  1645 s wall time. Cost $1.325 per 1k reviews vs $0.085 for thinking off.
+- What that buys: negative-issue F1 vs the human labels 0.63 vs 0.55 (+0.076 unrounded; lightning_on scored on 29
+  of the 30 labeled reviews). It also failed the issue-level check vs human labels (1/3 top-3 overlap).
+- Reasoning tokens count against `max_tokens` and are billed as output (`completion_tokens` includes them), so a
+  thinking call can run out of budget before it writes the JSON. For bulk extraction, thinking off is the right
+  default; a bigger model with thinking off gets the same quality for the same money (ultra_off 0.65 at $1.349).
+- The pre-set rule picked lightning_off against human labels; we ship super_off anyway. The reasons and the
+  deviation are in the README's "Model choice". Earlier entries above describe the silver-only run.
