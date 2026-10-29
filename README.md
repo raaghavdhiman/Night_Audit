@@ -12,6 +12,8 @@ models on **Nebius Token Factory** and **Tavily** for runtime web search.
 - **Demo video:** `<link>`
 - **License:** MIT (see [LICENSE](LICENSE))
 
+**To try it:** open the live demo (the free host sleeps when idle, so the first load can take up to a minute). *Sample briefing* is the full demo edition: no sign-in, no model calls, no limits. *Run your own* runs the real pipeline on a CSV of up to 150 reviews (the page has a synthetic sample file to download); live mode is rate-limited and has a shared spending cap. *Under the hood* shows the model routing and the cost bill.
+
 The app has four tabs:
 
 - **Home:** what Night Audit does, one issue from the sample briefing, and plain answers about data and limits.
@@ -58,10 +60,10 @@ The app has four tabs:
 | **Investigation** | For each issue, Nemotron Ultra runs a capped Tavily search loop and returns root-cause **hypotheses** (labeled as such, with a confidence level and an external/internal tag), evidence with numbered citations, 3 prioritized actions with owning department and timeframe, and a line on what to tell guests. |
 | **Escalations** | Severity-5 incidents (pests, theft, injury) are pulled out separately, so a single report is never lost in the averages. |
 | **Replies for approval** | Drafts for the most severe negative reviews. Approve, edit, discard, or copy. Nothing is sent anywhere. |
-| **Guest folio** | Every model call is metered: tokens, reasoning tokens, seconds and cost per stage, compared against an all-Ultra baseline that was measured, not assumed. |
+| **Guest folio** | Every model call is metered: tokens, reasoning tokens, seconds and cost per stage, compared against an all-Ultra baseline measured on a 20-review sample and extrapolated. |
 | **The ledger** | All 11 aspects × 8 weeks, counted in pandas. |
 
-Two modes: **Demo edition** (cached real run, instant, zero cost, can replay the run's live progress) and
+Two modes: **Demo edition** (the cached output of a real pipeline run on the synthetic reviews: instant, zero cost, can replay the run's live progress) and
 **Live** (upload a CSV of up to 150 reviews; streams progress over SSE; rate-limited and spend-capped).
 
 ## How it works
@@ -93,7 +95,7 @@ Each stage uses a different model on purpose, and the choice for each one comes 
 
 | Stage | Model on Token Factory | Thinking | Why |
 |---|---|---|---|
-| Extract | `nvidia/nemotron-3-super-120b-a12b` | off | Chosen over the pre-registered rule's pick (Lightning, thinking off); see "Model choice" below. |
+| Extract | `nvidia/nemotron-3-super-120b-a12b` | off | Chosen over the pre-set rule's pick (Lightning, thinking off); see "Model choice" below. |
 | Trends | `nvidia/nemotron-3-super-120b-a12b` | **on** | Same top 3 as thinking off, but more specific headlines, for about $0.002 more. |
 | Investigate | `nvidia/Nemotron-3-Ultra-550b-a55b` | **on** | Multi-step tool use and reasoning over web evidence. Hard-capped at 4 searches per issue. |
 | Replies | `nvidia/Nemotron-3_5-Lightning` | off | Short, constrained drafts. Cheapest and fastest. |
@@ -226,7 +228,7 @@ Requirements: Python 3.11+ (tested locally on 3.13 and 3.14; the Docker image us
 
 **Windows (PowerShell)**
 ```powershell
-git clone <repo-url> night-audit; cd night-audit
+git clone https://github.com/raaghavdhiman/Night_Audit.git night-audit; cd night-audit
 py -3 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements-dev.txt
@@ -237,7 +239,7 @@ uvicorn src.api:app --port 8000
 
 **macOS / Linux (bash)**
 ```bash
-git clone <repo-url> night-audit && cd night-audit
+git clone https://github.com/raaghavdhiman/Night_Audit.git night-audit && cd night-audit
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
 cp .env.example .env               # then edit .env and paste your keys
@@ -259,7 +261,7 @@ one real call per model (PowerShell: `$env:RUN_LIVE=1; pytest tests/test_live_mo
 |---|---|---|
 | `NEBIUS_API_KEY` | (required for live) | Nebius Token Factory key |
 | `TAVILY_API_KEY` | (required for live) | Tavily key |
-| `SPEND_CAP_USD` | `5` | Hard cap on estimated live spend. When it is reached, live mode switches off and the UI falls back to the demo. |
+| `SPEND_CAP_USD` | `5` | Hard cap on estimated live spend. It is a running total, not a daily budget, so it does not reset by itself. When it is reached, live mode switches off and the UI falls back to the demo. |
 | `PER_IP_DAILY_RUNS` | `3` | Live runs per visitor IP per UTC day (IPs are stored hashed) |
 | `GLOBAL_DAILY_RUNS` | `30` | Live runs per day across everyone |
 | `MAX_CONCURRENT_RUNS` | `2` | Simultaneous live runs |
@@ -282,7 +284,7 @@ python scripts/build_demo.py         # real pipeline + 20-review all-Ultra basel
 ```
 `run_eval.py` reads your hand labels from `data/eval/label_sheet.csv` (`aspect:sentiment:severity; ...` or `none`;
 check them with `scripts/check_labels.py`). It prints how many rows are labeled and says in the summary when fewer
-than 30 are. Each script prints a running dev-spend estimate. Total development spend was about $3.
+than 30 are. Each script prints a running dev-spend estimate. Total development spend was about $3.4 by the scripts' own running estimate.
 
 ## Deploying (Render, free)
 
@@ -311,6 +313,16 @@ spend cap trips, when keys are missing, or when Token Factory is unreachable.
 - Keys are read from the environment only, never logged, and never sent to the browser. Missing keys produce a
   loud startup banner (live mode off) or, with `STRICT_KEYS=1`, a refusal to start.
 - Security headers include a strict CSP (no third-party scripts; fonts are self-hosted from npm).
+
+## What happens to uploaded reviews (live mode)
+
+Read from the code (the Home page FAQ lists the same points):
+
+- The upload is read into memory and parsed; the server does not save it. (Uploads over 1 MiB may be spooled to a temporary file by the web framework; this comes from reading the library source, not from observing it.)
+- Review text and titles are sent to Nemotron models on Nebius Token Factory (extraction, trends, investigation, replies). Retention is governed by Nebius's own terms.
+- Tavily receives only web-search queries, at most 4 per issue. A model writes them and is asked to include the city. It can see the hotel name and guest quotes, and nothing in the code stops either appearing in a query. Retention is governed by Tavily's own terms.
+- The server keeps a 7-day cache of Tavily results, daily run counts under a hashed IP, and the spend total. It logs a failed run's error and the spend total, and uvicorn's default access log is on. Reply drafts you edit are saved in your browser's localStorage.
+- Don't upload reviews you are not allowed to process with third-party services.
 
 ## Data and licensing
 
@@ -348,7 +360,13 @@ spend cap trips, when keys are missing, or when Token Factory is unreachable.
   configured.
 - Very small uploads (under about 4 weeks or under about 50 reviews) give weak trend signals. The UI still works,
   but "vs before" comparisons are noisy.
+- **Hotels with few complaints.** When a hotel has little to complain about, the ranking rests on very few mentions (a live test on a well-reviewed hotel showed issues with 3, 4 and 1 negative mentions). The app flags issues with fewer than 5 mentions as small samples and says so in the headline when all of them are, but it does not hide them.
+- **A cause and a guest quote on the same card can be unrelated.** The quote is an example from the reviews; the cause comes from web research. They are labeled separately on live results, and the cause is a hypothesis either way.
 - English only.
+
+## Credits
+
+Built solo by Rajat Dhiman for the Nebius × NVIDIA Global AI Hackathon. The code was written with AI coding assistance (Claude Code); the product direction, the review of results and the 30 hand labels are the author's.
 
 ## Repository map
 
@@ -358,6 +376,7 @@ src/            config (models, clients, call_model) · cost_tracker · ingest �
 scripts/        probe_api · run_eval · gen_synthetic · eval_trends · build_demo
                 (+ the original explore_data / make_eval_sampler / make_label_sheet / check_labels / smoke_test)
 frontend/       React + Vite + TypeScript broadsheet UI
+docs/           screenshots used in this README
 data/synthetic/ reviews.csv · ground_truth.json · demo_result.json   (committed)
 results/        eval_summary.md · eval_trends.md · eval_decision.json (committed; raw jsonl gitignored)
 tests/          pytest suite
