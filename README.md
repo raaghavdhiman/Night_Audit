@@ -352,8 +352,10 @@ Read from the code (the Home page FAQ lists the same points):
   days old.
 - **Mold is always scored severity 5**, so a cosmetic mention ("a little mold on the shower grout") can be
   escalated like a health hazard. Check the excerpt before acting on a mold escalation.
-- **Costs are estimates** from list prices. Billing reasoning tokens at the output rate is an assumption not yet
-  checked against an invoice. Tavily credits are shown but not converted to dollars.
+- **Costs are estimates** from list prices. They were checked against the Nebius usage page: one live run showed
+  about $0.14 actual against a $0.141 estimate, and over the whole project the estimates ran about 7% above the
+  actual. A separate VAT charge appeared and I could not confirm whether credits cover it. Tavily credits are shown
+  but not converted to dollars.
 - **The baseline is extrapolated** from a 20-review all-Ultra sample (extraction scales per review; investigation
   per issue; replies per draft).
 - **Limits are per process.** Run one worker. On Render's free tier, counters reset on restart unless Upstash is

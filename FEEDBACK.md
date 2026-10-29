@@ -1,9 +1,47 @@
-# FEEDBACK / running notes
+# Feedback for Nebius, NVIDIA and Tavily
+
+I built Night Audit solo, with Claude Code writing most of the code. This is what I ran into using Token Factory,
+the Nemotron models and Tavily, written for the teams behind them. The raw build notes are further down.
+
+## What worked well
+
+- **Native tool calling on Nemotron Ultra worked on the first try.** I had planned a fallback where my own code calls
+  Tavily and hands the results to the model, and I never needed it. Ultra chose its own queries, used up to four
+  searches per issue and cited pages that Tavily had actually returned.
+- **The thinking switch is a great control.** Turning thinking off (`chat_template_kwargs: {enable_thinking: false}`)
+  is what made bulk extraction cheap: about $0.41 per 1,000 reviews with Super, against $1.32 per 1,000 with
+  Lightning's thinking on.
+- **Costs stayed tiny.** A full briefing on 600 reviews cost $0.32, and the whole project about $3.4 by my own tracking.
+
+## What tripped me up
+
+1. **Reasoning tokens eat `max_tokens`.** My first smoke test used `max_tokens=500`. The reasoning models spent it
+   on thinking and gave back cut-off answers (`finish_reason` was "length"). A line on the model cards and in the
+   docs saying reasoning tokens count against `max_tokens`, with a suggested budget, would have saved me a round of
+   debugging.
+2. **Thinking on is expensive for bulk work.** Lightning with thinking on used 1.12 million reasoning tokens over
+   220 short reviews, failed JSON on 20% of first tries and took 27 minutes, for a small quality gain (negative-issue
+   F1 0.63 against 0.55). It would help if the model card said plainly that thinking is for hard problems, not
+   extraction, and gave an example token count.
+3. **The base URL differs by model.** Lightning is served from `api.tokenfactory.nebius.com`, Super and Ultra from
+   the `us-central1` host, so I needed one client per URL. It is easy to miss when copying snippets. One endpoint, or
+   the base URL shown right next to the model name everywhere, would help.
+4. **Billing was hard to reconcile.** I compared my cost estimates with the usage page. One live run moved the
+   balance from $0.12 to $0.26 ($0.14) against my estimate of $0.141, and over the whole project my estimates ran about
+   7% above the actual. That fits reasoning tokens being billed as output. But a separate $0.51 of VAT appeared and I
+   could not tell whether free credits cover tax. It would help to say that clearly, and to show reasoning tokens as
+   their own line on the usage page if that is not already possible.
+5. **Tavily results for generic queries included junk** (author pages, Instagram reels), and publish dates were
+   mostly missing, so I could not filter by date properly. For a review set from years ago, today's pages explain
+   nothing, and I had to handle staleness myself. More reliable dates, or a recency filter that works for older
+   topics, would make that much easier.
+
+---
+
+# Build log (raw notes)
 
 Append-only log of findings while building Night Audit (Nebius x NVIDIA hackathon).
 Newest entries at the bottom. Do not rewrite earlier entries.
-
----
 
 ## 2026-10-25 - repo inspection (Claude)
 - FEEDBACK.md, .gitignore, .env.example, requirements.txt and LICENSE did not exist yet; created them.
