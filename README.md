@@ -362,5 +362,4 @@ data/synthetic/ reviews.csv · ground_truth.json · demo_result.json   (committe
 results/        eval_summary.md · eval_trends.md · eval_decision.json (committed; raw jsonl gitignored)
 tests/          pytest suite
 FEEDBACK.md     running build notes (findings, failures, decisions)
-DEMO_SCRIPT.md  2:45 shot list for the demo video
 ```
