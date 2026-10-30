@@ -9,7 +9,7 @@ Built for the **Nebius × NVIDIA Global AI Hackathon, track "Best Apps and Agent
 models on **Nebius Token Factory** and **Tavily** for runtime web search.
 
 - **Live demo:** [night-audit.onrender.com](https://night-audit.onrender.com) (free, no sign-in; demo edition needs no model calls)
-- **Demo video:** `<link>`
+- **Demo video:** https://youtu.be/6Orv3PRVxTY
 - **License:** MIT (see [LICENSE](LICENSE))
 
 **To try it:** open the live demo (the free host sleeps when idle, so the first load can take up to a minute). *Sample briefing* is the full demo edition: no sign-in, no model calls, no limits. *Run your own* runs the real pipeline on a CSV of up to 150 reviews (the page has a synthetic sample file to download); live mode is rate-limited and has a shared spending cap. *Under the hood* shows the model routing and the cost bill.
